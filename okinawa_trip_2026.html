@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>沖繩旅行 2026 🌺</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky:#6ba3d6;--sea:#3a7fc1;--coral:#e8734a;
+  --sand:#f5e6c8;--green:#4a9e6b;--pale:#f8f4ef;
+  --text:#2c2c2a;--muted:#888;--border:#eee;
+}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--pale);color:var(--text);min-height:100vh}
+
+/* HERO */
+.hero{
+  background:linear-gradient(160deg,#1a4f8a 0%,#3a7fc1 45%,#6ba3d6 70%,#a8cce0 100%);
+  padding:3rem 1.5rem 3.5rem;text-align:center;position:relative;overflow:hidden
+}
+.hero::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:60px;
+  background:var(--pale);clip-path:ellipse(55% 100% at 50% 100%)
+}
+.hero-icon{font-size:52px;display:block;margin-bottom:0.5rem}
+.hero h1{
+  font-family:'Noto Serif TC',serif;font-size:2rem;color:#fff;
+  font-weight:600;letter-spacing:0.08em;text-shadow:0 2px 8px rgba(0,0,0,0.2)
+}
+.hero-sub{color:rgba(255,255,255,0.85);font-size:0.9rem;margin-top:0.4rem;font-weight:300}
+.hero-tags{display:flex;gap:8px;justify-content:center;margin-top:1rem;flex-wrap:wrap}
+.tag{
+  background:rgba(255,255,255,0.2);color:#fff;
+  border:1px solid rgba(255,255,255,0.4);
+  border-radius:20px;padding:4px 14px;font-size:12px
+}
+
+/* NAV */
+.nav-wrap{padding:1.2rem 1rem 0;overflow-x:auto;scrollbar-width:none}
+.nav-wrap::-webkit-scrollbar{display:none}
+.nav{display:flex;gap:4px;min-width:max-content}
+.nav-btn{
+  padding:9px 20px;border:none;background:transparent;
+  border-radius:20px 20px 0 0;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;
+  color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap
+}
+.nav-btn.active{background:#fff;color:var(--sea);font-weight:500;border-bottom:2px solid var(--sea)}
+.nav-btn:hover:not(.active){background:rgba(255,255,255,0.6)}
+
+/* CONTAINER */
+.container{
+  background:#fff;margin:0 1rem 2rem;
+  border-radius:0 12px 12px 12px;
+  padding:1.5rem;
+  box-shadow:0 2px 16px rgba(0,0,0,0.06)
+}
+
+/* TAB */
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* FLIGHT BANNER */
+.flight-banner{
+  background:linear-gradient(90deg,#1a4f8a,#3a7fc1);
+  border-radius:10px;padding:16px;color:#fff;margin-bottom:14px
+}
+.flight-banner.return{background:linear-gradient(90deg,#3a7fc1,#6ba3d6)}
+.f-route{font-size:1.5rem;font-weight:600;text-align:center;letter-spacing:0.15em}
+.f-detail{display:flex;justify-content:space-between;margin-top:8px;font-size:12px;opacity:0.85;flex-wrap:wrap;gap:4px}
+
+/* DAY SECTION */
+.day-block{margin-bottom:12px}
+.day-header{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 16px;
+  background:linear-gradient(90deg,var(--sea),var(--sky));
+  border-radius:10px;color:#fff;cursor:pointer;
+  user-select:none;transition:opacity 0.15s
+}
+.day-header:hover{opacity:0.92}
+.day-num{font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:600}
+.day-title{font-size:13px;opacity:0.9}
+.day-date{font-size:12px;opacity:0.75;margin-left:auto}
+.day-arrow{font-size:11px;margin-left:8px;transition:transform 0.2s}
+.day-arrow.open{transform:rotate(180deg)}
+.day-body{display:none;padding:4px 0 8px}
+.day-body.open{display:block}
+
+/* EVENTS */
+.event-row{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 10px;border-bottom:0.5px solid #f0ede8;
+  border-radius:6px;transition:background 0.15s;
+  cursor:default
+}
+.event-row.has-map{cursor:pointer}
+.event-row.has-map:hover{background:#f5f0ea}
+.event-time{
+  font-size:11px;color:var(--muted);
+  min-width:54px;padding-top:3px;
+  font-variant-numeric:tabular-nums;line-height:1.3
+}
+.event-icon{
+  width:30px;height:30px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0
+}
+.ic-food{background:#fde8dd}
+.ic-sight{background:#ddf0e8}
+.ic-hotel{background:#dde8f0}
+.ic-flight{background:#e8ddff}
+.ic-car{background:#fff8dd}
+.ic-other{background:#f0f0f0}
+.event-info{flex:1;min-width:0}
+.event-name{font-size:14px;font-weight:500;line-height:1.4}
+.event-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.map-pill{
+  font-size:11px;color:var(--sea);
+  border:1px solid var(--sky);border-radius:10px;
+  padding:3px 9px;white-space:nowrap;flex-shrink:0;
+  margin-top:2px
+}
+.empty-day{
+  text-align:center;padding:1.5rem 1rem;
+  color:#bbb;font-size:13px;
+  border:1px dashed #e0dbd3;border-radius:8px;margin:8px 0
+}
+
+/* EXPENSE */
+.expense-note{font-size:13px;color:var(--muted);margin-bottom:10px}
+.expense-frame{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.expense-frame iframe{width:100%;height:620px;border:none;display:block}
+.sync-note{font-size:12px;color:#bbb;text-align:center;margin-top:8px}
+
+/* INFO GRID */
+.info-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:10px;margin-bottom:1.5rem
+}
+@media(max-width:480px){.info-grid{grid-template-columns:repeat(2,1fr)}}
+.info-card{background:var(--pale);border-radius:10px;padding:14px;text-align:center}
+.ic-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+.ic-val{font-size:14px;font-weight:500}
+
+/* SECTION TITLE */
+.section-title{
+  font-family:'Noto Serif TC',serif;
+  font-size:1rem;color:var(--sea);
+  margin:1.4rem 0 0.7rem;
+  display:flex;align-items:center;gap:6px
+}
+.section-title::after{
+  content:'';flex:1;height:1px;background:linear-gradient(90deg,#c8dff0,transparent)
+}
+
+/* CHECKLIST */
+.checklist{list-style:none}
+.checklist li{
+  display:flex;gap:10px;
+  padding:9px 4px;
+  border-bottom:0.5px solid #f0ede8;
+  font-size:14px;align-items:flex-start
+}
+.checklist li::before{content:'○';color:#ccc;flex-shrink:0;margin-top:1px}
+
+/* HOTEL */
+.hotel-card{
+  border:1px solid var(--border);border-radius:10px;
+  padding:16px;margin-bottom:12px
+}
+.hotel-card h3{font-size:15px;font-weight:500;margin-bottom:8px}
+.hotel-meta{display:flex;gap:8px;flex-wrap:wrap}
+.hotel-meta span{
+  font-size:12px;color:#666;
+  background:#f5f5f5;padding:3px 10px;border-radius:10px
+}
+.btn-map{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:12px;padding:7px 16px;
+  background:var(--sea);color:#fff;border-radius:20px;
+  font-size:12px;text-decoration:none;cursor:pointer;border:none;
+  font-family:'Noto Sans TC',sans-serif;transition:opacity 0.15s
+}
+.btn-map:hover{opacity:0.88}
+
+/* LOADING */
+.loading{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:2rem;color:var(--muted);font-size:14px
+}
+.spinner{
+  width:20px;height:20px;border:2px solid #e0dbd3;
+  border-top-color:var(--sea);border-radius:50%;
+  animation:spin 0.8s linear infinite
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REFRESH BTN */
+.refresh-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;flex-wrap:wrap;gap:8px
+}
+.refresh-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border:1px solid var(--sea);
+  background:transparent;color:var(--sea);border-radius:20px;
+  font-size:12px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;
+  transition:all 0.15s
+}
+.refresh-btn:hover{background:var(--sea);color:#fff}
+.last-update{font-size:11px;color:#bbb}
+
+/* EXPENSE FORM */
+.expense-form-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:12px}
+.form-group{margin-bottom:1.2rem}
+.form-label{display:block;font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px}
+.form-input{
+  width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:10px;
+  font-family:'Noto Sans TC',sans-serif;font-size:15px;color:var(--text);
+  background:#fff;outline:none;transition:border 0.2s;-webkit-appearance:none
+}
+.form-input:focus{border-color:var(--sea)}
+.person-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.person-btn,.split-btn{
+  padding:10px 4px;border-radius:10px;font-family:'Noto Sans TC',sans-serif;
+  font-size:15px;font-weight:500;cursor:pointer;transition:all 0.15s;
+  border:2px solid #e0dbd3;background:#f8f4ef;color:#888
+}
+.person-btn.active{border-color:var(--sea);background:var(--sea);color:#fff}
+.split-btn.active{border-color:var(--green);background:var(--green);color:#fff}
+.form-hint{font-size:11px;color:#bbb;margin-top:6px}
+.submit-btn{
+  width:100%;padding:14px;background:var(--sea);color:#fff;border:none;
+  border-radius:12px;font-family:'Noto Sans TC',sans-serif;font-size:16px;
+  font-weight:500;cursor:pointer;transition:opacity 0.15s;margin-top:4px
+}
+.submit-btn:hover{opacity:0.9}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed}
+.view-sheet-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px;border:1px solid var(--border);border-radius:10px;
+  color:var(--sea);text-decoration:none;font-size:14px;
+  transition:background 0.15s
+}
+.view-sheet-btn:hover{background:#f0f8ff}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <span class="hero-icon">🌺</span>
+  <h1>沖繩旅行 2026</h1>
+  <p class="hero-sub">2026.04.29 — 05.03 ｜ 5天4夜</p>
+  <div class="hero-tags">
+    <span class="tag">✈ 日本航空 JAL</span>
+    <span class="tag">👫 4人同行</span>
+    <span class="tag">📍 那霸 OKA</span>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <div class="nav">
+    <button class="nav-btn active" onclick="switchTab('itinerary',this)">🗓 行程</button>
+    <button class="nav-btn" onclick="switchTab('expense',this)">💰 花費</button>
+    <button class="nav-btn" onclick="switchTab('hotel',this)">🏨 住宿</button>
+    <button class="nav-btn" onclick="switchTab('checklist',this)">✅ 行前</button>
+    <button class="nav-btn" onclick="switchTab('flight',this)">✈ 航班</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 行程 -->
+  <div class="tab-content active" id="tab-itinerary">
+    <div class="refresh-bar">
+      <span class="last-update" id="last-update-text">讀取中...</span>
+      <button class="refresh-btn" onclick="loadAllItinerary()">↻ 同步最新</button>
+    </div>
+    <div id="days-container"><div class="loading"><div class="spinner"></div>正在讀取行程資料...</div></div>
+  </div>
+
+  <!-- 花費 -->
+  <div class="tab-content" id="tab-expense">
+
+    <!-- 送出成功提示 -->
+    <div id="expense-success" style="display:none;background:#eaf3de;border:1px solid #c0dd97;border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:14px;color:#3b6d11;text-align:center">
+      ✅ 已記錄！Google Sheet 同步更新中...
+    </div>
+
+    <!-- 填寫單 -->
+    <div class="expense-form-card">
+
+      <!-- 日期 -->
+      <div class="form-group">
+        <label class="form-label">📅 日期</label>
+        <input type="date" id="exp-date" class="form-input" />
+      </div>
+
+      <!-- 項目 -->
+      <div class="form-group">
+        <label class="form-label">📝 項目名稱</label>
+        <input type="text" id="exp-item" class="form-input" placeholder="例：午餐、門票、停車費" />
+      </div>
+
+      <!-- 金額 + 幣別 -->
+      <div class="form-group">
+        <label class="form-label">💴 金額</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;border:1px solid #ddd;border-radius:10px;overflow:hidden;flex-shrink:0">
+            <button class="currency-btn active" id="btn-jpy" onclick="selectCurrency('JPY',this)" style="padding:12px 14px;border:none;background:#3a7fc1;color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:500;cursor:pointer">¥ 日幣</button>
+            <button class="currency-btn" id="btn-twd" onclick="selectCurrency('TWD',this)" style="padding:12px 14px;border:none;background:#f8f4ef;color:#888;font-family:'Noto Sans TC',sans-serif;font-size:14px;cursor:pointer">NT$ 台幣</button>
+          </div>
+          <input type="number" id="exp-amount" class="form-input" placeholder="例：2800" inputmode="numeric" style="flex:1" />
+        </div>
+      </div>
+
+      <!-- 付款人 -->
+      <div class="form-group">
+        <label class="form-label">💳 誰付的？</label>
+        <div class="person-grid">
+          <button class="person-btn" data-person="揚" onclick="selectPayer(this)">揚</button>
+          <button class="person-btn" data-person="茹" onclick="selectPayer(this)">茹</button>
+          <button class="person-btn" data-person="婷" onclick="selectPayer(this)">婷</button>
+          <button class="person-btn" data-person="旭" onclick="selectPayer(this)">旭</button>
+        </div>
+      </div>
+
+      <!-- 分攤 -->
+      <div class="form-group">
+        <label class="form-label">🤝 誰要分攤？</label>
+        <div class="person-grid">
+          <button class="split-btn active" data-person="揚" onclick="toggleSplit(this)">揚</button>
+          <button class="split-btn active" data-person="茹" onclick="toggleSplit(this)">茹</button>
+          <button class="split-btn active" data-person="婷" onclick="toggleSplit(this)">婷</button>
+          <button class="split-btn active" data-person="旭" onclick="toggleSplit(this)">旭</button>
+        </div>
+        <p class="form-hint">預設4人平分，點擊取消不需分攤的人</p>
+      </div>
+
+      <!-- 備註 -->
+      <div class="form-group">
+        <label class="form-label">💬 備註（選填）</label>
+        <input type="text" id="exp-note" class="form-input" placeholder="補充說明..." />
+      </div>
+
+      <!-- 送出 -->
+      <button class="submit-btn" id="submit-btn" onclick="submitExpense()">
+        記錄這筆花費 →
+      </button>
+
+    </div>
+
+    <!-- 查看 Sheet 連結 -->
+    <a href="https://docs.google.com/spreadsheets/d/1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY/edit#gid=1756595886" target="_blank" class="view-sheet-btn">
+      📊 查看完整花費表
+    </a>
+
+  </div>
+
+  <!-- 住宿 -->
+  <div class="tab-content" id="tab-hotel">
+    <div id="hotel-container"><div class="loading"><div class="spinner"></div>讀取住宿資料中...</div></div>
+  </div>
+
+  <!-- 行前 -->
+  <div class="tab-content" id="tab-checklist">
+    <div class="info-grid">
+      <div class="info-card"><div class="ic-label">目的地</div><div class="ic-val">🇯🇵 沖繩</div></div>
+      <div class="info-card"><div class="ic-label">天氣</div><div class="ic-val">😎 18~23°C</div></div>
+      <div class="info-card"><div class="ic-label">天數</div><div class="ic-val">5天4夜</div></div>
+      <div class="info-card"><div class="ic-label">人數</div><div class="ic-val">4人</div></div>
+    </div>
+    <p class="section-title">🪪 必備證件</p>
+    <ul class="checklist">
+      <li>機票（列印或手機版）</li>
+      <li>護照（有效期限確認）</li>
+      <li>身分證</li>
+      <li>簽證資料</li>
+      <li>國際駕照 / 日文譯本</li>
+      <li>台胞證</li>
+      <li>外幣現金（日圓）</li>
+      <li>信用卡</li>
+      <li>2吋大頭照</li>
+    </ul>
+    <p class="section-title">📋 行前辦理</p>
+    <ul class="checklist">
+      <li>申請 Visit Japan Web（入境快速通關）</li>
+      <li>申請駕照日文譯本（公路局）</li>
+      <li>了解日本退稅方式</li>
+      <li>購買旅平險</li>
+      <li>購買 SIM 卡或 eSIM</li>
+    </ul>
+    <p class="section-title">🧳 行李清單</p>
+    <ul class="checklist">
+      <li>登機箱（7KG / 56×36×23cm 以內）</li>
+      <li>隨身包</li>
+      <li>衣物收納壓縮袋</li>
+      <li>盥洗用品收納包</li>
+      <li>化妝包</li>
+      <li>環保購物袋</li>
+      <li>行李箱束帶</li>
+      <li>行李電子秤</li>
+      <li>手機掛繩</li>
+      <li>頸枕</li>
+    </ul>
+  </div>
+
+  <!-- 航班 -->
+  <div class="tab-content" id="tab-flight">
+    <div class="flight-banner">
+      <div class="f-route">TPE ✈ OKA</div>
+      <div class="f-detail">
+        <span>🛫 2026年4月29日（二）</span>
+        <span>日本航空 JAL</span>
+        <span>10:05 → 12:35</span>
+      </div>
+    </div>
+    <div class="flight-banner return">
+      <div class="f-route">OKA ✈ TPE</div>
+      <div class="f-detail">
+        <span>🛬 2026年5月3日（六）</span>
+        <span>日本航空 JAL</span>
+        <span>08:25 → 09:05</span>
+      </div>
+    </div>
+    <p class="section-title">🧳 行李規定</p>
+    <ul class="checklist">
+      <li>隨身行李：7KG，56×36×23cm 以內，2件（隨身包＋登機箱）</li>
+      <li>托運行李：依票種確認</li>
+    </ul>
+    <p class="section-title">💡 注意事項</p>
+    <ul class="checklist">
+      <li>出發前 24 小時可辦理網路 Check-in</li>
+      <li>Visit Japan Web 預先填寫入境資料，抵達後掃描 QR 快速通關</li>
+      <li>建議提前 2.5 小時抵達機場</li>
+    </ul>
+    <p style="margin-top:1.2rem">
+      <a class="btn-map" href="https://maps.google.com/?q=那霸空港" target="_blank">📍 那霸機場地圖</a>
+      <a class="btn-map" style="margin-left:8px;background:#e8734a" href="https://maps.google.com/?q=桃園國際機場" target="_blank">📍 桃園機場地圖</a>
+    </p>
+  </div>
+
+</div>
+
+<script>
+// ── 設定 ──────────────────────────────────────────────
+
+// 各分頁 gid（打開 Sheet 各分頁後網址列的 gid 數字）
+// ⚠️ 請把下面的 gid 換成你實際的分頁編號！
+// 方法：在 Google Sheet 點開分頁，看瀏覽器網址 &gid=XXXXXXX
+const GID = {
+  itinerary_d1: '202449681',   // 行程表_D1
+  itinerary_d2: '793926690',   // 行程表_D2
+  itinerary_d3: '132787083',   // 行程表_D3
+  itinerary_d4: '1366341329',  // 行程表_D4
+  itinerary_d5: '451018843',   // 行程表_D5
+  hotel:        '1233567320',  // 住宿表
+};
+
+// 天的設定
+const DAY_CONFIG = [
+  {key:'itinerary_d1', label:'Day 1', date:'4/29 (二)', title:'台灣 → 沖繩'},
+  {key:'itinerary_d2', label:'Day 2', date:'4/30 (三)', title:'沖繩探索'},
+  {key:'itinerary_d3', label:'Day 3', date:'5/1 (四)',  title:'沖繩深度遊'},
+  {key:'itinerary_d4', label:'Day 4', date:'5/2 (五)',  title:'最後衝刺購物'},
+  {key:'itinerary_d5', label:'Day 5', date:'5/3 (六)',  title:'沖繩 → 台灣'},
+];
+
+// ── Google Visualization API（繞過 CORS）─────────────
+const SPREADSHEET_KEY = '1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY';
+
+function fetchSheet(gid){
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + gid + '_' + Date.now();
+    const url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_KEY + '/gviz/tq?tqx=out:json&tq=select%20*&gid=' + gid + '&callback=' + cbName;
+    const script = document.createElement('script');
+    window[cbName] = function(data) {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      try {
+        const cols = data.table.cols.map(function(c){ return c.label || ''; });
+        const rows = [cols];
+        for(const row of data.table.rows){
+          if(!row || !row.c) continue;
+          const cells = row.c.map(function(cell){
+            if(!cell || cell.v === null || cell.v === undefined) return '';
+            return String(cell.v);
+          });
+          rows.push(cells);
+        }
+        resolve(rows);
+      } catch(e){ reject(e); }
+    };
+    script.onerror = function() {
+      delete window[cbName];
+      reject(new Error('載入失敗'));
+    };
+    script.src = url;
+    document.head.appendChild(script);
+  });
+}
+
+async function fetchCSV(gid){ return fetchSheet(gid); }
+
+// ── 圖示對應 ───────────────────────────────────────────
+function typeIcon(type){
+  const t = (type||'').toLowerCase();
+  if(t.includes('餐')||t.includes('食')||t.includes('吃')) return {cls:'ic-food',icon:'🍱'};
+  if(t.includes('景')||t.includes('觀光')||t.includes('寺')||t.includes('公園')) return {cls:'ic-sight',icon:'⛩'};
+  if(t.includes('住')||t.includes('飯店')||t.includes('check')) return {cls:'ic-hotel',icon:'🏨'};
+  if(t.includes('機')||t.includes('航')) return {cls:'ic-flight',icon:'✈'};
+  if(t.includes('車')||t.includes('交通')||t.includes('租')) return {cls:'ic-car',icon:'🚗'};
+  if(t.includes('購')||t.includes('買')||t.includes('逛')) return {cls:'ic-sight',icon:'🛍'};
+  return {cls:'ic-other',icon:'📍'};
+}
+
+// ── 渲染行程 ───────────────────────────────────────────
+function renderDay(cfg, rows, isFirst){
+  // rows[0] 是標題列，rows[1..] 是資料
+  // 欄位：0=時間, 1=離開時間, 2=區域, 3=類型, 4=行程, 5=說明, 6=地點, 7=交通/停留時間, 8=交通花費, 9=備註
+  const dataRows = rows.slice(1).filter(r => r[4] && r[4].trim());
+
+  const bodyId = `day-body-${cfg.key}`;
+  const arrowId = `arrow-${cfg.key}`;
+
+  let eventsHtml = '';
+  if(dataRows.length === 0){
+    eventsHtml = `<div class="empty-day">尚未填入行程，在 Google Sheet 的行程表中新增後重新整理即可同步 🗓</div>`;
+  } else {
+    for(const r of dataRows){
+      const time    = r[0]||'';
+      const type    = r[3]||'';
+      const name    = r[4]||'';
+      const desc    = r[5]||'';
+      const place   = r[6]||'';
+      const note    = r[9]||'';
+      const {cls,icon} = typeIcon(type);
+
+      // Google Maps 搜尋連結
+      const mapQuery = place || name;
+      const mapUrl = mapQuery ? `https://maps.google.com/?q=${encodeURIComponent(mapQuery)}` : '';
+
+      const descText = [desc, note].filter(Boolean).join('｜');
+
+      eventsHtml += `
+        <div class="event-row${mapUrl?' has-map':''}" ${mapUrl?`onclick="openMap('${mapUrl}')"`:''}">
+          <div class="event-time">${time}</div>
+          <div class="event-icon ${cls}">${icon}</div>
+          <div class="event-info">
+            <div class="event-name">${name}</div>
+            ${descText?`<div class="event-desc">${descText}</div>`:''}
+          </div>
+          ${mapUrl?'<div class="map-pill">地圖</div>':''}
+        </div>`;
+    }
+  }
+
+  return `
+    <div class="day-block">
+      <div class="day-header" onclick="toggleDay('${bodyId}','${arrowId}')">
+        <span class="day-num">${cfg.label}</span>
+        <span class="day-title">${cfg.title}</span>
+        <span class="day-date">${cfg.date}</span>
+        <span class="day-arrow${isFirst?' open':''}" id="${arrowId}">▼</span>
+      </div>
+      <div class="day-body${isFirst?' open':''}" id="${bodyId}">
+        ${eventsHtml}
+      </div>
+    </div>`;
+}
+
+async function loadAllItinerary(){
+  const container = document.getElementById('days-container');
+  const updateText = document.getElementById('last-update-text');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>讀取行程資料中...</div>';
+
+  try {
+    const results = await Promise.all(DAY_CONFIG.map(cfg => fetchCSV(GID[cfg.key])));
+    let html = '';
+    DAY_CONFIG.forEach((cfg, i) => {
+      html += renderDay(cfg, results[i], i === 0);
+    });
+    container.innerHTML = html;
+    const now = new Date();
+    updateText.textContent = `最後更新：${now.toLocaleTimeString('zh-TW')}`;
+  } catch(e){
+    container.innerHTML = `
+      <div class="empty-day">
+        讀取失敗 😢<br><br>
+        請確認：<br>
+        1. Google Sheet 已設定「發布到網路」<br>
+        2. 分頁 gid 編號填寫正確（參考說明）<br><br>
+        <small style="color:#aaa">錯誤：${e.message}</small>
+      </div>`;
+    updateText.textContent = '讀取失敗';
+  }
+}
+
+// ── 渲染住宿 ───────────────────────────────────────────
+async function loadHotel(){
+  const container = document.getElementById('hotel-container');
+  try {
+    const rows = await fetchCSV(GID.hotel);
+    const dataRows = rows.slice(1).filter(r => r.some(c => c && c.trim()));
+    if(dataRows.length === 0){
+      container.innerHTML = `
+        <div class="hotel-card">
+          <h3>📍 住宿資料</h3>
+          <p style="font-size:13px;color:var(--muted);margin-top:6px">尚未填入住宿，在 Google Sheet 的「住宿表」分頁新增後重新整理即同步。</p>
+          <a class="btn-map" href="https://www.google.com/maps/search/沖繩+那霸+酒店" target="_blank">📍 Google Maps 找飯店</a>
+        </div>`;
+      return;
+    }
+    // 欄位：0=空, 1=連結, 2=住宿名, 3=區域, 4=價格, 5=大小, 6=距地鐵, 7=距機場, 8=備註
+    let html = '';
+    for(const r of dataRows){
+      const name   = r[2]||'';
+      const area   = r[3]||'';
+      const price  = r[4]||'';
+      const size   = r[5]||'';
+      const metro  = r[6]||'';
+      const link   = r[1]||'';
+      const note   = r[8]||'';
+      if(!name) continue;
+      html += `
+        <div class="hotel-card">
+          <h3>🏨 ${name}</h3>
+          <div class="hotel-meta">
+            ${area?`<span>📍 ${area}</span>`:''}
+            ${price?`<span>💴 ${price}</span>`:''}
+            ${size?`<span>📐 ${size}</span>`:''}
+            ${metro?`<span>🚇 ${metro}</span>`:''}
+          </div>
+          ${note?`<p style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6">${note}</p>`:''}
+          <a class="btn-map" href="https://maps.google.com/?q=${encodeURIComponent(name+' '+area)}" target="_blank">📍 Google Maps</a>
+          ${link?`<a class="btn-map" style="margin-left:8px;background:#e8734a" href="${link}" target="_blank">🔗 訂房連結</a>`:''}
+        </div>`;
+    }
+    container.innerHTML = html || '<div class="empty-day">住宿資料讀取完成，但尚無有效資料。</div>';
+  } catch(e){
+    container.innerHTML = `<div class="empty-day">讀取住宿失敗，請確認 gid 設定正確。</div>`;
+  }
+}
+
+// ── UI 工具 ────────────────────────────────────────────
+function toggleDay(bodyId, arrowId){
+  const body = document.getElementById(bodyId);
+  const arrow = document.getElementById(arrowId);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function openMap(url){ window.open(url,'_blank'); }
+
+function switchTab(name, btn){
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── 啟動 ───────────────────────────────────────────────
+loadAllItinerary();
+loadHotel();
+
+
+// ── 花費表單 ────────────────────────────────────────────
+// ⚠️ 填入你的 Google Apps Script Web App 網址
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFkezcjyRZg5dc6C7R6XfHDcfGobD-Rl7-Jif74Ox_NYXsn_OgV6Ws--CYX3r6BEyroA/exec';
+
+let selectedPayer = '';
+let selectedCurrency = 'JPY';
+
+// 預設今天日期
+window.addEventListener('DOMContentLoaded', () => {
+  const d = document.getElementById('exp-date');
+  if(d) d.value = new Date().toISOString().split('T')[0];
+});
+
+function selectPayer(btn){
+  document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPayer = btn.dataset.person;
+}
+
+function selectCurrency(cur, btn){
+  selectedCurrency = cur;
+  document.getElementById('btn-jpy').style.background = cur === 'JPY' ? '#3a7fc1' : '#f8f4ef';
+  document.getElementById('btn-jpy').style.color = cur === 'JPY' ? '#fff' : '#888';
+  document.getElementById('btn-twd').style.background = cur === 'TWD' ? '#3a7fc1' : '#f8f4ef';
+  document.getElementById('btn-twd').style.color = cur === 'TWD' ? '#fff' : '#888';
+}
+
+function toggleSplit(btn){
+  btn.classList.toggle('active');
+}
+
+async function submitExpense(){
+  const date   = document.getElementById('exp-date').value;
+  const item   = document.getElementById('exp-item').value.trim();
+  const amount = document.getElementById('exp-amount').value;
+  const note   = document.getElementById('exp-note').value.trim();
+
+  if(!date){ alert('請選擇日期'); return; }
+  if(!item){ alert('請填入項目名稱'); return; }
+  if(!amount || isNaN(amount)){ alert('請填入金額'); return; }
+  if(!selectedPayer){ alert('請選擇付款人'); return; }
+
+  const splits = {};
+  document.querySelectorAll('.split-btn').forEach(b => {
+    splits[b.dataset.person] = b.classList.contains('active');
+  });
+
+  const payload = { date, item, amount: Number(amount), currency: selectedCurrency, payer: selectedPayer, splits, note };
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 記錄中...';
+
+  // 用 JSONP 方式送出，可以確認真正成功
+  const cbName = 'expCb_' + Date.now();
+  const params = encodeURIComponent(JSON.stringify(payload));
+  const url = APPS_SCRIPT_URL + '?data=' + params + '&callback=' + cbName;
+
+  new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    const timer = setTimeout(() => {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('timeout'));
+    }, 10000);
+
+    window[cbName] = function(res) {
+      clearTimeout(timer);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      if(res && res.status === 'ok') resolve();
+      else reject(new Error(res && res.error ? res.error : 'unknown'));
+    };
+
+    script.onerror = () => {
+      clearTimeout(timer);
+      delete window[cbName];
+      reject(new Error('script error'));
+    };
+    script.src = url;
+    document.head.appendChild(script);
+  }).then(() => {
+    showSuccess(item, amount, selectedPayer);
+    resetForm();
+  }).catch(e => {
+    alert('送出失敗 😢\n請確認 Apps Script 已正確部署並授權\n\n錯誤：' + e.message);
+  }).finally(() => {
+    btn.disabled = false;
+    btn.textContent = '記錄這筆花費 →';
+  });
+}
+
+function showSuccess(item, amount, payer){
+  const el = document.getElementById('expense-success');
+  const symbol = selectedCurrency === 'JPY' ? '¥' : 'NT$';
+  el.innerHTML = '✅ 記錄成功！<br><span style="font-size:13px;opacity:0.85">「' + item + '」' + symbol + Number(amount).toLocaleString() + '，由 ' + payer + ' 付款</span>';
+  el.style.display = 'block';
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+function resetForm(){
+  document.getElementById('exp-item').value = '';
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-note').value = '';
+  document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.split-btn').forEach(b => b.classList.add('active'));
+  selectedPayer = '';
+  // 重設日期為今天
+  document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+  selectCurrency('JPY', null);
+}
+
+</script>
+
+<!-- ──────────────────────────────────────────────────────
+  📌 GID 設定說明（重要！打開網頁後行程讀不到請看這裡）
+  
+  步驟：
+  1. 打開你的 Google Sheet
+  2. 點開 "行程表_D1" 這個分頁
+  3. 看瀏覽器網址列最後的 gid=XXXXXXX
+  4. 把上方 JS 裡的 GID.itinerary_d1 換成那個數字
+  5. 其他分頁同理（D2, D3, D4, D5, 住宿表）
+  
+  範例網址：
+  .../edit#gid=1234567890  → 填 '1234567890'
+──────────────────────────────────────────────────────── -->
+
+</body>
+</html>

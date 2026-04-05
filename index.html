@@ -545,6 +545,9 @@ function fetchSheet(gid){
 function parseCSV(text){
   const rows = [];
   const lines = text.split('\n');
+  // 先找最大欄數
+  let maxCols = 0;
+  const parsed = [];
   for(const line of lines){
     if(!line.trim()) continue;
     const cells = [];
@@ -556,6 +559,12 @@ function parseCSV(text){
       else cur += c;
     }
     cells.push(cur.trim());
+    if(cells.length > maxCols) maxCols = cells.length;
+    parsed.push(cells);
+  }
+  // 補齊每行到最大欄數
+  for(const cells of parsed){
+    while(cells.length < maxCols) cells.push('');
     rows.push(cells);
   }
   return rows;
@@ -880,14 +889,15 @@ async function loadHotel(){
     }
     let html = '<div class="shop-grid">';
     dataRows.forEach((r, i) => {
-      const link    = r[iLink]   ||'';
-      const name    = r[iName]   ||'';
-      const area    = r[iArea]   ||'';
-      const price   = r[iPrice]  ||'';
-      const size    = r[iSize]   ||'';
-      const metro   = r[iMetro]  ||'';
-      const airport = r[iAirport]||'';
-      const note    = r[iNote]   ||'';
+      const get = (i) => (i >= 0 && i < r.length) ? (r[i]||'') : '';
+      const link    = get(iLink);
+      const name    = get(iName);
+      const area    = get(iArea);
+      const price   = get(iPrice);
+      const size    = get(iSize);
+      const metro   = get(iMetro);
+      const airport = get(iAirport);
+      const note    = get(iNote);
       const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(name+' '+area)}`;
 
       html += `

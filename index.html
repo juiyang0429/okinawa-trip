@@ -151,6 +151,8 @@ body{
 }
 .tl-ampm{font-size:10px;color:var(--muted);margin-bottom:2px;}
 .tl-clock{font-size:18px;font-weight:700;color:var(--tokusa-blue);font-family:'Noto Serif TC',serif;line-height:1.2;}
+.tl-clock-end{font-size:13px;font-weight:500;color:var(--muted);line-height:1.2;margin-top:1px;}
+.tl-clock-end::before{content:'↓ ';font-size:10px;}
 .tl-type-badge{
   display:inline-flex;align-items:center;gap:4px;
   font-size:11px;color:var(--muted);margin-top:6px;
@@ -600,13 +602,16 @@ async function loadShopping(){
         };
         const name = getName(1);
         if(!name || name === '(商品名稱)') continue;
+        const storeName = getName(3).replace('📍','').replace('(店名)','').trim();
+        const imgCell   = getName(7); // 圖片行，目前為佔位
         items.push({
           name,
+          store:   storeName,
           desc:    getName(2),
-          store:   getName(3).replace('📍','').trim(),
           addr:    getName(4).replace('地址：','').trim(),
           hours:   getName(5).replace('營業時間：','').trim(),
           price:   getName(6).replace('價格：','').trim(),
+          img:     imgCell.startsWith('http') ? convertDriveUrl(imgCell) : '',
         });
       }
     }
@@ -631,22 +636,25 @@ async function loadShopping(){
       const mapUrl = item.store || item.addr
         ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store + ' ' + item.addr)
         : '';
+      // title：有店名就顯示「店名 - 品名」，沒有就只顯示品名
+      const displayTitle = item.store ? `${item.store}－ ${item.name}` : item.name;
+
       html += `
         <div class="shop-item">
           <div class="shop-title" onclick="toggleShop(${i})">
             <div class="shop-title-left">
               <div class="shop-title-icon">${typeIcon(item.name)}</div>
               <div>
-                <div class="shop-name">${item.name}</div>
+                <div class="shop-name">${displayTitle}</div>
                 ${item.price ? `<div class="shop-price-preview">${item.price}</div>` : ''}
               </div>
             </div>
             <span class="shop-arrow" id="shop-arrow-${i}">▼</span>
           </div>
           <div class="shop-detail" id="shop-detail-${i}">
+            ${item.img ? `<img src="${item.img}" style="width:100%;border-radius:8px;margin:12px 0 8px;object-fit:cover;max-height:200px" onerror="this.style.display='none'">` : ''}
             ${item.desc ? `<p class="shop-desc">${item.desc}</p>` : ''}
             <div class="shop-meta">
-              ${item.store  ? `<div class="shop-meta-row"><span class="shop-meta-label">📍 店名</span><span class="shop-meta-value">${item.store}</span></div>` : ''}
               ${item.addr   ? `<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">${item.addr}</span></div>` : ''}
               ${item.hours  ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${item.hours}</span></div>` : ''}
               ${item.price  ? `<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">${item.price}</span></div>` : ''}
@@ -729,12 +737,14 @@ function renderTimeline(rows){
   };
 
   // 動態找欄位，有對應就用，沒有就用預設位置
-  const tIdx  = findCol('抵達') >= 0 ? findCol('抵達') : 0;
-  const tyIdx = findCol('類型') >= 0 ? findCol('類型') : 3;
-  const nIdx  = findCol('行程') >= 0 ? findCol('行程') : 4;
-  const dIdx  = findCol('說明') >= 0 ? findCol('說明') : 5;
-  const pIdx  = findCol('地點') >= 0 ? findCol('地點') : 6;
-  const noIdx = findCol('備註') >= 0 ? findCol('備註') : 9;
+  const tIdx    = findCol('抵達') >= 0 ? findCol('抵達') : 0;
+  const tEndIdx = findCol('離開') >= 0 ? findCol('離開') : 1;
+  const tyIdx   = findCol('類型') >= 0 ? findCol('類型') : 3;
+  const nIdx    = findCol('行程') >= 0 ? findCol('行程') : 4;
+  const dIdx    = findCol('說明') >= 0 ? findCol('說明') : 5;
+  const pIdx    = findCol('地點') >= 0 ? findCol('地點') : 6;
+  const urlIdx  = findCol('地址連結','連結','網址') >= 0 ? findCol('地址連結','連結','網址') : 7;
+  const noIdx   = findCol('備註') >= 0 ? findCol('備註') : 9;
 
   // 從 header 下一行開始，過濾掉「行程」欄位空白的行
   const dataRows = rows.slice(headerIdx + 1).filter(r => {
@@ -751,23 +761,28 @@ function renderTimeline(rows){
 
   let html = '<div class="timeline">';
   for(const r of dataRows){
-    const rawTime = r[tIdx]||''
-    const type  = r[tyIdx]||''
-    const name  = r[nIdx]||''
-    const desc  = r[dIdx]||''
-    const place = r[pIdx]||''
-    const note  = r[noIdx]||''
-    const {ampm, clock} = formatTime(rawTime);
+    const rawTime    = r[tIdx]   || '';
+    const rawTimeEnd = r[tEndIdx]|| '';
+    const type  = r[tyIdx] || '';
+    const name  = r[nIdx]  || '';
+    const desc  = r[dIdx]  || '';
+    const place = r[pIdx]  || '';
+    const link  = r[urlIdx]|| '';
+    const note  = r[noIdx] || '';
+    const {ampm, clock}       = formatTime(rawTime);
+    const {clock: clockEnd}   = formatTime(rawTimeEnd);
     const typeClass = getTypeClass(type);
     const label = typeLabel(type);
-    const mapQuery = place || name;
-    const mapUrl = mapQuery ? `https://maps.google.com/?q=${encodeURIComponent(mapQuery)}` : '';
+    // 地圖：優先用 sheet 的地址連結，沒有才用地點名稱搜尋
+    const mapUrl = link.startsWith('http') ? link
+                 : (place||name) ? `https://maps.google.com/?q=${encodeURIComponent(place||name)}` : '';
 
     html += `
       <div class="tl-item ${typeClass}">
         <div class="tl-time-box">
           ${ampm?`<div class="tl-ampm">${ampm}</div>`:''}
           <div class="tl-clock">${clock}</div>
+          ${clockEnd&&clockEnd!=='--:--'?`<div class="tl-clock-end">${clockEnd}</div>`:''}
           ${label?`<div class="tl-type-badge">${label}</div>`:''}
         </div>
         <div class="tl-content">
@@ -824,19 +839,56 @@ async function loadHotel(){
   const container = document.getElementById('hotel-container');
   try {
     const rows = await fetchCSV(GID.hotel);
-    const dataRows = rows.slice(1).filter(r => r.some(c => c && c.trim()));
+    // 欄位：A=空, B=連結, C=住宿名, D=區域, E=價格, F=大小, G=距地鐵, H=距機場, I=備註
+    const dataRows = rows.slice(1).filter(r => r[2] && r[2].trim());
     if(dataRows.length === 0){
-      container.innerHTML = `<div class="hotel-card"><h3>📍 住宿資料</h3><p style="font-size:13px;color:var(--muted);margin-top:6px">尚未填入住宿資料。</p></div>`;
+      container.innerHTML = `<div class="shop-empty">尚未填入住宿資料 🏨<br><span style="font-size:12px">在 Google Sheet 的「住宿表」新增後重新整理</span></div>`;
       return;
     }
-    let html = '';
-    for(const r of dataRows){
-      const name=r[2]||'',area=r[3]||'',price=r[4]||'',size=r[5]||'',metro=r[6]||'',link=r[1]||'',note=r[8]||'';
-      if(!name) continue;
-      html += `<div class="hotel-card"><h3>🏨 ${name}</h3><div class="hotel-meta">${area?`<span>📍 ${area}</span>`:''} ${price?`<span>💴 ${price}</span>`:''} ${size?`<span>📐 ${size}</span>`:''} ${metro?`<span>🚇 ${metro}</span>`:''}</div>${note?`<p style="font-size:13px;color:var(--muted);margin-top:10px;line-height:1.6">${note}</p>`:''}<div style="margin-top:4px"><a class="btn-map" href="https://maps.google.com/?q=${encodeURIComponent(name+' '+area)}" target="_blank">📍 Google Maps</a>${link?`<a class="btn-map coral" style="margin-left:8px" href="${link}" target="_blank">🔗 訂房連結</a>`:''}</div></div>`;
-    }
+    let html = '<div class="shop-grid">';
+    dataRows.forEach((r, i) => {
+      const link  = r[1]||'';
+      const name  = r[2]||'';
+      const area  = r[3]||'';
+      const price = r[4]||'';
+      const size  = r[5]||'';
+      const metro = r[6]||'';
+      const airport = r[7]||'';
+      const note  = r[8]||'';
+      const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(name+' '+area)}`;
+
+      html += `
+        <div class="shop-item">
+          <div class="shop-title" onclick="toggleShop('hotel-${i}')">
+            <div class="shop-title-left">
+              <div class="shop-title-icon">🏨</div>
+              <div>
+                <div class="shop-name">${name}</div>
+                <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
+                  ${area  ? `<span style="font-size:11px;background:var(--sand-beige);color:var(--muted);padding:2px 8px;border-radius:8px">📍 ${area}</span>` : ''}
+                  ${price ? `<span style="font-size:11px;background:var(--sand-beige);color:var(--coral-red);padding:2px 8px;border-radius:8px;font-weight:600">${price}</span>` : ''}
+                  ${size  ? `<span style="font-size:11px;background:var(--sand-beige);color:var(--muted);padding:2px 8px;border-radius:8px">${size}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <span class="shop-arrow" id="shop-arrow-hotel-${i}">▼</span>
+          </div>
+          <div class="shop-detail" id="shop-detail-hotel-${i}">
+            <div class="shop-meta" style="margin-top:12px">
+              ${metro   ? `<div class="shop-meta-row"><span class="shop-meta-label">🚇 地鐵</span><span class="shop-meta-value">${metro}</span></div>` : ''}
+              ${airport ? `<div class="shop-meta-row"><span class="shop-meta-label">✈ 機場</span><span class="shop-meta-value">${airport}</span></div>` : ''}
+              ${note    ? `<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${note}</span></div>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+              <button class="shop-map-btn" onclick="openMap('${mapUrl}')">📍 Google Maps</button>
+
+            </div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
     container.innerHTML = html;
-  } catch(e){ container.innerHTML = `<div class="empty-day">讀取住宿失敗。</div>`; }
+  } catch(e){ container.innerHTML = `<div class="shop-empty">讀取住宿失敗：${e.message}</div>`; }
 }
 
 function toggleDay(bodyId, arrowId){

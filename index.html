@@ -127,20 +127,21 @@ body{
 .refresh-btn-sm:hover{background:var(--tokusa-blue);color:#fff;border-color:var(--tokusa-blue);}
 
 /* TIMELINE */
-.timeline{position:relative;padding-left:20px;}
+.timeline{position:relative;padding-left:28px;}
 .timeline::before{
-  content:'';position:absolute;left:6px;top:8px;bottom:8px;
+  content:'';position:absolute;left:10px;top:24px;bottom:24px;
   width:2px;background:var(--border);border-radius:2px;
 }
 .tl-item{
   position:relative;display:flex;gap:14px;
-  padding:0 0 20px 16px;
+  padding:0 0 24px 0;
 }
 .tl-item::before{
-  content:'';position:absolute;left:-14px;top:18px;
-  width:10px;height:10px;border-radius:50%;
-  background:var(--tokusa-blue);border:2px solid #fff;
+  content:'';position:absolute;left:-18px;top:22px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--tokusa-blue);border:2.5px solid #fff;
   box-shadow:0 0 0 2px var(--tokusa-blue);z-index:1;
+  transform:translateX(-50%);
 }
 .tl-item:last-child{padding-bottom:4px;}
 .tl-time-box{
@@ -182,8 +183,8 @@ body{
 .hero-icon{font-size:28px;flex-shrink:0;}
 .hero h1{font-family:'Noto Serif TC',serif;font-size:1.3rem;color:#fff;font-weight:700;margin:0;white-space:nowrap;}
 .hero-sub{color:rgba(255,255,255,0.82);font-size:0.72rem;margin-top:2px;font-weight:300;white-space:nowrap;}
-.hero-actions{display:flex;gap:5px;flex-shrink:0;}
-.hero-action-btn{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:#fff;font-size:17px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.hero-actions{display:flex;gap:4px;flex-shrink:0;}
+.hero-action-btn{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:#fff;font-size:15px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .hero-action-btn.active{background:rgba(255,255,255,0.9);border-color:transparent;}
 .hero-action-btn:hover:not(.active){background:rgba(255,255,255,0.22);}
 
@@ -201,9 +202,104 @@ body{
   background:#fff;color:var(--tokusa-blue);
   border-color:transparent;box-shadow:0 2px 10px rgba(0,0,0,0.18);
 }
+.day-tab-hero:not(.active){
+  background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.75);
+}
 .day-tab-hero:hover:not(.active){background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);border-color:rgba(255,255,255,0.4);}
 .dth-date{font-size:11px;margin-bottom:3px;font-weight:500;}
 .dth-label{font-size:20px;font-weight:700;font-family:'Noto Serif TC',serif;line-height:1.1;}
+
+/* INTERACTIVE CHECKLIST */
+.cl-list{list-style:none;margin-bottom:8px;}
+.cl-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 8px;border-bottom:1px dashed var(--border);
+  cursor:pointer;border-radius:6px;transition:background 0.15s;
+  gap:12px;
+}
+.cl-item:hover{background:var(--sand-beige);}
+.cl-item-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.cl-item-text{font-size:14px;color:var(--text);}
+.cl-dots{display:flex;gap:5px;flex-shrink:0;}
+.cl-dot{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--border);background:#fff;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#fff;
+}
+.cl-dot.checked-揚{background:var(--tokusa-blue);border-color:var(--tokusa-blue);}
+.cl-dot.checked-茹{background:var(--coral-red);border-color:var(--coral-red);}
+.cl-dot.checked-婷{background:#805AD5;border-color:#805AD5;}
+.cl-dot.checked-旭{background:#D69E2E;border-color:#D69E2E;}
+
+/* POPUP */
+.cl-popup-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:100;
+}
+.cl-popup-box{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-radius:20px 20px 0 0;
+  padding:1.5rem;z-index:101;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.12);
+  animation:slideUp 0.25s ease-out;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cl-popup-title{
+  font-size:15px;font-weight:700;color:var(--tokusa-blue);
+  margin-bottom:1.2rem;font-family:'Noto Serif TC',serif;
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+}
+.cl-popup-persons{display:flex;flex-direction:column;gap:4px;margin-bottom:1.2rem;}
+.cl-person-row{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 8px;border-radius:10px;cursor:pointer;
+  transition:background 0.15s;font-size:15px;font-weight:500;
+}
+.cl-person-row:hover{background:var(--sand-beige);}
+.cl-circle{
+  width:26px;height:26px;border-radius:50%;
+  border:2px solid var(--border);background:#fff;
+  transition:all 0.2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.cl-circle.done{border-color:var(--tokusa-blue);background:var(--tokusa-blue);}
+.cl-circle.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
+.cl-popup-close{
+  width:100%;padding:13px;background:var(--tokusa-blue);color:#fff;
+  border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;
+}
+
+/* SHOPPING */
+.shop-grid{display:flex;flex-direction:column;gap:10px;}
+.shop-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;}
+.shop-title{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;cursor:pointer;transition:background 0.15s;
+  user-select:none;
+}
+.shop-title:hover{background:var(--sand-beige);}
+.shop-title-left{display:flex;align-items:center;gap:10px;}
+.shop-title-icon{width:34px;height:34px;border-radius:8px;background:var(--sand-beige);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.shop-name{font-size:15px;font-weight:700;color:var(--text);}
+.shop-price-preview{font-size:12px;color:var(--coral-red);font-weight:600;margin-top:2px;}
+.shop-arrow{font-size:11px;color:var(--muted);transition:transform 0.2s;}
+.shop-arrow.open{transform:rotate(180deg);}
+.shop-detail{display:none;padding:0 16px 16px;border-top:1px dashed var(--border);}
+.shop-detail.open{display:block;}
+.shop-desc{font-size:13px;color:var(--muted);line-height:1.6;margin:12px 0 10px;}
+.shop-meta{display:flex;flex-direction:column;gap:6px;}
+.shop-meta-row{display:flex;gap:8px;font-size:13px;align-items:flex-start;}
+.shop-meta-label{color:var(--muted);min-width:52px;flex-shrink:0;}
+.shop-meta-value{color:var(--text);flex:1;line-height:1.5;}
+.shop-map-btn{
+  display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  padding:7px 16px;background:var(--ocean-blue);color:#fff;
+  border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;
+  border:none;font-family:'Noto Sans TC',sans-serif;transition:opacity 0.15s;
+}
+.shop-map-btn:hover{opacity:0.85;}
+.shop-empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:14px;background:var(--sand-beige);border-radius:8px;}
 </style>
 </head>
 <body>
@@ -221,6 +317,7 @@ body{
       <button class="hero-action-btn active" onclick="heroTab('itinerary',this)">🗓</button>
       <button class="hero-action-btn" onclick="heroTab('expense',this)">💰</button>
       <button class="hero-action-btn" onclick="heroTab('hotel',this)">🏨</button>
+      <button class="hero-action-btn" onclick="heroTab('shopping',this)">🛍</button>
       <button class="hero-action-btn" onclick="heroTab('checklist',this)">✅</button>
       <button class="hero-action-btn" onclick="heroTab('flight',this)">✈</button>
     </div>
@@ -312,6 +409,13 @@ body{
     <div id="hotel-container"><div class="loading"><div class="spinner"></div>讀取住宿資料中...</div></div>
   </div>
 
+  <!-- 購物 -->
+  <div class="tab-content" id="tab-shopping">
+    <div id="shopping-container">
+      <div class="loading"><div class="spinner"></div>讀取購物清單中...</div>
+    </div>
+  </div>
+
   <div class="tab-content" id="tab-checklist">
     <div class="info-grid">
       <div class="info-card"><div class="ic-label">目的地</div><div class="ic-val">🇯🇵 沖繩</div></div>
@@ -319,27 +423,42 @@ body{
       <div class="info-card"><div class="ic-label">天數</div><div class="ic-val">5天4夜</div></div>
       <div class="info-card"><div class="ic-label">人數</div><div class="ic-val">4人</div></div>
     </div>
+
     <p class="section-title">🪪 必備證件</p>
-    <ul class="checklist">
-      <li>機票（列印或手機版）</li><li>護照（有效期限確認）</li><li>身分證</li>
-      <li>簽證資料</li><li>國際駕照 / 日文譯本</li><li>台胞證</li>
-      <li>外幣現金（日圓）</li><li>信用卡</li><li>2吋大頭照</li>
-    </ul>
+    <ul class="cl-list" id="cl-證件"></ul>
+
     <p class="section-title">📋 行前辦理</p>
-    <ul class="checklist">
-      <li>申請 Visit Japan Web（入境快速通關）</li>
-      <li>申請駕照日文譯本（公路局）</li>
-      <li>了解日本退稅方式</li>
-      <li>購買旅平險</li>
-      <li>購買 SIM 卡或 eSIM</li>
-    </ul>
+    <ul class="cl-list" id="cl-辦理"></ul>
+
     <p class="section-title">🧳 行李清單</p>
-    <ul class="checklist">
-      <li>登機箱（7KG / 56×36×23cm 以內）</li><li>隨身包</li>
-      <li>衣物收納壓縮袋</li><li>盥洗用品收納包</li><li>化妝包</li>
-      <li>環保購物袋</li><li>行李箱束帶</li><li>行李電子秤</li>
-      <li>手機掛繩</li><li>頸枕</li>
-    </ul>
+    <ul class="cl-list" id="cl-行李"></ul>
+
+    <!-- 彈出選人 popup -->
+    <div id="cl-popup" style="display:none">
+      <div class="cl-popup-backdrop" onclick="closePopup()"></div>
+      <div class="cl-popup-box">
+        <div class="cl-popup-title" id="cl-popup-title"></div>
+        <div class="cl-popup-persons">
+          <div class="cl-person-row" onclick="togglePerson(this,'揚')">
+            <div class="cl-circle" id="cp-揚"></div>
+            <span>揚</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'茹')">
+            <div class="cl-circle" id="cp-茹"></div>
+            <span>茹</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'婷')">
+            <div class="cl-circle" id="cp-婷"></div>
+            <span>婷</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'旭')">
+            <div class="cl-circle" id="cp-旭"></div>
+            <span>旭</span>
+          </div>
+        </div>
+        <button class="cl-popup-close" onclick="closePopup()">完成</button>
+      </div>
+    </div>
   </div>
 
   <div class="tab-content" id="tab-flight">
@@ -382,6 +501,7 @@ const GID = {
   itinerary_d4: '1366341329',
   itinerary_d5: '451018843',
   hotel:        '1233567320',
+  shopping:     '1421856772',
 };
 
 const DAY_CONFIG = [
@@ -449,6 +569,106 @@ function typeIcon(type){
   if(t.includes('車')||t.includes('交通')||t.includes('租')) return {cls:'ic-car',icon:'🚗'};
   if(t.includes('購')||t.includes('買')||t.includes('逛')) return {cls:'ic-sight',icon:'🛍'};
   return {cls:'ic-other',icon:'📍'};
+}
+
+
+// ── 購物清單 ──────────────────────────────────────────
+async function loadShopping(){
+  const container = document.getElementById('shopping-container');
+  if(!container) return;
+  try {
+    const rows = await fetchCSV(GID.shopping);
+    // 結構：每9行一組(含空行)，3欄並排 (col0,1 / col2,3 / col4,5)
+    // 行結構：0=必買商品, 1=商品名, 2=介紹, 3=店名, 4=地址, 5=營業時間, 6=價格, 7=圖片, 8=空行
+    const items = [];
+    const COLS = [[0,1],[2,3],[4,5]]; // 每組的[label col, value col]
+    const GROUP_SIZE = 9;
+
+    // 找資料起始行（跳過空行）
+    let startRow = 0;
+    for(let i=0;i<rows.length;i++){
+      if(rows[i] && rows[i][0] && rows[i][0].includes('必買')) { startRow=i; break; }
+    }
+
+    // 每9行為一輪，3欄各一個商品
+    for(let r = startRow; r < rows.length; r += GROUP_SIZE){
+      for(let colSet = 0; colSet < 3; colSet++){
+        const c = colSet * 2; // 欄起始 0, 2, 4
+        const getName = (offset) => {
+          const row = rows[r + offset];
+          return row ? (row[c] || row[c+1] || '').toString().trim() : '';
+        };
+        const name = getName(1);
+        if(!name || name === '(商品名稱)') continue;
+        items.push({
+          name,
+          desc:    getName(2),
+          store:   getName(3).replace('📍','').trim(),
+          addr:    getName(4).replace('地址：','').trim(),
+          hours:   getName(5).replace('營業時間：','').trim(),
+          price:   getName(6).replace('價格：','').trim(),
+        });
+      }
+    }
+
+    if(items.length === 0){
+      container.innerHTML = '<div class="shop-empty">尚未填入購物清單 🛍<br><span style="font-size:12px">在 Google Sheet 的「購物清單」分頁新增後重新整理</span></div>';
+      return;
+    }
+
+    const typeIcon = (name) => {
+      const n = name.toLowerCase();
+      if(n.includes('藥')||n.includes('保健')) return '💊';
+      if(n.includes('零食')||n.includes('糖')||n.includes('餅')) return '🍬';
+      if(n.includes('酒')||n.includes('泡盛')) return '🍶';
+      if(n.includes('化妝')||n.includes('美妝')||n.includes('護膚')) return '💄';
+      if(n.includes('衣')||n.includes('包')||n.includes('鞋')) return '👗';
+      return '🛍';
+    };
+
+    let html = '<div class="shop-grid">';
+    items.forEach((item, i) => {
+      const mapUrl = item.store || item.addr
+        ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store + ' ' + item.addr)
+        : '';
+      html += `
+        <div class="shop-item">
+          <div class="shop-title" onclick="toggleShop(${i})">
+            <div class="shop-title-left">
+              <div class="shop-title-icon">${typeIcon(item.name)}</div>
+              <div>
+                <div class="shop-name">${item.name}</div>
+                ${item.price ? `<div class="shop-price-preview">${item.price}</div>` : ''}
+              </div>
+            </div>
+            <span class="shop-arrow" id="shop-arrow-${i}">▼</span>
+          </div>
+          <div class="shop-detail" id="shop-detail-${i}">
+            ${item.desc ? `<p class="shop-desc">${item.desc}</p>` : ''}
+            <div class="shop-meta">
+              ${item.store  ? `<div class="shop-meta-row"><span class="shop-meta-label">📍 店名</span><span class="shop-meta-value">${item.store}</span></div>` : ''}
+              ${item.addr   ? `<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">${item.addr}</span></div>` : ''}
+              ${item.hours  ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${item.hours}</span></div>` : ''}
+              ${item.price  ? `<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">${item.price}</span></div>` : ''}
+            </div>
+            ${mapUrl ? `<button class="shop-map-btn" onclick="openMap('${mapUrl}')">📍 在地圖查看</button>` : ''}
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+
+  } catch(e){
+    container.innerHTML = `<div class="shop-empty">讀取失敗：${e.message}</div>`;
+  }
+}
+
+function toggleShop(i){
+  const detail = document.getElementById('shop-detail-' + i);
+  const arrow  = document.getElementById('shop-arrow-' + i);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
 }
 
 // ── 行程資料快取 ──
@@ -565,8 +785,8 @@ function renderTimeline(rows){
 
 function switchDay(idx, btn){
   currentDay = idx;
-  document.querySelectorAll('.day-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.day-tab-hero').forEach(b => b.classList.remove('active'));
+  document.getElementById('daytab-' + idx).classList.add('active');
   const cfg = DAY_CONFIG[idx];
   document.getElementById('dtb-date').textContent = cfg.date;
   document.getElementById('dtb-theme').textContent = cfg.title;
@@ -720,6 +940,88 @@ function resetForm(){
 
 loadAllItinerary();
 loadHotel();
+loadShopping();
+
+
+// ── 行前清單 ──────────────────────────────────────────
+const CHECKLIST_DATA = {
+  '證件': ['機票（列印或手機版）','護照（有效期限確認）','身分證','簽證資料','國際駕照 / 日文譯本','台胞證','外幣現金（日圓）','信用卡','2吋大頭照'],
+  '辦理': ['申請 Visit Japan Web（入境快速通關）','申請駕照日文譯本（公路局）','了解日本退稅方式','購買旅平險','購買 SIM 卡或 eSIM'],
+  '行李': ['登機箱（7KG / 56×36×23cm 以內）','隨身包','衣物收納壓縮袋','盥洗用品收納包','化妝包','環保購物袋','行李箱束帶','行李電子秤','手機掛繩','頸枕']
+};
+
+const PERSONS = ['揚','茹','婷','旭'];
+const PERSON_COLORS = {'揚':'tokusa','茹':'coral','婷':'purple','旭':'amber'};
+
+// 儲存勾選狀態 {itemText: Set of persons}
+const checkState = {};
+
+function buildChecklist(){
+  for(const [cat, items] of Object.entries(CHECKLIST_DATA)){
+    const ul = document.getElementById('cl-' + cat);
+    if(!ul) continue;
+    items.forEach(text => {
+      if(!checkState[text]) checkState[text] = new Set();
+      const li = document.createElement('li');
+      li.className = 'cl-item';
+      li.onclick = () => openPopup(text);
+      li.id = 'cl-item-' + encodeURIComponent(text);
+      li.innerHTML = `
+        <div class="cl-item-left">
+          <span class="cl-item-text">${text}</span>
+        </div>
+        <div class="cl-dots" id="cl-dots-${encodeURIComponent(text)}">
+          ${PERSONS.map(p => `<div class="cl-dot" id="cldot-${encodeURIComponent(text)}-${p}" title="${p}"></div>`).join('')}
+        </div>`;
+      ul.appendChild(li);
+    });
+  }
+}
+
+let currentPopupItem = null;
+
+function openPopup(text){
+  currentPopupItem = text;
+  document.getElementById('cl-popup-title').textContent = text;
+  // 更新圓圈狀態
+  PERSONS.forEach(p => {
+    const el = document.getElementById('cp-' + p);
+    if(!el) return;
+    const checked = checkState[text] && checkState[text].has(p);
+    el.classList.toggle('done', checked);
+  });
+  document.getElementById('cl-popup').style.display = 'block';
+}
+
+function closePopup(){
+  document.getElementById('cl-popup').style.display = 'none';
+  // 更新列表上的小點
+  if(currentPopupItem) updateDots(currentPopupItem);
+  currentPopupItem = null;
+}
+
+function togglePerson(row, person){
+  if(!currentPopupItem) return;
+  const set = checkState[currentPopupItem];
+  if(set.has(person)) set.delete(person);
+  else set.add(person);
+  const el = document.getElementById('cp-' + person);
+  if(el) el.classList.toggle('done', set.has(person));
+}
+
+function updateDots(text){
+  const set = checkState[text] || new Set();
+  PERSONS.forEach(p => {
+    const dot = document.getElementById('cldot-' + encodeURIComponent(text) + '-' + p);
+    if(!dot) return;
+    dot.className = 'cl-dot' + (set.has(p) ? ' checked-' + p : '');
+    dot.textContent = set.has(p) ? p[0] : '';
+  });
+}
+
+// 初始化
+document.addEventListener('DOMContentLoaded', buildChecklist);
+
 </script>
 </body>
 </html>

@@ -549,7 +549,7 @@ async function loadShopping(){
         +'</div></div>'
         +'<span class="shop-arrow" id="shop-arrow-'+i+'">▼</span></div>'
         +'<div class="shop-detail" id="shop-detail-'+i+'">'
-        +(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.style.display='none'">':'')
+        +(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">':'')
         +(item.desc?'<p class="shop-desc">'+esc(item.desc)+'</p>':'')
         +'<div class="shop-meta">'
         +(item.addr?'<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">'+esc(item.addr)+'</span></div>':'')

@@ -293,6 +293,7 @@ body{
 .shop-meta{display:flex;flex-direction:column;gap:6px;}
 .shop-meta-row{display:flex;gap:8px;font-size:13px;align-items:flex-start;}
 .shop-meta-label{color:var(--muted);min-width:52px;flex-shrink:0;}
+.hotel-label{min-width:60px;font-weight:600;color:var(--tokusa-blue);}
 .shop-meta-value{color:var(--text);flex:1;line-height:1.5;}
 .shop-map-btn{
   display:inline-flex;align-items:center;gap:6px;margin-top:12px;
@@ -516,6 +517,7 @@ const DAY_CONFIG = [
 
 const SPREADSHEET_KEY = '1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFkezcjyRZg5dc6C7R6XfHDcfGobD-Rl7-Jif74Ox_NYXsn_OgV6Ws--CYX3r6BEyroA/exec';
+const APP_TOKEN = 'okinawa2026';
 
 function fetchSheet(gid){
   return new Promise((resolve, reject) => {
@@ -586,6 +588,26 @@ function typeIcon(type){
 
 
 // ── 工具函數 ──
+
+// ── 安全工具 ──
+function esc(str){
+  if(!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;');
+}
+
+function formatAirport(text){
+  if(!text) return '';
+  // 以 1. 2. 3. 為分行點，轉成多行
+  const lines = text.split(/(?=\d+\.)/g).filter(s => s.trim());
+  if(lines.length <= 1) return text;
+  return lines.map(l => `<div style="margin-bottom:4px">${l.trim()}</div>`).join('');
+}
+
 function convertDriveUrl(url){
   if(!url) return '';
   // 從各種 Drive URL 格式提取 file ID
@@ -657,11 +679,13 @@ async function loadShopping(){
 
     let html = '<div class="shop-grid">';
     items.forEach((item, i) => {
-      const mapUrl = item.store || item.addr
-        ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store + ' ' + item.addr)
+      const rawStore = (item.store||'').replace(/<[^>]*>/g,'');
+      const rawAddr  = (item.addr||'').replace(/<[^>]*>/g,'');
+      const mapUrl = rawStore || rawAddr
+        ? 'https://maps.google.com/?q=' + encodeURIComponent(rawStore + ' ' + rawAddr)
         : '';
       // title：有店名就顯示「店名 - 品名」，沒有就只顯示品名
-      const displayTitle = item.store ? `${item.store}－ ${item.name}` : item.name;
+      const displayTitle = item.store ? `${esc(item.store)}－ ${esc(item.name)}` : esc(item.name);
 
       html += `
         <div class="shop-item">
@@ -670,18 +694,18 @@ async function loadShopping(){
               <div class="shop-title-icon">${typeIcon(item.name)}</div>
               <div>
                 <div class="shop-name">${displayTitle}</div>
-                ${item.price ? `<div class="shop-price-preview">${item.price}</div>` : ''}
+                ${item.price ? `<div class="shop-price-preview">${esc(item.price)}</div>` : ''}
               </div>
             </div>
             <span class="shop-arrow" id="shop-arrow-${i}">▼</span>
           </div>
           <div class="shop-detail" id="shop-detail-${i}">
             ${item.img ? `<img src="${item.img}" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.style.display='none'">` : ''}
-            ${item.desc ? `<p class="shop-desc">${item.desc}</p>` : ''}
+            ${item.desc ? `<p class="shop-desc">${esc(item.desc)}</p>` : ''}
             <div class="shop-meta">
-              ${item.addr   ? `<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">${item.addr}</span></div>` : ''}
-              ${item.hours  ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${item.hours}</span></div>` : ''}
-              ${item.price  ? `<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">${item.price}</span></div>` : ''}
+              ${item.addr   ? `<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">${esc(item.addr)}</span></div>` : ''}
+              ${item.hours  ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>` : ''}
+              ${item.price  ? `<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">${esc(item.price)}</span></div>` : ''}
             </div>
             ${mapUrl ? `<button class="shop-map-btn" onclick="openMap('${mapUrl}')">📍 在地圖查看</button>` : ''}
           </div>
@@ -805,15 +829,15 @@ function renderTimeline(rows){
       <div class="tl-item ${typeClass}">
         <div class="tl-time-box">
           ${ampm?`<div class="tl-ampm">${ampm}</div>`:''}
-          <div class="tl-clock">${clock}</div>
-          ${clockEnd&&clockEnd!=='--:--'?`<div class="tl-clock-end">${clockEnd}</div>`:''}
-          ${label?`<div class="tl-type-badge">${label}</div>`:''}
+          <div class="tl-clock">${esc(clock)}</div>
+          ${clockEnd&&clockEnd!=='--:--'?`<div class="tl-clock-end">${esc(clockEnd)}</div>`:''}
+          ${label?`<div class="tl-type-badge">${esc(label)}</div>`:''}
         </div>
         <div class="tl-content">
           <div class="tl-name">${name}</div>
-          ${place?`<div class="tl-place">${place}</div>`:''}
-          ${desc?`<div class="tl-desc">${desc}</div>`:''}
-          ${note&&note!==desc?`<div class="tl-desc">${note}</div>`:''}
+          ${place?`<div class="tl-place">${esc(place)}</div>`:''}
+          ${desc?`<div class="tl-desc">${esc(desc)}</div>`:''}
+          ${note&&note!==desc?`<div class="tl-desc">${esc(note)}</div>`:''}
           ${mapUrl?`<div class="tl-map-btn" onclick="openMap('${mapUrl}')">📍 在地圖查看</div>`:''}
         </div>
       </div>`;
@@ -908,7 +932,7 @@ async function loadHotel(){
             <div class="shop-title-left">
               <div class="shop-title-icon">🏨</div>
               <div>
-                <div class="shop-name">${name}</div>
+                <div class="shop-name">${esc(name)}</div>
                 <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">
                   ${area  ? `<span style="font-size:11px;background:var(--sand-beige);color:var(--muted);padding:2px 8px;border-radius:8px">📍 ${area}</span>` : ''}
                   ${price ? `<span style="font-size:11px;background:var(--sand-beige);color:var(--coral-red);padding:2px 8px;border-radius:8px;font-weight:600">${price}</span>` : ''}
@@ -920,9 +944,18 @@ async function loadHotel(){
           </div>
           <div class="shop-detail" id="shop-detail-hotel-${i}">
             <div class="shop-meta" style="margin-top:12px">
-              ${metro   ? `<div class="shop-meta-row"><span class="shop-meta-label">🚇 地鐵</span><span class="shop-meta-value">${metro}</span></div>` : ''}
-              ${airport ? `<div class="shop-meta-row"><span class="shop-meta-label">✈ 機場</span><span class="shop-meta-value">${airport}</span></div>` : ''}
-              ${note    ? `<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${note}</span></div>` : ''}
+              ${metro ? `<div class="shop-meta-row">
+                <span class="shop-meta-label hotel-label">🚇 地鐵</span>
+                <span class="shop-meta-value">${esc(metro)}</span>
+              </div>` : ''}
+              ${airport ? `<div class="shop-meta-row">
+                <span class="shop-meta-label hotel-label">✈️ 機場</span>
+                <span class="shop-meta-value">${formatAirport(esc(airport))}</span>
+              </div>` : ''}
+              ${note ? `<div class="shop-meta-row">
+                <span class="shop-meta-label hotel-label">📝 備註</span>
+                <span class="shop-meta-value">${esc(note)}</span>
+              </div>` : ''}
             </div>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
               <button class="shop-map-btn" onclick="openMap('${mapUrl}')">📍 Google Maps</button>
@@ -990,7 +1023,7 @@ async function submitExpense(){
   if(!selectedPayer){ alert('請選擇付款人'); return; }
   const splits = {};
   document.querySelectorAll('.split-btn').forEach(b => { splits[b.dataset.person] = b.classList.contains('active'); });
-  const payload = { date, item, amount: Number(amount), currency: selectedCurrency, payer: selectedPayer, splits, note };
+  const payload = { date, item, amount: Number(amount), currency: selectedCurrency, payer: selectedPayer, splits, note, token: APP_TOKEN };
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '⏳ 記錄中...';
   const cbName = 'expCb_' + Date.now();

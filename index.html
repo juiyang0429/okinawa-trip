@@ -574,6 +574,15 @@ function typeIcon(type){
 }
 
 
+// ── 工具函數 ──
+function convertDriveUrl(url){
+  if(!url) return '';
+  const m = url.match(/\/file\/d\/([^\/]+)/);
+  if(m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+  if(url.includes('drive.google.com/uc')) return url;
+  return url;
+}
+
 // ── 購物清單 ──────────────────────────────────────────
 async function loadShopping(){
   const container = document.getElementById('shopping-container');
@@ -840,21 +849,37 @@ async function loadHotel(){
   try {
     const rows = await fetchCSV(GID.hotel);
     // 欄位：A=空, B=連結, C=住宿名, D=區域, E=價格, F=大小, G=距地鐵, H=距機場, I=備註
-    const dataRows = rows.slice(1).filter(r => r[2] && r[2].trim());
+    // 找 header 行（含「住宿」或「連結」的那行）
+    let hIdx = 0;
+    for(let i=0;i<Math.min(rows.length,4);i++){
+      if(rows[i] && rows[i].some(c=>c&&(c.includes('住宿')||c.includes('連結')))){hIdx=i;break;}
+    }
+    const hRow = rows[hIdx]||[];
+    const fc = (...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
+    const iLink    = fc('連結')>=0?fc('連結'):1;
+    const iName    = fc('住宿')>=0?fc('住宿'):2;
+    const iArea    = fc('區域')>=0?fc('區域'):3;
+    const iPrice   = fc('價格')>=0?fc('價格'):4;
+    const iSize    = fc('大小')>=0?fc('大小'):5;
+    const iMetro   = fc('地鐵')>=0?fc('地鐵'):6;
+    const iAirport = fc('機場')>=0?fc('機場'):7;
+    const iNote    = fc('備註')>=0?fc('備註'):8;
+
+    const dataRows = rows.slice(hIdx+1).filter(r => r[iName] && r[iName].trim());
     if(dataRows.length === 0){
       container.innerHTML = `<div class="shop-empty">尚未填入住宿資料 🏨<br><span style="font-size:12px">在 Google Sheet 的「住宿表」新增後重新整理</span></div>`;
       return;
     }
     let html = '<div class="shop-grid">';
     dataRows.forEach((r, i) => {
-      const link  = r[1]||'';
-      const name  = r[2]||'';
-      const area  = r[3]||'';
-      const price = r[4]||'';
-      const size  = r[5]||'';
-      const metro = r[6]||'';
-      const airport = r[7]||'';
-      const note  = r[8]||'';
+      const link    = r[iLink]   ||'';
+      const name    = r[iName]   ||'';
+      const area    = r[iArea]   ||'';
+      const price   = r[iPrice]  ||'';
+      const size    = r[iSize]   ||'';
+      const metro   = r[iMetro]  ||'';
+      const airport = r[iAirport]||'';
+      const note    = r[iNote]   ||'';
       const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(name+' '+area)}`;
 
       html += `

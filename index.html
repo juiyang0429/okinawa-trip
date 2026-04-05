@@ -543,30 +543,32 @@ function fetchSheet(gid){
 }
 
 function parseCSV(text){
+  // 正確處理 RFC 4180 CSV，包含引號內的換行符
   const rows = [];
-  const lines = text.split('\n');
-  // 先找最大欄數
-  let maxCols = 0;
-  const parsed = [];
-  for(const line of lines){
-    if(!line.trim()) continue;
-    const cells = [];
-    let cur = '', inQ = false;
-    for(let i = 0; i < line.length; i++){
-      const c = line[i];
-      if(c === '"'){ inQ = !inQ; }
-      else if(c === ',' && !inQ){ cells.push(cur.trim()); cur = ''; }
-      else cur += c;
+  let cells = [];
+  let cur = '';
+  let inQ = false;
+  let i = 0;
+  while(i < text.length){
+    const c = text[i];
+    if(c === '"'){
+      if(inQ && text[i+1] === '"'){ cur += '"'; i += 2; continue; } // escaped quote
+      inQ = !inQ;
+      i++; continue;
     }
-    cells.push(cur.trim());
-    if(cells.length > maxCols) maxCols = cells.length;
-    parsed.push(cells);
+    if(c === ',' && !inQ){ cells.push(cur); cur = ''; i++; continue; }
+    if((c === '\n' || (c === '\r' && text[i+1] === '\n')) && !inQ){
+      cells.push(cur); cur = '';
+      if(c === '\r') i++;
+      if(cells.some(c => c.trim() !== '')) rows.push(cells);
+      cells = []; i++; continue;
+    }
+    cur += c; i++;
   }
+  if(cur || cells.length) { cells.push(cur); if(cells.some(c=>c.trim()!=='')) rows.push(cells); }
   // 補齊每行到最大欄數
-  for(const cells of parsed){
-    while(cells.length < maxCols) cells.push('');
-    rows.push(cells);
-  }
+  const maxCols = Math.max(...rows.map(r=>r.length));
+  for(const r of rows) while(r.length < maxCols) r.push('');
   return rows;
 }
 async function fetchCSV(gid){ return fetchSheet(gid); }

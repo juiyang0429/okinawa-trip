@@ -577,9 +577,13 @@ function typeIcon(type){
 // ── 工具函數 ──
 function convertDriveUrl(url){
   if(!url) return '';
-  const m = url.match(/\/file\/d\/([^\/]+)/);
-  if(m) return 'https://drive.google.com/uc?export=view&id=' + m[1];
-  if(url.includes('drive.google.com/uc')) return url;
+  // 從各種 Drive URL 格式提取 file ID
+  let fileId = '';
+  const m1 = url.match(/\/file\/d\/([^\/\?]+)/);
+  const m2 = url.match(/id=([^&]+)/);
+  if(m1) fileId = m1[1];
+  else if(m2) fileId = m2[1];
+  if(fileId) return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w600';
   return url;
 }
 
@@ -861,10 +865,13 @@ async function loadHotel(){
     const iArea    = fc('區域')>=0?fc('區域'):3;
     const iPrice   = fc('價格')>=0?fc('價格'):4;
     const iSize    = fc('大小')>=0?fc('大小'):5;
-    const iMetro   = fc('地鐵')>=0?fc('地鐵'):6;
-    const iAirport = fc('機場')>=0?fc('機場'):7;
+    const iMetro   = fc('距離地鐵','地鐵站','地鐵')>=0?fc('距離地鐵','地鐵站','地鐵'):6;
+    const iAirport = fc('距離機場','機場')>=0?fc('距離機場','機場'):7;
     const iNote    = fc('備註')>=0?fc('備註'):8;
 
+    console.log('hotel hIdx:', hIdx, 'hRow:', hRow);
+    console.log('iMetro:', iMetro, 'iAirport:', iAirport, 'iNote:', iNote);
+    console.log('all rows:', rows);
     const dataRows = rows.slice(hIdx+1).filter(r => r[iName] && r[iName].trim());
     if(dataRows.length === 0){
       container.innerHTML = `<div class="shop-empty">尚未填入住宿資料 🏨<br><span style="font-size:12px">在 Google Sheet 的「住宿表」新增後重新整理</span></div>`;

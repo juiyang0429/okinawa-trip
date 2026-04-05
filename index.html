@@ -463,26 +463,79 @@ async function loadShopping(){
   const c=document.getElementById('shopping-container');if(!c)return;
   try{
     const rows=await fetchCSV(GID.shopping);
-    const items=[],GS=9;
+    // Sheet 結構：每9行一組，3欄並排(col A=0,B=1 / col C=2,D=3 / col E=4,F=5)
+    // Row 0: 必買商品 (標題)
+    // Row 1: 商品名稱
+    // Row 2: 介紹 (這行的值是介紹文字)
+    // Row 3: 📍店名 (這行的值就是店名)
+    // Row 4: 地址：xxx
+    // Row 5: 營業時間：xxx
+    // Row 6: 價格：xxx
+    // Row 7: 圖片連結
+    // Row 8: 空行
+    // 關鍵：每個欄位的「標題」和「值」都在同一個儲存格！
+    // 例如 row 4 的 A 欄可能是「地址：台北」而不是只有「台北」
+
+    const items=[];
+    const GS=9;
     let sr=0;
-    for(let i=0;i<rows.length;i++){if(rows[i]&&rows[i][0]&&rows[i][0].includes('必買')){sr=i;break;}}
-    for(let r=sr;r<rows.length;r+=GS){
-      for(let co=0;co<3;co++){
-        const c2=co*2;
-        const gv=(off)=>{const row=rows[r+off];if(!row)return '';return(row[c2]||row[c2+1]||'').toString().trim();};
-        const name=gv(1);
-        if(!name||name==='(商品名稱)'||name==='必買商品')continue;
-        const store=gv(3).replace(/📍/g,'').replace(/\(店名\)/g,'').trim();
-        const addr=gv(4).replace(/^地址：/,'').replace(/\(地址\)/g,'').trim();
-        const hours=gv(5).replace(/^營業時間：/,'').replace(/\(營業時間\)/g,'').trim();
-        const price=gv(6).replace(/^價格：/,'').replace(/\(價格\)/g,'').trim();
-        const desc=gv(2).replace(/^介紹$/,'').trim();
-        const imgR=gv(7);
-        items.push({name,store,desc,addr,hours,price,img:imgR.startsWith('http')?convertDriveUrl(imgR):''});
+    for(let i=0;i<rows.length;i++){
+      if(rows[i]&&(rows[i][0]||rows[i][2]||rows[i][4])&&
+        ((rows[i][0]||'').includes('必買')||(rows[i][2]||'').includes('必買')||(rows[i][4]||'').includes('必買'))){
+        sr=i;break;
       }
     }
+
+    for(let r=sr;r<rows.length;r+=GS){
+      for(let co=0;co<3;co++){
+        const c2=co*2; // 0, 2, 4
+        const gv=(off)=>{
+          const row=rows[r+off];
+          if(!row)return '';
+          return (row[c2]||'').toString().trim();
+        };
+
+        const name=gv(1);
+        if(!name||name==='(商品名稱)'||name==='必買商品')continue;
+
+        // row 3: 整個儲存格是「📍ABC」這種格式，去掉📍就是店名
+        const storeRaw=gv(3).replace(/^📍\s*/,'').replace(/^\(店名\)$/,'').trim();
+
+        // row 4: 「地址：台北」→ 取冒號後面
+        const addrRaw=gv(4);
+        const addr=(addrRaw.includes('：')?addrRaw.split('：').slice(1).join('：'):addrRaw).replace(/^\(地址\)$/,'').trim();
+
+        // row 5: 「營業時間：13:00-15:00」→ 取冒號後面（注意時間裡也有冒號）
+        const hoursRaw=gv(5);
+        const hours=(hoursRaw.startsWith('營業時間')?hoursRaw.replace(/^營業時間[：:]\s*/,''):hoursRaw).replace(/^\(營業時間\)$/,'').trim();
+
+        // row 6: 「價格：$3134」→ 取冒號後面
+        const priceRaw=gv(6);
+        const price=(priceRaw.includes('：')?priceRaw.split('：').slice(1).join('：'):priceRaw).replace(/^\(價格\)$/,'').trim();
+
+        // row 2: 介紹（整個就是介紹文字，但有時候只有「介紹」這個字）
+        const descRaw=gv(2);
+        const desc=descRaw==='介紹'?'':descRaw;
+
+        // row 7: 圖片連結
+        const imgRaw=gv(7);
+        const img=(imgRaw.startsWith('http')&&!imgRaw.includes('(圖片'))?convertDriveUrl(imgRaw):'';
+
+        items.push({name,store:storeRaw,desc,addr,hours,price,img});
+      }
+    }
+
     if(!items.length){c.innerHTML='<div class="shop-empty">尚未填入購物清單 🛍</div>';return;}
-    const ti=(n)=>{const s=(n||'').toLowerCase();if(s.includes('藥')||s.includes('保健'))return '💊';if(s.includes('零食')||s.includes('糖')||s.includes('餅'))return '🍬';if(s.includes('酒'))return '🍶';if(s.includes('化妝')||s.includes('美妝'))return '💄';if(s.includes('衣')||s.includes('包')||s.includes('鞋'))return '👗';return '🛍';};
+
+    const ti=(n)=>{const s=(n||'').toLowerCase();
+      if(s.includes('藥')||s.includes('保健'))return '💊';
+      if(s.includes('零食')||s.includes('糖')||s.includes('餅'))return '🍬';
+      if(s.includes('酒'))return '🍶';
+      if(s.includes('化妝')||s.includes('美妝'))return '💄';
+      if(s.includes('衣')||s.includes('包')||s.includes('鞋'))return '👗';
+      return '🛍';
+    };
+
     let html='<div class="shop-grid">';
     items.forEach((item,i)=>{
       const dt=item.store?esc(item.store)+'－'+esc(item.name):esc(item.name);
@@ -496,19 +549,21 @@ async function loadShopping(){
         +'</div></div>'
         +'<span class="shop-arrow" id="shop-arrow-'+i+'">▼</span></div>'
         +'<div class="shop-detail" id="shop-detail-'+i+'">'
-        +(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.style.display=\'none\'">':'')
+        +(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.style.display='none'">':'')
         +(item.desc?'<p class="shop-desc">'+esc(item.desc)+'</p>':'')
         +'<div class="shop-meta">'
         +(item.addr?'<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">'+esc(item.addr)+'</span></div>':'')
         +(item.hours?'<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">'+esc(item.hours)+'</span></div>':'')
         +(item.price?'<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">'+esc(item.price)+'</span></div>':'')
         +'</div>'
-        +(mu?'<button class="shop-map-btn" onclick="openMap(\''+mu+'\')">📍 在地圖查看</button>':'')
+        +(mu?'<button class="shop-map-btn" onclick="openMap(''+mu+'')">📍 在地圖查看</button>':'')
         +'</div></div>';
     });
     c.innerHTML=html+'</div>';
   }catch(e){c.innerHTML='<div class="shop-empty">讀取失敗：'+e.message+'</div>';}
 }
+
+
 let selectedPayer='',selectedCurrency='JPY';
 window.addEventListener('DOMContentLoaded',()=>{const d=document.getElementById('exp-date');if(d)d.value=new Date().toISOString().split('T')[0];});
 function selectPayer(btn){document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedPayer=btn.dataset.person;}

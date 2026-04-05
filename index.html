@@ -665,7 +665,7 @@ async function loadShopping(){
             <span class="shop-arrow" id="shop-arrow-${i}">▼</span>
           </div>
           <div class="shop-detail" id="shop-detail-${i}">
-            ${item.img ? `<img src="${item.img}" style="width:100%;border-radius:8px;margin:12px 0 8px;object-fit:cover;max-height:200px" onerror="this.style.display='none'">` : ''}
+            ${item.img ? `<img src="${item.img}" style="width:100%;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.style.display='none'">` : ''}
             ${item.desc ? `<p class="shop-desc">${item.desc}</p>` : ''}
             <div class="shop-meta">
               ${item.addr   ? `<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">${item.addr}</span></div>` : ''}
@@ -873,6 +873,7 @@ async function loadHotel(){
     console.log('iMetro:', iMetro, 'iAirport:', iAirport, 'iNote:', iNote);
     console.log('all rows:', rows);
     const dataRows = rows.slice(hIdx+1).filter(r => r[iName] && r[iName].trim());
+    if(dataRows[0]) console.log('first data row:', dataRows[0], 'metro val:', dataRows[0][iMetro], 'airport val:', dataRows[0][iAirport]);
     if(dataRows.length === 0){
       container.innerHTML = `<div class="shop-empty">尚未填入住宿資料 🏨<br><span style="font-size:12px">在 Google Sheet 的「住宿表」新增後重新整理</span></div>`;
       return;

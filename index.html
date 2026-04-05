@@ -157,6 +157,30 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
 .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:3rem;color:var(--muted);font-size:14px}
 .spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--tokusa-blue);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* INTERACTIVE CHECKLIST */
+.cl-list{list-style:none;margin-bottom:8px;}
+.cl-item{display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-bottom:1px dashed var(--border);cursor:pointer;border-radius:6px;transition:background 0.15s;gap:12px;}
+.cl-item:hover{background:var(--sand-beige);}
+.cl-item-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.cl-item-text{font-size:14px;color:var(--text);}
+.cl-dots{display:flex;gap:5px;flex-shrink:0;}
+.cl-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;transition:all 0.2s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+.cl-dot.checked-揚{background:var(--tokusa-blue);border-color:var(--tokusa-blue);}
+.cl-dot.checked-茹{background:var(--coral-red);border-color:var(--coral-red);}
+.cl-dot.checked-婷{background:#805AD5;border-color:#805AD5;}
+.cl-dot.checked-旭{background:#D69E2E;border-color:#D69E2E;}
+.cl-popup-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:300;}
+.cl-popup-box{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:1.5rem;z-index:301;box-shadow:0 -4px 24px rgba(0,0,0,0.12);animation:slideUp 0.25s ease-out;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.cl-popup-title{font-size:15px;font-weight:700;color:var(--tokusa-blue);margin-bottom:1.2rem;font-family:'Noto Serif TC',serif;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.cl-popup-persons{display:flex;flex-direction:column;gap:4px;margin-bottom:1.2rem;}
+.cl-person-row{display:flex;align-items:center;gap:14px;padding:12px 8px;border-radius:10px;cursor:pointer;transition:background 0.15s;font-size:15px;font-weight:500;}
+.cl-person-row:hover{background:var(--sand-beige);}
+.cl-circle{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:#fff;transition:all 0.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.cl-circle.done{border-color:var(--tokusa-blue);background:var(--tokusa-blue);}
+.cl-circle.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
+.cl-popup-close{width:100%;padding:13px;background:var(--tokusa-blue);color:#fff;border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -235,25 +259,38 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
       <div class="info-card"><div class="ic-label">天數</div><div class="ic-val">5天4夜</div></div>
       <div class="info-card"><div class="ic-label">人數</div><div class="ic-val">4人</div></div>
     </div>
+
     <p class="section-title">🪪 必備證件</p>
-    <ul class="checklist">
-      <li>機票（列印或手機版）</li><li>護照（有效期限確認）</li><li>身分證</li>
-      <li>簽證資料</li><li>國際駕照 / 日文譯本</li><li>台胞證</li>
-      <li>外幣現金（日圓）</li><li>信用卡</li><li>2吋大頭照</li>
-    </ul>
+    <ul class="cl-list" id="cl-證件"></ul>
+
     <p class="section-title">📋 行前辦理</p>
-    <ul class="checklist">
-      <li>申請 Visit Japan Web（入境快速通關）</li>
-      <li>申請駕照日文譯本（公路局）</li>
-      <li>了解日本退稅方式</li><li>購買旅平險</li><li>購買 SIM 卡或 eSIM</li>
-    </ul>
+    <ul class="cl-list" id="cl-辦理"></ul>
+
     <p class="section-title">🧳 行李清單</p>
-    <ul class="checklist">
-      <li>登機箱（7KG / 56×36×23cm 以內）</li><li>隨身包</li>
-      <li>衣物收納壓縮袋</li><li>盥洗用品收納包</li><li>化妝包</li>
-      <li>環保購物袋</li><li>行李箱束帶</li><li>行李電子秤</li>
-      <li>手機掛繩</li><li>頸枕</li>
-    </ul>
+    <ul class="cl-list" id="cl-行李"></ul>
+
+    <!-- 彈出選人 popup -->
+    <div id="cl-popup" style="display:none">
+      <div class="cl-popup-backdrop" onclick="closePopup()"></div>
+      <div class="cl-popup-box">
+        <div class="cl-popup-title" id="cl-popup-title"></div>
+        <div class="cl-popup-persons">
+          <div class="cl-person-row" onclick="togglePerson(this,'揚')">
+            <div class="cl-circle" id="cp-揚"></div><span>揚</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'茹')">
+            <div class="cl-circle" id="cp-茹"></div><span>茹</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'婷')">
+            <div class="cl-circle" id="cp-婷"></div><span>婷</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'旭')">
+            <div class="cl-circle" id="cp-旭"></div><span>旭</span>
+          </div>
+        </div>
+        <button class="cl-popup-close" onclick="closePopup()">完成</button>
+      </div>
+    </div>
   </div>
 
   <div class="tab-content" id="tab-flight">
@@ -556,7 +593,7 @@ async function loadShopping(){
         +(item.hours?'<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">'+esc(item.hours)+'</span></div>':'')
         +(item.price?'<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral-red);font-weight:600">'+esc(item.price)+'</span></div>':'')
         +'</div>'
-        +(mu?'<button class="shop-map-btn" onclick="openMap(''+mu+'')">📍 在地圖查看</button>':'')
+        +(mu?'<button class="shop-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mu+'">📍 在地圖查看</button>':'') 
         +'</div></div>';
     });
     c.innerHTML=html+'</div>';
@@ -630,6 +667,76 @@ function closeMenu(){
   document.getElementById('fab-overlay').classList.remove('open');
   document.getElementById('fab-btn').classList.remove('open');
 }
+
+// ── 行前清單 ──
+const CHECKLIST_DATA = {
+  '證件': ['機票（列印或手機版）','護照（有效期限確認）','身分證','簽證資料','國際駕照 / 日文譯本','台胞證','外幣現金（日圓）','信用卡','2吋大頭照'],
+  '辦理': ['申請 Visit Japan Web（入境快速通關）','申請駕照日文譯本（公路局）','了解日本退稅方式','購買旅平險','購買 SIM 卡或 eSIM'],
+  '行李': ['登機箱（7KG / 56×36×23cm 以內）','隨身包','衣物收納壓縮袋','盥洗用品收納包','化妝包','環保購物袋','行李箱束帶','行李電子秤','手機掛繩','頸枕']
+};
+const PERSONS = ['揚','茹','婷','旭'];
+const checkState = {};
+
+function buildChecklist(){
+  for(const [cat, items] of Object.entries(CHECKLIST_DATA)){
+    const ul = document.getElementById('cl-' + cat);
+    if(!ul) continue;
+    items.forEach(text => {
+      if(!checkState[text]) checkState[text] = new Set();
+      const li = document.createElement('li');
+      li.className = 'cl-item';
+      li.onclick = () => openPopup(text);
+      li.id = 'cl-item-' + encodeURIComponent(text);
+      li.innerHTML =
+        '<div class="cl-item-left"><span class="cl-item-text">'+text+'</span></div>' +
+        '<div class="cl-dots" id="cl-dots-'+encodeURIComponent(text)+'">' +
+        PERSONS.map(p => '<div class="cl-dot" id="cldot-'+encodeURIComponent(text)+'-'+p+'" title="'+p+'"></div>').join('') +
+        '</div>';
+      ul.appendChild(li);
+    });
+  }
+}
+
+let currentPopupItem = null;
+
+function openPopup(text){
+  currentPopupItem = text;
+  document.getElementById('cl-popup-title').textContent = text;
+  PERSONS.forEach(p => {
+    const el = document.getElementById('cp-' + p);
+    if(!el) return;
+    el.classList.toggle('done', checkState[text] && checkState[text].has(p));
+  });
+  document.getElementById('cl-popup').style.display = 'block';
+}
+
+function closePopup(){
+  document.getElementById('cl-popup').style.display = 'none';
+  if(currentPopupItem) updateDots(currentPopupItem);
+  currentPopupItem = null;
+}
+
+function togglePerson(row, person){
+  if(!currentPopupItem) return;
+  const set = checkState[currentPopupItem];
+  if(set.has(person)) set.delete(person);
+  else set.add(person);
+  const el = document.getElementById('cp-' + person);
+  if(el) el.classList.toggle('done', set.has(person));
+}
+
+function updateDots(text){
+  const set = checkState[text] || new Set();
+  PERSONS.forEach(p => {
+    const dot = document.getElementById('cldot-' + encodeURIComponent(text) + '-' + p);
+    if(!dot) return;
+    dot.className = 'cl-dot' + (set.has(p) ? ' checked-' + p : '');
+    dot.textContent = set.has(p) ? p[0] : '';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', buildChecklist);
+
 loadAllItinerary();loadHotel();loadShopping();
 </script>
 

@@ -323,14 +323,14 @@ const DAY_CONFIG=[
   {key:'itinerary_d4',label:'Day 4',date:'5/2 (五)',title:'最後衝刺購物'},
   {key:'itinerary_d5',label:'Day 5',date:'5/3 (六)',title:'沖繩 → 台灣'},
 ];
-function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"').replace(/'/g,''');}
 
 // 處理說明文字換行的函式
 function formatDesc(text) {
   if (!text) return '';
   let safeText = esc(text);
   return safeText.replace(/(\d+\.)/g, '<br>$1')
-                 .replace(/([a-zA-Z]\))/g, '<br>&nbsp;&nbsp;$1')
+                 .replace(/([a-zA-Z]\))/g, '<br>  $1')
                  .replace(/^(<br>|\s)+/, '');
 }
 
@@ -417,11 +417,9 @@ function renderTL(rows){
   for(const r of dr){
     const {ampm,clock}=fmtTime(r[tI]||'');
     const {clock:ce}=fmtTime(r[teI]||'');
-    // 使用 formatDesc 處理換行
     const type=r[tyI]||'',name=r[nI]||'',descRaw=r[dI]||'',place=r[pI]||'',link=r[uI]||'',noteRaw=r[noI]||'';
     const desc = formatDesc(descRaw);
     const note = formatDesc(noteRaw);
-    // 只有當連結存在且開頭為 http 時才賦值 mapUrl
     const mapUrl = link.startsWith('http') ? link : '';
     html+='<div class="tl-item '+getTC(type)+'">'
       +'<div class="tl-time-box">'
@@ -762,6 +760,19 @@ document.addEventListener('DOMContentLoaded', buildChecklist);
 
 loadAllItinerary();loadHotel();loadShopping();
 </script>
+
+<div class="fab-overlay" id="fab-overlay" onclick="closeMenu()"></div>
+<div class="fab-menu" id="fab-menu">
+  <button class="fab-item" data-tab="flight" onclick="heroTab('flight',this)"><span class="fab-icon">✈️</span><span class="fab-label">航班</span></button>
+  <button class="fab-item" data-tab="checklist" onclick="heroTab('checklist',this)"><span class="fab-icon">✅</span><span class="fab-label">行前</span></button>
+  <button class="fab-item" data-tab="shopping" onclick="heroTab('shopping',this)"><span class="fab-icon">🛍</span><span class="fab-label">購物</span></button>
+  <button class="fab-item" data-tab="hotel" onclick="heroTab('hotel',this)"><span class="fab-icon">🏨</span><span class="fab-label">住宿</span></button>
+  <button class="fab-item" data-tab="expense" onclick="heroTab('expense',this)"><span class="fab-icon">💰</span><span class="fab-label">花費</span></button>
+  <button class="fab-item" data-tab="itinerary" onclick="heroTab('itinerary',this)"><span class="fab-icon">🗓</span><span class="fab-label">行程</span></button>
+</div>
+<button class="fab-btn" id="fab-btn" onclick="toggleMenu()">
+  <span class="fab-btn-icon" id="fab-btn-icon">☰</span>
+</button>
 
 </body>
 </html>

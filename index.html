@@ -98,7 +98,7 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
 .tl-place{font-size:13px;color:var(--muted);margin-bottom:2px;}
 .tl-place::before{content:'📍 ';font-size:11px;}
 .tl-desc{font-size:12px;color:var(--coral-red);line-height:1.5;}
-.tl-desc::before{content:'ℹ ';font-size:11px;}
+.tl-desc::before{content:'說明： ';font-size:11px;font-weight:700;}
 .tl-map-btn{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:5px 12px;background:rgba(43,108,176,0.08);color:var(--ocean-blue);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(43,108,176,0.2);transition:all 0.15s;}
 .tl-map-btn:hover{background:var(--ocean-blue);color:#fff;}
 .tl-empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px;background:var(--sand-beige);border-radius:8px;}
@@ -269,7 +269,6 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
     <p class="section-title">🧳 行李清單</p>
     <ul class="cl-list" id="cl-行李"></ul>
 
-    <!-- 彈出選人 popup -->
     <div id="cl-popup" style="display:none">
       <div class="cl-popup-backdrop" onclick="closePopup()"></div>
       <div class="cl-popup-box">
@@ -324,7 +323,17 @@ const DAY_CONFIG=[
   {key:'itinerary_d4',label:'Day 4',date:'5/2 (五)',title:'最後衝刺購物'},
   {key:'itinerary_d5',label:'Day 5',date:'5/3 (六)',title:'沖繩 → 台灣'},
 ];
-function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+// 處理說明文字換行的函式
+function formatDesc(text) {
+  if (!text) return '';
+  let safeText = esc(text);
+  return safeText.replace(/(\d+\.)/g, '<br>$1')
+                 .replace(/([a-zA-Z]\))/g, '<br>&nbsp;&nbsp;$1')
+                 .replace(/^(<br>|\s)+/, '');
+}
+
 function parseCSV(text){
   const rows=[];let cells=[],cur='',inQ=false,i=0;
   while(i<text.length){
@@ -408,8 +417,12 @@ function renderTL(rows){
   for(const r of dr){
     const {ampm,clock}=fmtTime(r[tI]||'');
     const {clock:ce}=fmtTime(r[teI]||'');
-    const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'',place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';
-    const mapUrl=link.startsWith('http')?link:(place||name)?'https://maps.google.com/?q='+encodeURIComponent(place||name):'';
+    // 使用 formatDesc 處理換行
+    const type=r[tyI]||'',name=r[nI]||'',descRaw=r[dI]||'',place=r[pI]||'',link=r[uI]||'',noteRaw=r[noI]||'';
+    const desc = formatDesc(descRaw);
+    const note = formatDesc(noteRaw);
+    // 只有當連結存在且開頭為 http 時才賦值 mapUrl
+    const mapUrl = link.startsWith('http') ? link : '';
     html+='<div class="tl-item '+getTC(type)+'">'
       +'<div class="tl-time-box">'
       +(ampm?'<div class="tl-ampm">'+esc(ampm)+'</div>':'')
@@ -420,8 +433,8 @@ function renderTL(rows){
       +'<div class="tl-content">'
       +'<div class="tl-name">'+esc(name)+'</div>'
       +(place?'<div class="tl-place">'+esc(place)+'</div>':'')
-      +(desc?'<div class="tl-desc">'+esc(desc)+'</div>':'')
-      +(note&&note!==desc?'<div class="tl-desc">'+esc(note)+'</div>':'')
+      +(desc?'<div class="tl-desc">'+desc+'</div>':'')
+      +(note&&noteRaw!==descRaw?'<div class="tl-desc">'+note+'</div>':'')
       +(mapUrl?'<div class="tl-map-btn" onclick="openMap(\''+mapUrl+'\')">📍 在地圖查看</div>':'')
       +'</div></div>';
   }
@@ -459,9 +472,7 @@ async function loadHotel(){
     for(let i=0;i<Math.min(rows.length,4);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('住宿')||c.includes('日期')))){hi=i;break;}}
     const hRow=rows[hi]||[];
     const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
-    // 注意：'住宿日期'包含'住宿'，需要先找精確的'住宿'欄（不含'日期'）
     const iDt=fc('日期')>=0?fc('日期'):1;
-    // 找住宿名稱欄：排除含'日期'的欄
     const iNm=(()=>{const i=hRow.findIndex(h=>h&&h.includes('住宿')&&!h.includes('日期'));return i>=0?i:2;})();
     const iAr=fc('區域')>=0?fc('區域'):3;
     const iPr=fc('價格')>=0?fc('價格'):4,iSz=fc('大小')>=0?fc('大小'):5;
@@ -501,26 +512,10 @@ async function loadShopping(){
   try{
     const rows=await fetchCSV(GID.shopping);
     const items=[];
-
-    // 逐行掃描：找到「必買商品」後的商品名稱
-    // 每個商品區塊結構（以row index為基準）：
-    // +0: 必買商品（標題）
-    // +1: 商品名稱
-    // +2: 介紹
-    // +3: 📍店名
-    // +4: 地址：xxx
-    // +5: 營業時間：xxx
-    // +6: 價格：xxx
-    // +7: 圖片（空或網址）
-    // 3欄並排：A欄(col0), C欄(col2), E欄(col4)
-
     for(let r=0; r<rows.length; r++){
       const row = rows[r] || [];
-      // 找到「必買商品」標題行
       const isTitleRow = [0,2,4].some(c2 => (row[c2]||'').trim() === '必買商品');
       if(!isTitleRow) continue;
-
-      // 這行是標題，下面8行是一組
       for(let co=0; co<3; co++){
         const c2 = co*2;
         const g = (off) => {
@@ -528,45 +523,28 @@ async function loadShopping(){
           if(!targetRow) return '';
           return (targetRow[c2] || '').toString().trim();
         };
-
         const name = g(1);
         if(!name || name==='(商品名稱)' || name==='必買商品') continue;
-
-        // 店名：去掉📍前綴和佔位文字
         const storeRaw = g(3);
         const store = storeRaw.replace(/^📍\s*/,'').replace(/^\(店名\)$/,'').trim();
-
-        // 地址：去掉「地址：」前綴
         const addrRaw = g(4);
         const addr = addrRaw.replace(/^地址[：:]\s*/,'').replace(/^\(地址\)$/,'').trim();
-
-        // 營業時間：去掉前綴
         const hoursRaw = g(5);
         const hours = hoursRaw.replace(/^營業時間[：:]\s*/,'').replace(/^\(營業時間\)$/,'').trim();
-
-        // 價格：去掉前綴
         const priceRaw = g(6);
         const price = priceRaw.replace(/^價格[：:]\s*/,'').replace(/^\(價格\)$/,'').trim();
-
-        // 介紹：介紹文字（排除只有「介紹」兩字）
         const descRaw = g(2);
         const desc = (descRaw === '介紹') ? '' : descRaw;
-
-        // 圖片
         const imgRaw = g(7);
         const img = (imgRaw.startsWith('http') && !imgRaw.includes('(圖片')) ? convertDriveUrl(imgRaw) : '';
-
         items.push({name, store, desc, addr, hours, price, img});
       }
-      // 跳過這9行
       r += 7;
     }
-
     if(!items.length){
       c.innerHTML='<div class="shop-empty">尚未填入購物清單 🛍<br><span style="font-size:12px">在 Google Sheet 的「購物清單」新增後重新整理</span></div>';
       return;
     }
-
     const ti=(n)=>{const s=(n||'').toLowerCase();
       if(s.includes('藥')||s.includes('保健'))return '💊';
       if(s.includes('零食')||s.includes('糖')||s.includes('餅'))return '🍬';
@@ -575,7 +553,6 @@ async function loadShopping(){
       if(s.includes('衣')||s.includes('包')||s.includes('鞋'))return '👗';
       return '🛍';
     };
-
     let html='<div class="shop-grid">';
     items.forEach((item,i)=>{
       const dt=item.store?esc(item.store)+'－'+esc(item.name):esc(item.name);
@@ -603,7 +580,6 @@ async function loadShopping(){
     c.innerHTML=html;
   }catch(e){c.innerHTML='<div class="shop-empty">讀取失敗：'+e.message+'</div>';}
 }
-
 
 let selectedPayer='',selectedCurrency='JPY';
 window.addEventListener('DOMContentLoaded',()=>{const d=document.getElementById('exp-date');if(d)d.value=new Date().toISOString().split('T')[0];});
@@ -681,7 +657,6 @@ const CHECKLIST_DATA = {
 const PERSONS = ['揚','茹','婷','旭'];
 const checkState = {};
 
-// 呼叫 Apps Script 的通用 JSONP
 function callScript(params){
   return new Promise((resolve, reject)=>{
     const cb = 'asCb_' + Date.now();
@@ -714,7 +689,6 @@ function buildChecklist(){
       ul.appendChild(li);
     });
   }
-  // 載入 Sheet 現有勾選狀態
   loadChecklistState();
 }
 
@@ -761,7 +735,6 @@ async function togglePerson(row, person){
   const el = document.getElementById('cp-' + person);
   if(el) el.classList.toggle('done', willCheck);
 
-  // 同步到 Sheet
   try{
     await callScript({
       action: 'setChecklist',
@@ -790,18 +763,5 @@ document.addEventListener('DOMContentLoaded', buildChecklist);
 loadAllItinerary();loadHotel();loadShopping();
 </script>
 
-<!-- FAB 浮動選單 -->
-<div class="fab-overlay" id="fab-overlay" onclick="closeMenu()"></div>
-<div class="fab-menu" id="fab-menu">
-  <button class="fab-item" data-tab="flight" onclick="heroTab('flight',this)"><span class="fab-icon">✈️</span><span class="fab-label">航班</span></button>
-  <button class="fab-item" data-tab="checklist" onclick="heroTab('checklist',this)"><span class="fab-icon">✅</span><span class="fab-label">行前</span></button>
-  <button class="fab-item" data-tab="shopping" onclick="heroTab('shopping',this)"><span class="fab-icon">🛍</span><span class="fab-label">購物</span></button>
-  <button class="fab-item" data-tab="hotel" onclick="heroTab('hotel',this)"><span class="fab-icon">🏨</span><span class="fab-label">住宿</span></button>
-  <button class="fab-item" data-tab="expense" onclick="heroTab('expense',this)"><span class="fab-icon">💰</span><span class="fab-label">花費</span></button>
-  <button class="fab-item" data-tab="itinerary" onclick="heroTab('itinerary',this)"><span class="fab-icon">🗓</span><span class="fab-label">行程</span></button>
-</div>
-<button class="fab-btn" id="fab-btn" onclick="toggleMenu()">
-  <span class="fab-btn-icon" id="fab-btn-icon">☰</span>
-</button>
 </body>
 </html>

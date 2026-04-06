@@ -99,6 +99,9 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
 .tl-place::before{content:'📍 ';font-size:11px;}
 .tl-desc{font-size:12px;color:var(--coral-red);line-height:1.5;}
 .tl-desc::before{content:'ℹ ';font-size:11px;}
+.tl-desc-block{margin-top:6px;}
+.tl-desc-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:2px;letter-spacing:0.05em;}
+.tl-desc-text{font-size:12px;color:var(--text);line-height:1.6;background:var(--sand-beige);padding:6px 10px;border-radius:6px;border-left:3px solid var(--coral-red);}
 .tl-map-btn{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:5px 12px;background:rgba(43,108,176,0.08);color:var(--ocean-blue);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(43,108,176,0.2);transition:all 0.15s;}
 .tl-map-btn:hover{background:var(--ocean-blue);color:#fff;}
 .tl-empty{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:14px;background:var(--sand-beige);border-radius:8px;}
@@ -181,6 +184,20 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
 .cl-circle.done{border-color:var(--tokusa-blue);background:var(--tokusa-blue);}
 .cl-circle.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
 .cl-popup-close{width:100%;padding:13px;background:var(--tokusa-blue);color:#fff;border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+/* COLLAPSIBLE CHECKLIST SECTIONS */
+.cl-section{margin-bottom:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.cl-section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--sand-beige);cursor:pointer;
+  font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;
+  color:var(--tokusa-blue);user-select:none;transition:background 0.15s;
+}
+.cl-section-header:hover{background:#F0EBE1;}
+.cl-section-arrow{font-size:11px;color:var(--muted);transition:transform 0.25s;}
+.cl-section-arrow:not(.open){transform:rotate(-90deg);}
+.cl-list{padding:0 8px;max-height:2000px;transition:max-height 0.3s ease,padding 0.3s;}
+.cl-list.collapsed{max-height:0;overflow:hidden;padding:0;}
 </style>
 </head>
 <body>
@@ -260,14 +277,32 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
       <div class="info-card"><div class="ic-label">人數</div><div class="ic-val">4人</div></div>
     </div>
 
-    <p class="section-title">🪪 必備證件</p>
-    <ul class="cl-list" id="cl-證件"></ul>
+    <!-- 必備證件 折疊 -->
+    <div class="cl-section">
+      <div class="cl-section-header" onclick="toggleCLSection('cl-證件','cl-arrow-證件')">
+        <span>🪪 必備證件</span>
+        <span class="cl-section-arrow open" id="cl-arrow-證件">▼</span>
+      </div>
+      <ul class="cl-list" id="cl-證件"></ul>
+    </div>
 
-    <p class="section-title">📋 行前辦理</p>
-    <ul class="cl-list" id="cl-辦理"></ul>
+    <!-- 行前辦理 折疊 -->
+    <div class="cl-section">
+      <div class="cl-section-header" onclick="toggleCLSection('cl-辦理','cl-arrow-辦理')">
+        <span>📋 行前辦理</span>
+        <span class="cl-section-arrow open" id="cl-arrow-辦理">▼</span>
+      </div>
+      <ul class="cl-list" id="cl-辦理"></ul>
+    </div>
 
-    <p class="section-title">🧳 行李清單</p>
-    <ul class="cl-list" id="cl-行李"></ul>
+    <!-- 行李清單 折疊 -->
+    <div class="cl-section">
+      <div class="cl-section-header" onclick="toggleCLSection('cl-行李','cl-arrow-行李')">
+        <span>🧳 行李清單</span>
+        <span class="cl-section-arrow open" id="cl-arrow-行李">▼</span>
+      </div>
+      <ul class="cl-list" id="cl-行李"></ul>
+    </div>
 
     <!-- 彈出選人 popup -->
     <div id="cl-popup" style="display:none">
@@ -404,12 +439,26 @@ function renderTL(rows){
   const noI=fc('備註')>=0?fc('備註'):9;
   const dr=rows.slice(hi+1).filter(r=>r[nI]&&r[nI].trim());
   if(dr.length===0)return '<div class="tl-empty">尚未填入行程，在 Google Sheet 新增後點 ↻ 同步</div>';
+
   let html='<div class="timeline">';
   for(const r of dr){
     const {ampm,clock}=fmtTime(r[tI]||'');
     const {clock:ce}=fmtTime(r[teI]||'');
-    const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'',place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';
-    const mapUrl=link.startsWith('http')?link:(place||name)?'https://maps.google.com/?q='+encodeURIComponent(place||name):'';
+    const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'';
+    const place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';
+
+    // 地圖邏輯：H(地址連結)有填就用，否則用G(地點)搜尋，兩者都沒有就不顯示
+    const mapUrl = link.startsWith('http') ? link
+                 : place ? 'https://maps.google.com/?q='+encodeURIComponent(place) : '';
+
+    // 說明文字：以 1. 2. a) b) 為換行點
+    const formatDesc = (text) => {
+      if(!text) return '';
+      const lines = text.split(/(?=\d+[\.、]|[a-zA-Z]\))/g).filter(s=>s.trim());
+      if(lines.length <= 1) return esc(text);
+      return lines.map(l=>'<div style="margin-bottom:3px">'+esc(l.trim())+'</div>').join('');
+    };
+
     html+='<div class="tl-item '+getTC(type)+'">'
       +'<div class="tl-time-box">'
       +(ampm?'<div class="tl-ampm">'+esc(ampm)+'</div>':'')
@@ -420,13 +469,15 @@ function renderTL(rows){
       +'<div class="tl-content">'
       +'<div class="tl-name">'+esc(name)+'</div>'
       +(place?'<div class="tl-place">'+esc(place)+'</div>':'')
-      +(desc?'<div class="tl-desc">'+esc(desc)+'</div>':'')
-      +(note&&note!==desc?'<div class="tl-desc">'+esc(note)+'</div>':'')
-      +(mapUrl?'<div class="tl-map-btn" onclick="openMap(\''+mapUrl+'\')">📍 在地圖查看</div>':'')
+      +(desc?'<div class="tl-desc-block"><div class="tl-desc-label">說明</div><div class="tl-desc-text">'+formatDesc(desc)+'</div></div>':'')
+      +(note&&note!==desc?'<div class="tl-desc-block"><div class="tl-desc-label">備註</div><div class="tl-desc-text">'+esc(note)+'</div></div>':'')
+      +(mapUrl?'<div class="tl-map-btn" onclick="openMap(''+mapUrl+'')">📍 在地圖查看</div>':'')
       +'</div></div>';
   }
   return html+'</div>';
 }
+
+
 function switchDay(idx,btn){
   currentDay=idx;
   document.querySelectorAll('.day-tab-hero').forEach(b=>b.classList.remove('active'));
@@ -694,6 +745,15 @@ function callScript(params){
     s.src = url;
     document.head.appendChild(s);
   });
+}
+
+function toggleCLSection(listId, arrowId){
+  const list = document.getElementById(listId);
+  const arrow = document.getElementById(arrowId);
+  if(!list) return;
+  const isOpen = !list.classList.contains('collapsed');
+  list.classList.toggle('collapsed', isOpen);
+  if(arrow) arrow.classList.toggle('open', !isOpen);
 }
 
 function buildChecklist(){

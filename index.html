@@ -120,6 +120,14 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
 .view-sheet-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid var(--border);border-radius:6px;color:var(--ocean-blue);text-decoration:none;font-size:14px;font-weight:500;}
 .view-sheet-btn:hover{background:var(--sand-beige);}
 .shop-grid{display:flex;flex-direction:column;gap:10px;}
+@media(min-width:768px){
+  #shopping-container .shop-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    align-items:start;
+  }
+}
 .shop-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;}
 .shop-title{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background 0.15s;user-select:none;}
 .shop-title:hover{background:var(--sand-beige);}
@@ -210,18 +218,18 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
     </div>
   </div>
   <div class="day-selector-hero" id="day-selector-hero">
-    <button class="day-tab-hero active" onclick="switchDay(0,this)" id="daytab-0"><span class="dth-date">4/29</span><span class="dth-label">D1</span></button>
-    <button class="day-tab-hero" onclick="switchDay(1,this)" id="daytab-1"><span class="dth-date">4/30</span><span class="dth-label">D2</span></button>
-    <button class="day-tab-hero" onclick="switchDay(2,this)" id="daytab-2"><span class="dth-date">5/1</span><span class="dth-label">D3</span></button>
-    <button class="day-tab-hero" onclick="switchDay(3,this)" id="daytab-3"><span class="dth-date">5/2</span><span class="dth-label">D4</span></button>
-    <button class="day-tab-hero" onclick="switchDay(4,this)" id="daytab-4"><span class="dth-date">5/3</span><span class="dth-label">D5</span></button>
+    <button class="day-tab-hero active" onclick="switchDay(0,this)" id="daytab-0"><span class="dth-date">4/29三</span><span class="dth-label">D1</span></button>
+    <button class="day-tab-hero" onclick="switchDay(1,this)" id="daytab-1"><span class="dth-date">4/30四</span><span class="dth-label">D2</span></button>
+    <button class="day-tab-hero" onclick="switchDay(2,this)" id="daytab-2"><span class="dth-date">5/1五</span><span class="dth-label">D3</span></button>
+    <button class="day-tab-hero" onclick="switchDay(3,this)" id="daytab-3"><span class="dth-date">5/2六</span><span class="dth-label">D4</span></button>
+    <button class="day-tab-hero" onclick="switchDay(4,this)" id="daytab-4"><span class="dth-date">5/3日</span><span class="dth-label">D5</span></button>
   </div>
 </div>
 
 <div class="container">
   <div class="tab-content active" id="tab-itinerary">
     <div class="day-title-bar">
-      <div><div class="dtb-date" id="dtb-date">4/29 (二)</div><div class="dtb-theme" id="dtb-theme">台灣 → 沖繩</div></div>
+      <div><div class="dtb-date" id="dtb-date">4/29 (三)</div><div class="dtb-theme" id="dtb-theme">台灣 → 沖繩</div></div>
       <button class="refresh-btn-sm" onclick="loadAllItinerary()">↻</button>
     </div>
     <div id="timeline-container"><div class="loading"><div class="spinner"></div>讀取行程中...</div></div>
@@ -281,27 +289,27 @@ body{font-family:'Noto Sans TC',sans-serif;background-color:var(--sand-beige);ba
     <div class="cl-section">
       <div class="cl-section-header" onclick="toggleCLSection('cl-證件','cl-arrow-證件')">
         <span>🪪 必備證件</span>
-        <span class="cl-section-arrow open" id="cl-arrow-證件">▼</span>
+        <span class="cl-section-arrow" id="cl-arrow-證件">▼</span>
       </div>
-      <ul class="cl-list" id="cl-證件"></ul>
+      <ul class="cl-list collapsed" id="cl-證件"></ul>
     </div>
 
     <!-- 行前辦理 折疊 -->
     <div class="cl-section">
       <div class="cl-section-header" onclick="toggleCLSection('cl-辦理','cl-arrow-辦理')">
         <span>📋 行前辦理</span>
-        <span class="cl-section-arrow open" id="cl-arrow-辦理">▼</span>
+        <span class="cl-section-arrow" id="cl-arrow-辦理">▼</span>
       </div>
-      <ul class="cl-list" id="cl-辦理"></ul>
+      <ul class="cl-list collapsed" id="cl-辦理"></ul>
     </div>
 
     <!-- 行李清單 折疊 -->
     <div class="cl-section">
       <div class="cl-section-header" onclick="toggleCLSection('cl-行李','cl-arrow-行李')">
         <span>🧳 行李清單</span>
-        <span class="cl-section-arrow open" id="cl-arrow-行李">▼</span>
+        <span class="cl-section-arrow" id="cl-arrow-行李">▼</span>
       </div>
-      <ul class="cl-list" id="cl-行李"></ul>
+      <ul class="cl-list collapsed" id="cl-行李"></ul>
     </div>
 
     <!-- 彈出選人 popup -->
@@ -353,11 +361,11 @@ const APP_TOKEN='okinawa2026';
 const PUB_KEY='2PACX-1vRI7kWux6_1X9Xazcyg_2qkg5e7iOQfVNyFN6BJA6BbWbh81N9VZzWj-JD_5lYEVY3bxbh-4ZQiQYwn';
 const GID={itinerary_d1:'202449681',itinerary_d2:'793926690',itinerary_d3:'132787083',itinerary_d4:'1366341329',itinerary_d5:'451018843',hotel:'1233567320',shopping:'1421856772'};
 const DAY_CONFIG=[
-  {key:'itinerary_d1',label:'Day 1',date:'4/29 (二)',title:'台灣 → 沖繩'},
-  {key:'itinerary_d2',label:'Day 2',date:'4/30 (三)',title:'沖繩探索'},
-  {key:'itinerary_d3',label:'Day 3',date:'5/1 (四)',title:'沖繩深度遊'},
-  {key:'itinerary_d4',label:'Day 4',date:'5/2 (五)',title:'最後衝刺購物'},
-  {key:'itinerary_d5',label:'Day 5',date:'5/3 (六)',title:'沖繩 → 台灣'},
+  {key:'itinerary_d1',label:'Day 1',date:'4/29 (三)',title:'台灣 → 沖繩'},
+  {key:'itinerary_d2',label:'Day 2',date:'4/30 (四)',title:'沖繩探索'},
+  {key:'itinerary_d3',label:'Day 3',date:'5/1 (五)',title:'沖繩深度遊'},
+  {key:'itinerary_d4',label:'Day 4',date:'5/2 (六)',title:'最後衝刺購物'},
+  {key:'itinerary_d5',label:'Day 5',date:'5/3 (日)',title:'沖繩 → 台灣'},
 ];
 function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
 function parseCSV(text){

@@ -674,12 +674,27 @@ function closeMenu(){
 
 // ── 行前清單 ──
 const CHECKLIST_DATA = {
-  '證件': ['機票（列印或手機版）','護照（有效期限確認）','身分證','簽證資料','國際駕照 / 日文譯本','台胞證','外幣現金（日圓）','信用卡','2吋大頭照'],
+  '證件': ['機票','護照','身分證','簽證資料','國際駕照','台胞證','行程表','購買清單','票券憑證-住宿','票券憑證-交通','票券憑證-景點','2吋大頭照','鑰匙','外幣現金','信用卡','提款卡','八達通','台幣$1000備用'],
   '辦理': ['申請 Visit Japan Web（入境快速通關）','申請駕照日文譯本（公路局）','了解日本退稅方式','購買旅平險','購買 SIM 卡或 eSIM'],
-  '行李': ['登機箱（7KG / 56×36×23cm 以內）','隨身包','衣物收納壓縮袋','盥洗用品收納包','化妝包','環保購物袋','行李箱束帶','行李電子秤','手機掛繩','頸枕']
+  '行李': ['登機箱','隨身包','衣物收納壓縮袋','盥洗用品收納包','化妝包','環保購物袋','行李箱束帶','行李電子秤','手機掛繩','頸枕','行李箱']
 };
 const PERSONS = ['揚','茹','婷','旭'];
 const checkState = {};
+
+// 呼叫 Apps Script 的通用 JSONP
+function callScript(params){
+  return new Promise((resolve, reject)=>{
+    const cb = 'asCb_' + Date.now();
+    const qs = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const url = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cb;
+    const s = document.createElement('script');
+    const t = setTimeout(()=>{ delete window[cb]; reject(new Error('timeout')); }, 10000);
+    window[cb] = (res)=>{ clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); resolve(res); };
+    s.onerror = ()=>{ clearTimeout(t); delete window[cb]; reject(new Error('script error')); };
+    s.src = url;
+    document.head.appendChild(s);
+  });
+}
 
 function buildChecklist(){
   for(const [cat, items] of Object.entries(CHECKLIST_DATA)){
@@ -699,6 +714,23 @@ function buildChecklist(){
       ul.appendChild(li);
     });
   }
+  // 載入 Sheet 現有勾選狀態
+  loadChecklistState();
+}
+
+async function loadChecklistState(){
+  try{
+    const res = await callScript({action:'getChecklist', token:APP_TOKEN});
+    if(res.status !== 'ok') return;
+    for(const [item, persons] of Object.entries(res.data)){
+      if(!checkState[item]) checkState[item] = new Set();
+      for(const [person, checked] of Object.entries(persons)){
+        if(checked) checkState[item].add(person);
+        else checkState[item].delete(person);
+      }
+      updateDots(item);
+    }
+  }catch(e){ console.log('載入行前清單失敗:', e.message); }
 }
 
 let currentPopupItem = null;
@@ -720,13 +752,27 @@ function closePopup(){
   currentPopupItem = null;
 }
 
-function togglePerson(row, person){
+async function togglePerson(row, person){
   if(!currentPopupItem) return;
   const set = checkState[currentPopupItem];
-  if(set.has(person)) set.delete(person);
-  else set.add(person);
+  const willCheck = !set.has(person);
+  if(willCheck) set.add(person);
+  else set.delete(person);
   const el = document.getElementById('cp-' + person);
-  if(el) el.classList.toggle('done', set.has(person));
+  if(el) el.classList.toggle('done', willCheck);
+
+  // 同步到 Sheet
+  try{
+    await callScript({
+      action: 'setChecklist',
+      data: encodeURIComponent(JSON.stringify({
+        token: APP_TOKEN,
+        item: currentPopupItem,
+        person: person,
+        checked: willCheck
+      }))
+    });
+  }catch(e){ console.log('同步失敗:', e.message); }
 }
 
 function updateDots(text){

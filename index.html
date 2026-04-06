@@ -471,7 +471,7 @@ function renderTL(rows){
       +(place?'<div class="tl-place">'+esc(place)+'</div>':'')
       +(desc?'<div class="tl-desc-block"><div class="tl-desc-label">說明</div><div class="tl-desc-text">'+formatDesc(desc)+'</div></div>':'')
       +(note&&note!==desc?'<div class="tl-desc-block"><div class="tl-desc-label">備註</div><div class="tl-desc-text">'+esc(note)+'</div></div>':'')
-      +(mapUrl?'<div class="tl-map-btn" onclick="openMap(''+mapUrl+'')">📍 在地圖查看</div>':'')
+      +(mapUrl?'<div class="tl-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mapUrl+'">📍 在地圖查看</div>':'')
       +'</div></div>';
   }
   return html+'</div>';

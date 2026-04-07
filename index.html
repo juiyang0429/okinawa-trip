@@ -835,15 +835,25 @@ async function loadChecklistFromSheet() {
     // 標題行規則：F欄是'數量'，略過
     const skipE = ['項目','數量','婷','旭','揚','茹','位置','備註','打勾'];
 
-    for (const row of rows) {
+    // 先做兩遍：第一遍找出哪些 row 是分類行（後面緊跟「項目/數量」標題行）
+    const catRowIndices = new Set();
+    for (let i = 0; i < rows.length - 1; i++) {
+      const nextE = (rows[i+1]?.[4] || '').toString().trim();
+      const nextF = (rows[i+1]?.[5] || '').toString().trim();
+      if (nextE === '項目' && nextF === '數量') {
+        catRowIndices.add(i); // 這行是分類行
+      }
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
       const e = (row[4] || '').toString().trim();
       const f = (row[5] || '').toString().trim();
       if (!e) continue;
       if (skipE.includes(e)) continue;
 
-      // 分類行：F欄是空的
-      if (f === '' || f === 'nan') {
-        // 去掉 emoji，保留文字
+      // 分類行：在 catRowIndices 裡
+      if (catRowIndices.has(i)) {
         const catName = e.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/[\u2600-\u27FF]/g,'').trim() || e;
         currentCat = catName;
         checklistStructure[currentCat] = [];
@@ -851,7 +861,7 @@ async function loadChecklistFromSheet() {
       }
       // 標題行：F欄是'數量'
       if (f === '數量') continue;
-      // 項目行：F欄是'-'或其他值
+      // 項目行
       if (currentCat && e) checklistStructure[currentCat].push(e);
     }
 

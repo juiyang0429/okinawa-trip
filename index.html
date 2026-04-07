@@ -127,7 +127,7 @@ body{
 .tl-content{flex:1;min-width:0;padding-top:4px;}
 .tl-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
 .tl-place{font-size:13px;color:var(--muted);margin-bottom:2px;}
-.tl-place::before{content:'📍 ';font-size:11px;}
+.tl-place::before{content:'▸ ';font-size:11px;color:var(--muted);}
 .tl-desc{font-size:12px;color:var(--coral);line-height:1.5;}
 .tl-desc::before{content:'ℹ ';font-size:11px;}
 .tl-desc-block{margin-top:6px;}
@@ -208,10 +208,10 @@ body{
 .cl-item-text{font-size:14px;color:var(--text);}
 .cl-dots{display:flex;gap:5px;flex-shrink:0;}
 .cl-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;transition:all 0.2s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
-.cl-dot.checked-揚{background:var(--sepia);border-color:var(--sepia);}
-.cl-dot.checked-茹{background:var(--coral);border-color:var(--coral);}
 .cl-dot.checked-婷{background:#805AD5;border-color:#805AD5;}
 .cl-dot.checked-旭{background:#D69E2E;border-color:#D69E2E;}
+.cl-dot.checked-揚{background:var(--sepia);border-color:var(--sepia);}
+.cl-dot.checked-茹{background:var(--coral);border-color:var(--coral);}
 .cl-popup-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:300;}
 .cl-popup-box{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:1.5rem;z-index:301;box-shadow:0 -4px 24px rgba(0,0,0,0.12);animation:slideUp 0.25s ease-out;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -346,35 +346,13 @@ body{
     <div class="info-grid">
       <div class="info-card"><div class="ic-label">目的地</div><div class="ic-val"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 沖繩</div></div>
       <div class="info-card"><div class="ic-label">天氣</div><div class="ic-val"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> 18~23°C</div></div>
-      <div class="info-card"><div class="ic-label">天數</div><div class="ic-val">5天4夜</div></div>
-      <div class="info-card"><div class="ic-label">人數</div><div class="ic-val">4人</div></div>
+      <div class="info-card"><div class="ic-label">天數</div><div class="ic-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>5天4夜</div></div>
+      <div class="info-card"><div class="ic-label">人數</div><div class="ic-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>4人</div></div>
     </div>
 
-    <!-- 必備證件 折疊 -->
-    <div class="cl-section">
-      <div class="cl-section-header" onclick="toggleCLSection('cl-證件','cl-arrow-證件')">
-        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> 必備證件</span>
-        <span class="cl-section-arrow" id="cl-arrow-證件">▼</span>
-      </div>
-      <ul class="cl-list collapsed" id="cl-證件"></ul>
-    </div>
-
-    <!-- 行前辦理 折疊 -->
-    <div class="cl-section">
-      <div class="cl-section-header" onclick="toggleCLSection('cl-辦理','cl-arrow-辦理')">
-        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg> 行前辦理</span>
-        <span class="cl-section-arrow" id="cl-arrow-辦理">▼</span>
-      </div>
-      <ul class="cl-list collapsed" id="cl-辦理"></ul>
-    </div>
-
-    <!-- 行李清單 折疊 -->
-    <div class="cl-section">
-      <div class="cl-section-header" onclick="toggleCLSection('cl-行李','cl-arrow-行李')">
-        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> 行李清單</span>
-        <span class="cl-section-arrow" id="cl-arrow-行李">▼</span>
-      </div>
-      <ul class="cl-list collapsed" id="cl-行李"></ul>
+    <!-- 動態從 Sheet 載入行前清單 -->
+    <div id="cl-sections-container">
+      <div class="loading"><div class="spinner"></div>載入行前清單...</div>
     </div>
 
     <!-- 彈出選人 popup -->
@@ -383,17 +361,17 @@ body{
       <div class="cl-popup-box">
         <div class="cl-popup-title" id="cl-popup-title"></div>
         <div class="cl-popup-persons">
-          <div class="cl-person-row" onclick="togglePerson(this,'揚')">
-            <div class="cl-circle" id="cp-揚"></div><span>揚</span>
-          </div>
-          <div class="cl-person-row" onclick="togglePerson(this,'茹')">
-            <div class="cl-circle" id="cp-茹"></div><span>茹</span>
-          </div>
           <div class="cl-person-row" onclick="togglePerson(this,'婷')">
             <div class="cl-circle" id="cp-婷"></div><span>婷</span>
           </div>
           <div class="cl-person-row" onclick="togglePerson(this,'旭')">
             <div class="cl-circle" id="cp-旭"></div><span>旭</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'揚')">
+            <div class="cl-circle" id="cp-揚"></div><span>揚</span>
+          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'茹')">
+            <div class="cl-circle" id="cp-茹"></div><span>茹</span>
           </div>
         </div>
         <button class="cl-popup-close" onclick="closePopup()">完成</button>
@@ -796,30 +774,6 @@ function closeMenu(){
   document.getElementById('fab-btn').classList.remove('open');
 }
 
-// ── 行前清單 ──
-const CHECKLIST_DATA = {
-  '證件': ['機票','護照','身分證','簽證資料','國際駕照','台胞證','行程表','購買清單','票券憑證-住宿','票券憑證-交通','票券憑證-景點','2吋大頭照','鑰匙','外幣現金','信用卡','提款卡','八達通','台幣$1000備用'],
-  '辦理': ['申請 Visit Japan Web（入境快速通關）','申請駕照日文譯本（公路局）','了解日本退稅方式','購買旅平險','購買 SIM 卡或 eSIM'],
-  '行李': ['登機箱','隨身包','衣物收納壓縮袋','盥洗用品收納包','化妝包','環保購物袋','行李箱束帶','行李電子秤','手機掛繩','頸枕','行李箱']
-};
-const PERSONS = ['揚','茹','婷','旭'];
-const checkState = {};
-
-// 呼叫 Apps Script 的通用 JSONP
-function callScript(params){
-  return new Promise((resolve, reject)=>{
-    const cb = 'asCb_' + Date.now();
-    const qs = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
-    const url = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cb;
-    const s = document.createElement('script');
-    const t = setTimeout(()=>{ delete window[cb]; reject(new Error('timeout')); }, 10000);
-    window[cb] = (res)=>{ clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); resolve(res); };
-    s.onerror = ()=>{ clearTimeout(t); delete window[cb]; reject(new Error('script error')); };
-    s.src = url;
-    document.head.appendChild(s);
-  });
-}
-
 function toggleCLSection(listId, arrowId){
   const list = document.getElementById(listId);
   const arrow = document.getElementById(arrowId);
@@ -829,73 +783,150 @@ function toggleCLSection(listId, arrowId){
   if(arrow) arrow.classList.toggle('open', !isOpen);
 }
 
-function buildChecklist(){
-  for(const [cat, items] of Object.entries(CHECKLIST_DATA)){
-    const ul = document.getElementById('cl-' + cat);
-    if(!ul) continue;
+// ── 行前清單（動態從 Sheet 讀取）──
+
+const CHECKLIST_GID = '1810048838';
+const CAT_ICONS = {
+  '行李': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
+  '證件': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
+  '3C':   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+  '衣物': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>',
+  '生活': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  '藥品': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>',
+  '文具': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
+  '本體': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>',
+};
+
+const PERSONS = ['婷','旭','揚','茹'];
+const checkState = {};
+let checklistStructure = {};
+
+function getCatIcon(name) {
+  for (const [k, v] of Object.entries(CAT_ICONS)) {
+    if (name.includes(k)) return v;
+  }
+  return CAT_ICONS['證件'];
+}
+
+async function loadChecklistFromSheet() {
+  const container = document.getElementById('cl-sections-container');
+  if (!container) return;
+  try {
+    const rows = await fetchCSV(CHECKLIST_GID);
+    checklistStructure = {};
+    let currentCat = null;
+    const skipWords = ['項目','數量','婷','旭','揚','茹','位置','備註'];
+    // emoji chars that mark category rows
+    const catEmojis = ['🧳','🪪','💻','👚','🛁','💊','✏','🐷'];
+
+    for (const row of rows) {
+      const e = (row[4] || '').toString().trim();
+      if (!e) continue;
+      // category header detection
+      const isCat = catEmojis.some(em => e.includes(em));
+      if (isCat) {
+        // strip emoji
+        const catName = e.replace(/[^\u0000-\u2FFF]/g, '').trim() || e;
+        currentCat = catName;
+        checklistStructure[currentCat] = [];
+        continue;
+      }
+      if (skipWords.includes(e)) continue;
+      if (currentCat) checklistStructure[currentCat].push(e);
+    }
+
+    // init checkState
+    for (const items of Object.values(checklistStructure)) {
+      for (const text of items) {
+        if (!checkState[text]) checkState[text] = new Set();
+      }
+    }
+
+    buildChecklistDOM(container);
+    await loadChecklistState();
+  } catch(err) {
+    container.innerHTML = '<div class="tl-empty">載入失敗：' + err.message + '</div>';
+  }
+}
+
+function buildChecklistDOM(container) {
+  let html = '';
+  Object.entries(checklistStructure).forEach(([cat, items], idx) => {
+    const id = 'cl-cat-' + idx;
+    const arrowId = 'cl-arrow-' + idx;
+    const icon = getCatIcon(cat);
+    html += '<div class="cl-section">'
+      + '<div class="cl-section-header" onclick="toggleCLSection(\'' + id + '\',\'' + arrowId + '\')">'
+      + '<span style="display:flex;align-items:center;gap:8px">' + icon + ' ' + esc(cat) + '</span>'
+      + '<span class="cl-section-arrow" id="' + arrowId + '">▼</span>'
+      + '</div>'
+      + '<ul class="cl-list collapsed" id="' + id + '"></ul>'
+      + '</div>';
+  });
+  container.innerHTML = html;
+
+  Object.entries(checklistStructure).forEach(([cat, items], idx) => {
+    const ul = document.getElementById('cl-cat-' + idx);
+    if (!ul) return;
     items.forEach(text => {
-      if(!checkState[text]) checkState[text] = new Set();
+      if (!checkState[text]) checkState[text] = new Set();
       const li = document.createElement('li');
       li.className = 'cl-item';
       li.onclick = () => openPopup(text);
       li.id = 'cl-item-' + encodeURIComponent(text);
       li.innerHTML =
-        '<div class="cl-item-left"><span class="cl-item-text">'+text+'</span></div>' +
-        '<div class="cl-dots" id="cl-dots-'+encodeURIComponent(text)+'">' +
-        PERSONS.map(p => '<div class="cl-dot" id="cldot-'+encodeURIComponent(text)+'-'+p+'" title="'+p+'"></div>').join('') +
-        '</div>';
+        '<div class="cl-item-left"><span class="cl-item-text">' + text + '</span></div>'
+        + '<div class="cl-dots" id="cl-dots-' + encodeURIComponent(text) + '">'
+        + PERSONS.map(p => '<div class="cl-dot" id="cldot-' + encodeURIComponent(text) + '-' + p + '" title="' + p + '"></div>').join('')
+        + '</div>';
       ul.appendChild(li);
     });
-  }
-  // 載入 Sheet 現有勾選狀態
-  loadChecklistState();
+  });
 }
 
-async function loadChecklistState(){
-  try{
+async function loadChecklistState() {
+  try {
     const res = await callScript({action:'getChecklist', token:APP_TOKEN});
-    if(res.status !== 'ok') return;
-    for(const [item, persons] of Object.entries(res.data)){
-      if(!checkState[item]) checkState[item] = new Set();
-      for(const [person, checked] of Object.entries(persons)){
-        if(checked) checkState[item].add(person);
+    if (res.status !== 'ok') return;
+    for (const [item, persons] of Object.entries(res.data)) {
+      if (!checkState[item]) checkState[item] = new Set();
+      for (const [person, checked] of Object.entries(persons)) {
+        if (checked) checkState[item].add(person);
         else checkState[item].delete(person);
       }
       updateDots(item);
     }
-  }catch(e){ console.log('載入行前清單失敗:', e.message); }
+  } catch(e) { console.log('載入勾選狀態失敗:', e.message); }
 }
 
 let currentPopupItem = null;
 
-function openPopup(text){
+function openPopup(text) {
   currentPopupItem = text;
   document.getElementById('cl-popup-title').textContent = text;
   PERSONS.forEach(p => {
     const el = document.getElementById('cp-' + p);
-    if(!el) return;
+    if (!el) return;
     el.classList.toggle('done', checkState[text] && checkState[text].has(p));
   });
   document.getElementById('cl-popup').style.display = 'block';
 }
 
-function closePopup(){
+function closePopup() {
   document.getElementById('cl-popup').style.display = 'none';
-  if(currentPopupItem) updateDots(currentPopupItem);
+  if (currentPopupItem) updateDots(currentPopupItem);
   currentPopupItem = null;
 }
 
-async function togglePerson(row, person){
-  if(!currentPopupItem) return;
+async function togglePerson(row, person) {
+  if (!currentPopupItem) return;
   const set = checkState[currentPopupItem];
   const willCheck = !set.has(person);
-  if(willCheck) set.add(person);
+  if (willCheck) set.add(person);
   else set.delete(person);
   const el = document.getElementById('cp-' + person);
-  if(el) el.classList.toggle('done', willCheck);
-
-  // 同步到 Sheet
-  try{
+  if (el) el.classList.toggle('done', willCheck);
+  try {
     await callScript({
       action: 'setChecklist',
       data: encodeURIComponent(JSON.stringify({
@@ -905,20 +936,21 @@ async function togglePerson(row, person){
         checked: willCheck
       }))
     });
-  }catch(e){ console.log('同步失敗:', e.message); }
+  } catch(e) { console.log('同步失敗:', e.message); }
 }
 
-function updateDots(text){
+function updateDots(text) {
   const set = checkState[text] || new Set();
   PERSONS.forEach(p => {
     const dot = document.getElementById('cldot-' + encodeURIComponent(text) + '-' + p);
-    if(!dot) return;
+    if (!dot) return;
     dot.className = 'cl-dot' + (set.has(p) ? ' checked-' + p : '');
     dot.textContent = set.has(p) ? p[0] : '';
   });
 }
 
-document.addEventListener('DOMContentLoaded', buildChecklist);
+document.addEventListener('DOMContentLoaded', loadChecklistFromSheet);
+
 
 loadAllItinerary();loadHotel();loadShopping();
 </script>

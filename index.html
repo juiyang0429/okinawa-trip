@@ -815,24 +815,29 @@ async function loadChecklistFromSheet() {
     const rows = await fetchCSV(CHECKLIST_GID);
     checklistStructure = {};
     let currentCat = null;
-    const skipWords = ['項目','數量','婷','旭','揚','茹','位置','備註'];
-    // emoji chars that mark category rows
-    const catEmojis = ['🧳','🪪','💻','👚','🛁','💊','✏','🐷'];
+    // 分類行規則：E欄有值、F欄是空的（不是'-'也不是'數量'）
+    // 項目行規則：E欄有值、F欄是'-'
+    // 標題行規則：F欄是'數量'，略過
+    const skipE = ['項目','數量','婷','旭','揚','茹','位置','備註','打勾'];
 
     for (const row of rows) {
       const e = (row[4] || '').toString().trim();
+      const f = (row[5] || '').toString().trim();
       if (!e) continue;
-      // category header detection
-      const isCat = catEmojis.some(em => e.includes(em));
-      if (isCat) {
-        // strip emoji
-        const catName = e.replace(/[^\u0000-\u2FFF]/g, '').trim() || e;
+      if (skipE.includes(e)) continue;
+
+      // 分類行：F欄是空的
+      if (f === '' || f === 'nan') {
+        // 去掉 emoji，保留文字
+        const catName = e.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/[\u2600-\u27FF]/g,'').trim() || e;
         currentCat = catName;
         checklistStructure[currentCat] = [];
         continue;
       }
-      if (skipWords.includes(e)) continue;
-      if (currentCat) checklistStructure[currentCat].push(e);
+      // 標題行：F欄是'數量'
+      if (f === '數量') continue;
+      // 項目行：F欄是'-'或其他值
+      if (currentCat && e) checklistStructure[currentCat].push(e);
     }
 
     // init checkState

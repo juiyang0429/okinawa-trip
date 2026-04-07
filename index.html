@@ -774,6 +774,21 @@ function closeMenu(){
   document.getElementById('fab-btn').classList.remove('open');
 }
 
+// ── Apps Script JSONP 呼叫 ──
+function callScript(params){
+  return new Promise((resolve, reject) => {
+    const cb = 'asCb_' + Date.now();
+    const qs = Object.entries(params).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
+    const url = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cb;
+    const s = document.createElement('script');
+    const t = setTimeout(() => { delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); reject(new Error('timeout')); }, 10000);
+    window[cb] = (res) => { clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); resolve(res); };
+    s.onerror = () => { clearTimeout(t); delete window[cb]; reject(new Error('script error')); };
+    s.src = url;
+    document.head.appendChild(s);
+  });
+}
+
 function toggleCLSection(listId, arrowId){
   const list = document.getElementById(listId);
   const arrow = document.getElementById(arrowId);

@@ -21,6 +21,12 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 /* ── 原始 day selector（在 hero 裡）── */
 .day-selector-hero{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
 .day-selector-hero::-webkit-scrollbar{display:none}
+.day-selector-hero.hidden{display:none;}
+/* ── 行前清單：電腦版3欄 ── */
+@media(min-width:768px){
+  #cl-sections-container{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}
+  #cl-sections-container .cl-section{margin-bottom:0;}
+}
 
 /* ── 底部浮動版 day selector ── */
 .day-selector-float{
@@ -156,6 +162,17 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--back);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:'Noto Sans TC',sans-serif;white-space:nowrap;}
 .chip.active{border-color:var(--sepia);background:var(--sepia);color:#fff;}
 .shop-count{font-size:11px;color:var(--muted);margin-bottom:6px;text-align:right;}
+/* sticky 篩選器 */
+#shop-filter-sticky{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:var(--surface);
+  margin:-1.5rem -1.2rem 0;
+  padding:12px 1.2rem 10px;
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 8px rgba(52,17,3,0.05);
+}
 .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
 @media(max-width:480px){.info-grid{grid-template-columns:repeat(2,1fr)}}
 .info-card{background:var(--back);border-radius:6px;padding:14px 8px;text-align:center;border:1px solid var(--border);}
@@ -306,7 +323,10 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
     <a href="https://docs.google.com/spreadsheets/d/1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY/edit#gid=1756595886" target="_blank" class="view-sheet-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg> 查看完整花費表</a>
   </div>
   <div class="tab-content" id="tab-hotel"><div id="hotel-container"><div class="loading"><div class="spinner"></div>讀取住宿資料...</div></div></div>
-  <div class="tab-content" id="tab-shopping"><div id="shopping-container"><div class="loading"><div class="spinner"></div>讀取購物清單...</div></div></div>
+  <div class="tab-content" id="tab-shopping">
+    <div id="shop-filter-sticky"></div>
+    <div id="shopping-container"><div class="loading"><div class="spinner"></div>讀取購物清單...</div></div>
+  </div>
   <div class="tab-content" id="tab-checklist">
     <div class="info-grid">
       <div class="info-card"><div class="ic-label">目的地</div><div class="ic-val"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 沖繩</div></div>
@@ -422,7 +442,8 @@ async function loadShopping() {
     const iName = fc('商品', '品名');
     const iPrice = fc('價格');
     const iPerson = fc('誰要', '誰');
-    const iLink = fc('地址連結', '連結', '地圖');
+    const iImg = fc('圖片');          // G欄：圖片網址
+    const iLink = fc('地址連結', '連結', '地圖', '地址'); // H欄：地址連結
     const iNote = fc('備註');
 
     shopAllItems = rows.slice(hi + 1)
@@ -434,7 +455,8 @@ async function loadShopping() {
         name: iName >= 0 ? (r[iName] || '').trim() : '',
         price: iPrice >= 0 ? (r[iPrice] || '').trim() : '',
         person: iPerson >= 0 ? (r[iPerson] || '').trim() : '',
-        link: iLink >= 0 ? (r[iLink] || '').trim() : '',
+        img: iImg >= 0 ? (r[iImg] || '').trim() : '',     // G欄圖片
+        link: iLink >= 0 ? (r[iLink] || '').trim() : '',  // H欄地址
         note: iNote >= 0 ? (r[iNote] || '').trim() : '',
       }))
       .filter(item => item.name || item.store);
@@ -477,20 +499,24 @@ function renderShopFilter(c) {
     return `<div class="shop-filter-row"><span class="shop-filter-label">${label}</span><div class="shop-filter-chips">${chips}</div></div>`;
   };
 
-  let html = '<div class="shop-filter-bar">';
-  if (days.length > 1) html += mkChips('day', days, '天數');
-  if (stores.length > 1) html += mkChips('store', stores, '店家');
-  if (persons.length > 1) html += mkChips('person', persons, '誰要');
-  html += '</div><div class="shop-count" id="shop-count"></div>';
-  html += '<div class="shop-grid" id="shop-list"></div>';
+  // 篩選器塞進 sticky 區
+  const sticky = document.getElementById('shop-filter-sticky');
+  if (sticky) {
+    let fhtml = '<div class="shop-filter-bar" style="margin-bottom:0">';
+    fhtml += mkChips('day', days, '天數');
+    fhtml += mkChips('store', stores, '店家');
+    fhtml += mkChips('person', persons, '誰要');
+    fhtml += '</div>';
+    sticky.innerHTML = fhtml;
+  }
 
-  // 只重建篩選器區塊，不覆蓋 c 的外殼
-  c.innerHTML = html;
+  // 清單區：計數 + 商品列表
+  c.innerHTML = '<div class="shop-count" id="shop-count" style="margin-top:12px"></div><div class="shop-grid" id="shop-list"></div>';
 }
 
 function setShopFilter(key, val, btn) {
   shopFilter[key] = val;
-  // 更新同一列的 chips active 狀態
+  // 更新同一列的 chips active 狀態（在 sticky 裡）
   btn.closest('.shop-filter-chips').querySelectorAll('.chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderShopItems(document.getElementById('shopping-container'));
@@ -541,6 +567,9 @@ function renderShopItems(c) {
     }
     dayItems.forEach((item, i) => {
       const uid = `shop_${day}_${i}`;
+      // G欄：圖片網址直接顯示（Drive 連結轉換）
+      const imgSrc = item.img ? convertDriveUrl(item.img) : '';
+      // H欄：地址連結用於地圖
       const mu = item.link.startsWith('http') ? item.link
                : item.store ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store) : '';
       html += `<div class="shop-item" style="margin-bottom:8px">
@@ -558,6 +587,7 @@ function renderShopItems(c) {
           <span class="shop-arrow" id="shop-arrow-${uid}">▼</span>
         </div>
         <div class="shop-detail" id="shop-detail-${uid}">
+          ${imgSrc ? `<img src="${imgSrc}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">` : ''}
           <div class="shop-meta" style="margin-top:10px">
             ${item.hours ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>` : ''}
             ${item.note ? `<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>` : ''}
@@ -584,6 +614,10 @@ function heroTab(name,btn){
   document.querySelectorAll('.fab-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.fab-item').forEach(b=>{if(b.dataset.tab===name)b.classList.add('active');});
+  // hero day selector：只在行程頁顯示
+  const heroDs = document.getElementById('day-selector-hero');
+  if (name === 'itinerary') { heroDs.classList.remove('hidden'); }
+  else { heroDs.classList.add('hidden'); }
   // 切換 tab 時，非行程頁隱藏浮動版
   isItineraryTab = (name === 'itinerary');
   if (!isItineraryTab) {
@@ -591,7 +625,6 @@ function heroTab(name,btn){
     floatBar.classList.add('tab-hidden');
   } else {
     floatBar.classList.remove('tab-hidden');
-    // 重新觸發 observer 判斷（切回行程頁時立即更新）
     heroObserver.unobserve(document.getElementById('day-selector-hero'));
     heroObserver.observe(document.getElementById('day-selector-hero'));
   }

@@ -7,67 +7,65 @@
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --sepia:#341103;
-  --coral:#e76746;
-  --back:#f5f5f5;
-  --surface:#ffffff;
-  --muted:#766c69;
-  --border:#e8e0dc;
-  --text:#341103;
-  --text-light:#766c69;
-  --accent:#e76746;
-  --accent-soft:#f5ede9;
-}
-body{
-  font-family:'Noto Sans TC','Noto Sans JP',sans-serif;
-  background-color:var(--back);
-  color:var(--text);
-  min-height:100vh;
-}
-.hero{
-  background:radial-gradient(ellipse 140% 120% at 80% -10%, #f2c9a8 0%, #f5ede9 45%, var(--back) 100%);
-  padding:1.4rem 1.4rem 1.6rem;
-  border-bottom:1px solid var(--border);
-  position:relative;
-  overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;right:-60px;top:-60px;
-  width:280px;height:280px;border-radius:50%;
-  background:radial-gradient(circle, rgba(231,103,70,0.18) 0%, transparent 70%);
-  pointer-events:none;
-}
+:root{--sepia:#341103;--coral:#e76746;--back:#f5f5f5;--surface:#ffffff;--muted:#766c69;--border:#e8e0dc;--text:#341103;--text-light:#766c69;--accent:#e76746;--accent-soft:#f5ede9;}
+body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(--back);color:var(--text);min-height:100vh;}
+.hero{background:radial-gradient(ellipse 140% 120% at 80% -10%, #f2c9a8 0%, #f5ede9 45%, var(--back) 100%);padding:1.4rem 1.4rem 1.6rem;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle, rgba(231,103,70,0.18) 0%, transparent 70%);pointer-events:none;}
 .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
 .hero-title-wrap{display:flex;align-items:center;gap:12px;}
 .hero-icon{display:flex;align-items:center;justify-content:center;}
 .hero h1{font-family:'Klee One','Noto Serif TC',serif;font-size:1.5rem;color:var(--sepia);font-weight:600;letter-spacing:0.08em;}
 .hero-sub{color:var(--muted);font-size:0.78rem;margin-top:3px;letter-spacing:0.04em;}
+
+/* ── 原始 day selector（在 hero 裡）── */
+.day-selector-hero{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.day-selector-hero::-webkit-scrollbar{display:none}
+
+/* ── 底部浮動版 day selector ── */
+.day-selector-float{
+  display:flex;gap:6px;
+  position:fixed;bottom:0;left:0;right:0;
+  z-index:150;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(245,237,233,0.88);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-top:1px solid rgba(232,224,220,0.8);
+  /* 預設隱藏，滑出視窗後才顯示 */
+  transform:translateY(110%);
+  opacity:0;
+  transition:transform 0.28s ease, opacity 0.28s ease;
+  pointer-events:none;
+}
+.day-selector-float.visible{
+  transform:translateY(0);
+  opacity:1;
+  pointer-events:all;
+}
+/* 非行程頁強制隱藏 */
+.day-selector-float.tab-hidden{
+  transform:translateY(110%) !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+.day-tab-hero{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;padding:9px 8px;border-radius:10px;border:none;cursor:pointer;background:rgba(52,17,3,0.07);color:var(--muted);font-family:'Noto Sans TC',sans-serif;transition:all 0.2s;}
+.day-tab-hero.active{background:var(--sepia);color:#fff;}
+.day-tab-hero:not(.active):hover{background:rgba(52,17,3,0.13);color:var(--sepia);}
+.dth-date{font-size:11px;margin-bottom:3px;font-weight:500;letter-spacing:0.02em;}
+.dth-label{font-size:20px;font-weight:700;font-family:'Noto Serif TC',serif;line-height:1.1;}
+
+/* 行程頁底部留空，防止最後項目被浮動選單遮住 */
+#tab-itinerary{padding-bottom:84px;}
+
 .fab-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,0.35);backdrop-filter:blur(3px);z-index:200;}
 .fab-overlay.open{display:block;}
-.fab-btn{
-  position:fixed;right:20px;bottom:24px;z-index:202;
-  width:52px;height:52px;border-radius:50%;border:none;
-  background:var(--sepia);color:#fff;font-size:20px;
-  cursor:pointer;box-shadow:0 4px 20px rgba(52,17,3,0.25);
-  transition:all 0.25s;display:flex;align-items:center;justify-content:center;
-}
+.fab-btn{position:fixed;right:20px;bottom:24px;z-index:202;width:52px;height:52px;border-radius:50%;border:none;background:var(--sepia);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(52,17,3,0.25);transition:all 0.25s;display:flex;align-items:center;justify-content:center;}
 .fab-btn:hover{background:#4a1a05;}
 .fab-btn.open{background:var(--coral);transform:rotate(45deg);}
 .fab-btn-icon{transition:transform 0.25s;line-height:1;}
-.fab-menu{
-  position:fixed;right:20px;bottom:86px;z-index:201;
-  display:flex;flex-direction:column;gap:10px;align-items:flex-end;
-  pointer-events:none;
-}
-.fab-item{
-  display:flex;align-items:center;gap:10px;
-  padding:0;border:none;background:transparent;cursor:pointer;
-  font-family:'Noto Sans TC',sans-serif;
-  opacity:0;transform:translateY(16px) scale(0.85);
-  transition:opacity 0.2s, transform 0.2s;
-  pointer-events:none;
-}
+.fab-menu{position:fixed;right:20px;bottom:86px;z-index:201;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none;}
+.fab-item{display:flex;align-items:center;gap:10px;padding:0;border:none;background:transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;opacity:0;transform:translateY(16px) scale(0.85);transition:opacity 0.2s, transform 0.2s;pointer-events:none;}
 .fab-menu.open .fab-item{opacity:1;transform:translateY(0) scale(1);pointer-events:all;}
 .fab-menu.open .fab-item:nth-child(1){transition-delay:0ms;}
 .fab-menu.open .fab-item:nth-child(2){transition-delay:40ms;}
@@ -75,32 +73,12 @@ body{
 .fab-menu.open .fab-item:nth-child(4){transition-delay:120ms;}
 .fab-menu.open .fab-item:nth-child(5){transition-delay:160ms;}
 .fab-menu.open .fab-item:nth-child(6){transition-delay:200ms;}
-.fab-label{
-  background:var(--sepia);color:#fff;
-  font-size:12px;font-weight:500;padding:5px 13px;
-  border-radius:20px;white-space:nowrap;
-  box-shadow:0 2px 8px rgba(52,17,3,0.2);
-  letter-spacing:0.03em;
-}
-.fab-icon{
-  width:44px;height:44px;border-radius:50%;
-  background:var(--surface);border:1.5px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;box-shadow:0 2px 8px rgba(52,17,3,0.1);
-  transition:all 0.15s;flex-shrink:0;
-  color:var(--sepia);
-}
+.fab-label{background:var(--sepia);color:#fff;font-size:12px;font-weight:500;padding:5px 13px;border-radius:20px;white-space:nowrap;box-shadow:0 2px 8px rgba(52,17,3,0.2);letter-spacing:0.03em;}
+.fab-icon{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(52,17,3,0.1);transition:all 0.15s;flex-shrink:0;color:var(--sepia);}
 .fab-icon svg{display:block;}
 .fab-item:hover .fab-icon{background:var(--accent-soft);border-color:var(--coral);color:var(--coral);}
 .fab-item.active .fab-icon{background:var(--sepia);border-color:var(--sepia);color:#fff;}
 .fab-item.active .fab-label{background:var(--coral);}
-.day-selector-hero{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
-.day-selector-hero::-webkit-scrollbar{display:none}
-.day-tab-hero{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;padding:9px 8px;border-radius:10px;border:none;cursor:pointer;background:rgba(52,17,3,0.07);color:var(--muted);font-family:'Noto Sans TC',sans-serif;transition:all 0.2s;}
-.day-tab-hero.active{background:var(--sepia);color:#fff;}
-.day-tab-hero:not(.active):hover{background:rgba(52,17,3,0.13);color:var(--sepia);}
-.dth-date{font-size:11px;margin-bottom:3px;font-weight:500;letter-spacing:0.02em;}
-.dth-label{font-size:20px;font-weight:700;font-family:'Noto Serif TC',serif;line-height:1.1;}
 .container{background:var(--surface);margin:12px 0.8rem 5rem;border-radius:16px;padding:1.5rem 1.2rem;box-shadow:0 2px 16px rgba(52,17,3,0.06);border:1px solid var(--border);}
 .tab-content{display:none}.tab-content.active{display:block;animation:fadeIn 0.25s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -128,8 +106,6 @@ body{
 .tl-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px;}
 .tl-place{font-size:13px;color:var(--muted);margin-bottom:2px;}
 .tl-place::before{content:'▸ ';font-size:11px;color:var(--muted);}
-.tl-desc{font-size:12px;color:var(--coral);line-height:1.5;}
-.tl-desc::before{content:'ℹ ';font-size:11px;}
 .tl-desc-block{margin-top:6px;}
 .tl-desc-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:2px;letter-spacing:0.05em;}
 .tl-desc-text{font-size:12px;color:var(--text);line-height:1.6;background:var(--back);padding:6px 10px;border-radius:6px;border-left:3px solid var(--coral);}
@@ -151,14 +127,7 @@ body{
 .view-sheet-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:1px solid var(--border);border-radius:6px;color:var(--sepia);text-decoration:none;font-size:14px;font-weight:500;}
 .view-sheet-btn:hover{background:var(--accent-soft);}
 .shop-grid{display:flex;flex-direction:column;gap:10px;}
-@media(min-width:768px){
-  #shopping-container .shop-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:12px;
-    align-items:start;
-  }
-}
+@media(min-width:768px){#shopping-container .shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;}}
 .shop-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff;}
 .shop-title{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background 0.15s;user-select:none;}
 .shop-title:hover{background:var(--back);}
@@ -199,8 +168,6 @@ body{
 .loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:3rem;color:var(--muted);font-size:14px}
 .spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--sepia);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* INTERACTIVE CHECKLIST */
 .cl-list{list-style:none;margin-bottom:8px;}
 .cl-item{display:flex;align-items:center;justify-content:space-between;padding:12px 8px;border-bottom:1px dashed var(--border);cursor:pointer;border-radius:6px;transition:background 0.15s;gap:12px;}
 .cl-item:hover{background:var(--back);}
@@ -223,15 +190,8 @@ body{
 .cl-circle.done{border-color:var(--sepia);background:var(--sepia);}
 .cl-circle.done::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
 .cl-popup-close{width:100%;padding:13px;background:var(--sepia);color:#fff;border:none;border-radius:10px;font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
-
-/* COLLAPSIBLE CHECKLIST SECTIONS */
 .cl-section{margin-bottom:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-.cl-section-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;background:var(--back);cursor:pointer;
-  font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;
-  color:var(--sepia);user-select:none;transition:background 0.15s;
-}
+.cl-section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--back);cursor:pointer;font-family:'Noto Serif TC',serif;font-size:1rem;font-weight:700;color:var(--sepia);user-select:none;transition:background 0.15s;}
 .cl-section-header svg{color:var(--coral);flex-shrink:0;}
 .cl-section-header:hover{background:#F0EBE1;}
 .cl-section-arrow{font-size:11px;color:var(--muted);transition:transform 0.25s;}
@@ -247,41 +207,32 @@ body{
     <div class="hero-title-wrap">
       <span class="hero-icon">
 <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Body -->
   <rect x="10" y="24" width="22" height="14" rx="4" fill="var(--coral)"/>
-  <!-- Paws -->
   <ellipse cx="13" cy="38" rx="4" ry="2.5" fill="var(--sepia)" opacity="0.7"/>
   <ellipse cx="29" cy="38" rx="4" ry="2.5" fill="var(--sepia)" opacity="0.7"/>
-  <!-- Neck -->
   <rect x="15" y="19" width="12" height="7" rx="3" fill="var(--coral)"/>
-  <!-- Head -->
   <ellipse cx="21" cy="15" rx="11" ry="10" fill="var(--coral)"/>
-  <!-- Ears -->
   <ellipse cx="11" cy="7" rx="4" ry="5" fill="var(--sepia)" transform="rotate(-15 11 7)"/>
   <ellipse cx="31" cy="7" rx="4" ry="5" fill="var(--sepia)" transform="rotate(15 31 7)"/>
   <ellipse cx="11" cy="7" rx="2" ry="3" fill="var(--coral)" transform="rotate(-15 11 7)"/>
   <ellipse cx="31" cy="7" rx="2" ry="3" fill="var(--coral)" transform="rotate(15 31 7)"/>
-  <!-- Eyes -->
   <ellipse cx="16" cy="13" rx="3" ry="3.5" fill="white"/>
   <ellipse cx="26" cy="13" rx="3" ry="3.5" fill="white"/>
   <circle cx="16.8" cy="13.5" r="1.8" fill="var(--sepia)"/>
   <circle cx="26.8" cy="13.5" r="1.8" fill="var(--sepia)"/>
   <circle cx="17.3" cy="13" r="0.7" fill="white"/>
   <circle cx="27.3" cy="13" r="0.7" fill="white"/>
-  <!-- Nose -->
   <ellipse cx="21" cy="17" rx="2" ry="1.2" fill="var(--sepia)" opacity="0.6"/>
-  <!-- Mouth open -->
   <path d="M16 19.5 Q21 23 26 19.5" stroke="var(--sepia)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-  <!-- Mane lines -->
   <path d="M10 15 Q8 11 10 8" stroke="var(--sepia)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
   <path d="M32 15 Q34 11 32 8" stroke="var(--sepia)" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-  <!-- Curly top hair -->
   <path d="M15 6 Q18 2 21 5 Q24 2 27 6" stroke="var(--sepia)" stroke-width="2" fill="none" stroke-linecap="round"/>
 </svg>
-</span>
+      </span>
       <div><h1>沖繩旅行</h1><p class="hero-sub">2026.04.29 — 05.03 ｜ 5天4夜</p></div>
     </div>
   </div>
+  <!-- 原始 day selector，位置在 hero 裡 -->
   <div class="day-selector-hero" id="day-selector-hero">
     <button class="day-tab-hero active" onclick="switchDay(0,this)" id="daytab-0"><span class="dth-date">4/29三</span><span class="dth-label">D1</span></button>
     <button class="day-tab-hero" onclick="switchDay(1,this)" id="daytab-1"><span class="dth-date">4/30四</span><span class="dth-label">D2</span></button>
@@ -289,6 +240,15 @@ body{
     <button class="day-tab-hero" onclick="switchDay(3,this)" id="daytab-3"><span class="dth-date">5/2六</span><span class="dth-label">D4</span></button>
     <button class="day-tab-hero" onclick="switchDay(4,this)" id="daytab-4"><span class="dth-date">5/3日</span><span class="dth-label">D5</span></button>
   </div>
+</div>
+
+<!-- 底部浮動版 day selector（滑出視窗後才顯示） -->
+<div class="day-selector-float" id="day-selector-float">
+  <button class="day-tab-hero active" onclick="switchDay(0,this)" id="fdaytab-0"><span class="dth-date">4/29三</span><span class="dth-label">D1</span></button>
+  <button class="day-tab-hero" onclick="switchDay(1,this)" id="fdaytab-1"><span class="dth-date">4/30四</span><span class="dth-label">D2</span></button>
+  <button class="day-tab-hero" onclick="switchDay(2,this)" id="fdaytab-2"><span class="dth-date">5/1五</span><span class="dth-label">D3</span></button>
+  <button class="day-tab-hero" onclick="switchDay(3,this)" id="fdaytab-3"><span class="dth-date">5/2六</span><span class="dth-label">D4</span></button>
+  <button class="day-tab-hero" onclick="switchDay(4,this)" id="fdaytab-4"><span class="dth-date">5/3日</span><span class="dth-label">D5</span></button>
 </div>
 
 <div class="container">
@@ -300,7 +260,6 @@ body{
     <div id="timeline-container"><div class="loading"><div class="spinner"></div>讀取行程中...</div></div>
     <div style="text-align:right;margin-top:8px"><span id="last-update-text" style="font-size:11px;color:var(--muted)"></span></div>
   </div>
-
   <div class="tab-content" id="tab-expense">
     <div id="expense-success" style="display:none;background:#eaf3de;border:1px solid #c0dd97;border-radius:6px;padding:14px;margin-bottom:14px;font-size:14px;color:#3b6d11;text-align:center"></div>
     <div class="expense-form-card">
@@ -338,10 +297,8 @@ body{
     </div>
     <a href="https://docs.google.com/spreadsheets/d/1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY/edit#gid=1756595886" target="_blank" class="view-sheet-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg> 查看完整花費表</a>
   </div>
-
   <div class="tab-content" id="tab-hotel"><div id="hotel-container"><div class="loading"><div class="spinner"></div>讀取住宿資料...</div></div></div>
   <div class="tab-content" id="tab-shopping"><div id="shopping-container"><div class="loading"><div class="spinner"></div>讀取購物清單...</div></div></div>
-
   <div class="tab-content" id="tab-checklist">
     <div class="info-grid">
       <div class="info-card"><div class="ic-label">目的地</div><div class="ic-val"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 沖繩</div></div>
@@ -349,47 +306,28 @@ body{
       <div class="info-card"><div class="ic-label">天數</div><div class="ic-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>5天4夜</div></div>
       <div class="info-card"><div class="ic-label">人數</div><div class="ic-val"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>4人</div></div>
     </div>
-
-    <!-- 動態從 Sheet 載入行前清單 -->
-    <div id="cl-sections-container">
-      <div class="loading"><div class="spinner"></div>載入行前清單...</div>
-    </div>
-
-    <!-- 彈出選人 popup -->
+    <div id="cl-sections-container"><div class="loading"><div class="spinner"></div>載入行前清單...</div></div>
     <div id="cl-popup" style="display:none">
       <div class="cl-popup-backdrop" onclick="closePopup()"></div>
       <div class="cl-popup-box">
         <div class="cl-popup-title" id="cl-popup-title"></div>
         <div class="cl-popup-persons">
-          <div class="cl-person-row" onclick="togglePerson(this,'婷')">
-            <div class="cl-circle" id="cp-婷"></div><span>婷</span>
-          </div>
-          <div class="cl-person-row" onclick="togglePerson(this,'旭')">
-            <div class="cl-circle" id="cp-旭"></div><span>旭</span>
-          </div>
-          <div class="cl-person-row" onclick="togglePerson(this,'揚')">
-            <div class="cl-circle" id="cp-揚"></div><span>揚</span>
-          </div>
-          <div class="cl-person-row" onclick="togglePerson(this,'茹')">
-            <div class="cl-circle" id="cp-茹"></div><span>茹</span>
-          </div>
+          <div class="cl-person-row" onclick="togglePerson(this,'婷')"><div class="cl-circle" id="cp-婷"></div><span>婷</span></div>
+          <div class="cl-person-row" onclick="togglePerson(this,'旭')"><div class="cl-circle" id="cp-旭"></div><span>旭</span></div>
+          <div class="cl-person-row" onclick="togglePerson(this,'揚')"><div class="cl-circle" id="cp-揚"></div><span>揚</span></div>
+          <div class="cl-person-row" onclick="togglePerson(this,'茹')"><div class="cl-circle" id="cp-茹"></div><span>茹</span></div>
         </div>
         <button class="cl-popup-close" onclick="closePopup()">完成</button>
       </div>
     </div>
   </div>
-
   <div class="tab-content" id="tab-flight">
     <div class="flight-banner"><div class="f-route">TPE ✈ OKA</div><div class="f-detail"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-1-5.5.5L10 6 1.8 4.2c-.5-.1-.9.4-.7.9l.8 2.8c.1.5.5.8 1 .9l3.7.8 1.5 1.5-.9 2.7c-.2.5.3 1 .8.9l2.7-.9 1.5 1.5.8 3.7c.1.5.5.9.9 1l2.8.8c.5.2 1-.2.9-.7z"/></svg> 2026年4月29日（三）</span><span>日本航空 JAL</span><span>10:05 → 12:35</span></div></div>
     <div class="flight-banner return"><div class="f-route">OKA ✈ TPE</div><div class="f-detail"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21 4 19 2c-2-2-4-1-5.5.5L10 6 1.8 4.2c-.5-.1-.9.4-.7.9l.8 2.8c.1.5.5.8 1 .9l3.7.8 1.5 1.5-.9 2.7c-.2.5.3 1 .8.9l2.7-.9 1.5 1.5.8 3.7c.1.5.5.9.9 1l2.8.8c.5.2 1-.2.9-.7z"/></svg> 2026年5月3日（日）</span><span>日本航空 JAL</span><span>08:25 → 09:05</span></div></div>
     <p class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> 行李規定</p>
     <ul class="checklist"><li>隨身行李：7KG，56×36×23cm 以內，2件</li><li>托運行李：依票種確認</li></ul>
     <p class="section-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 注意事項</p>
-    <ul class="checklist">
-      <li>出發前 24 小時可辦理網路 Check-in</li>
-      <li>Visit Japan Web 預先填寫入境資料</li>
-      <li>建議提前 2.5 小時抵達機場</li>
-    </ul>
+    <ul class="checklist"><li>出發前 24 小時可辦理網路 Check-in</li><li>Visit Japan Web 預先填寫入境資料</li><li>建議提前 2.5 小時抵達機場</li></ul>
     <div style="margin-top:1.2rem;display:flex;gap:8px;flex-wrap:wrap">
       <a class="btn-map" href="https://maps.google.com/?q=那霸空港" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 那霸機場</a>
       <a class="btn-map coral" href="https://maps.google.com/?q=桃園國際機場" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 桃園機場</a>
@@ -403,585 +341,104 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwFkezcjyRZg5dc6C
 const APP_TOKEN='okinawa2026';
 const PUB_KEY='2PACX-1vRI7kWux6_1X9Xazcyg_2qkg5e7iOQfVNyFN6BJA6BbWbh81N9VZzWj-JD_5lYEVY3bxbh-4ZQiQYwn';
 const GID={itinerary_d1:'202449681',itinerary_d2:'793926690',itinerary_d3:'132787083',itinerary_d4:'1366341329',itinerary_d5:'451018843',hotel:'1233567320',shopping:'1421856772'};
-const DAY_CONFIG=[
-  {key:'itinerary_d1',label:'Day 1',date:'4/29 (三)',title:'台灣 → 沖繩'},
-  {key:'itinerary_d2',label:'Day 2',date:'4/30 (四)',title:'沖繩探索'},
-  {key:'itinerary_d3',label:'Day 3',date:'5/1 (五)',title:'沖繩深度遊'},
-  {key:'itinerary_d4',label:'Day 4',date:'5/2 (六)',title:'最後衝刺購物'},
-  {key:'itinerary_d5',label:'Day 5',date:'5/3 (日)',title:'沖繩 → 台灣'},
-];
-function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
-function parseCSV(text){
-  const rows=[];let cells=[],cur='',inQ=false,i=0;
-  while(i<text.length){
-    const c=text[i];
-    if(c==='"'){if(inQ&&text[i+1]==='"'){cur+='"';i+=2;continue;}inQ=!inQ;i++;continue;}
-    if(c===','&&!inQ){cells.push(cur);cur='';i++;continue;}
-    if((c==='\n'||(c==='\r'&&text[i+1]==='\n'))&&!inQ){
-      cells.push(cur);cur='';if(c==='\r')i++;
-      if(cells.some(c=>c.trim()!==''))rows.push(cells);
-      cells=[];i++;continue;
+const DAY_CONFIG=[{key:'itinerary_d1',label:'Day 1',date:'4/29 (三)',title:'台灣 → 沖繩'},{key:'itinerary_d2',label:'Day 2',date:'4/30 (四)',title:'沖繩探索'},{key:'itinerary_d3',label:'Day 3',date:'5/1 (五)',title:'沖繩深度遊'},{key:'itinerary_d4',label:'Day 4',date:'5/2 (六)',title:'最後衝刺購物'},{key:'itinerary_d5',label:'Day 5',date:'5/3 (日)',title:'沖繩 → 台灣'}];
+
+// ── IntersectionObserver：原版 selector 離開視窗 → 顯示浮動版 ──
+let isItineraryTab = true;
+const floatBar = document.getElementById('day-selector-float');
+
+const heroObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!isItineraryTab) return;
+    if (entry.isIntersecting) {
+      // 原版可見 → 隱藏浮動版
+      floatBar.classList.remove('visible');
+    } else {
+      // 原版不可見 → 顯示浮動版
+      floatBar.classList.add('visible');
     }
-    cur+=c;i++;
-  }
-  if(cur||cells.length){cells.push(cur);if(cells.some(c=>c.trim()!==''))rows.push(cells);}
-  const mx=Math.max(...rows.map(r=>r.length),0);
-  for(const r of rows)while(r.length<mx)r.push('');
-  return rows;
-}
-function fetchSheet(gid){
-  return new Promise((resolve,reject)=>{
-    fetch('https://docs.google.com/spreadsheets/d/e/'+PUB_KEY+'/pub?output=csv&gid='+gid)
-      .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-      .then(t=>resolve(parseCSV(t))).catch(e=>reject(e));
   });
-}
+}, { threshold: 0 });
+
+heroObserver.observe(document.getElementById('day-selector-hero'));
+
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');}
+function parseCSV(text){const rows=[];let cells=[],cur='',inQ=false,i=0;while(i<text.length){const c=text[i];if(c==='"'){if(inQ&&text[i+1]==='"'){cur+='"';i+=2;continue;}inQ=!inQ;i++;continue;}if(c===','&&!inQ){cells.push(cur);cur='';i++;continue;}if((c==='\n'||(c==='\r'&&text[i+1]==='\n'))&&!inQ){cells.push(cur);cur='';if(c==='\r')i++;if(cells.some(c=>c.trim()!==''))rows.push(cells);cells=[];i++;continue;}cur+=c;i++;}if(cur||cells.length){cells.push(cur);if(cells.some(c=>c.trim()!==''))rows.push(cells);}const mx=Math.max(...rows.map(r=>r.length),0);for(const r of rows)while(r.length<mx)r.push('');return rows;}
+function fetchSheet(gid){return new Promise((resolve,reject)=>{fetch('https://docs.google.com/spreadsheets/d/e/'+PUB_KEY+'/pub?output=csv&gid='+gid).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(t=>resolve(parseCSV(t))).catch(e=>reject(e));});}
 async function fetchCSV(gid){return fetchSheet(gid);}
-function convertDriveUrl(url){
-  if(!url)return '';
-  const m=url.match(/\/file\/d\/([^\/\?]+)/);
-  const m2=url.match(/id=([^&]+)/);
-  const id=m?m[1]:(m2?m2[1]:'');
-  return id?'https://drive.google.com/thumbnail?id='+id+'&sz=w600':url;
-}
-function formatAirport(text){
-  if(!text)return '';
-  const lines=text.split(/(?=\d+\.)/g).filter(s=>s.trim());
-  if(lines.length<=1)return text;
-  return lines.map(l=>'<div style="margin-bottom:4px">'+l.trim()+'</div>').join('');
-}
+function convertDriveUrl(url){if(!url)return '';const m=url.match(/\/file\/d\/([^\/\?]+)/);const m2=url.match(/id=([^&]+)/);const id=m?m[1]:(m2?m2[1]:'');return id?'https://drive.google.com/thumbnail?id='+id+'&sz=w600':url;}
 let allDayData=[],currentDay=0;
-function findHdr(rows){
-  for(let i=0;i<Math.min(rows.length,6);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('行程')||c.includes('類型')||c.includes('抵達'))))return i;}
-  return 1;
-}
-function getTC(type){
-  const t=(type||'').toLowerCase();
-  if(t.includes('機')||t.includes('航')||t.includes('飛'))return 'type-flight';
-  if(t.includes('餐')||t.includes('食')||t.includes('吃'))return 'type-food';
-  if(t.includes('住')||t.includes('飯店')||t.includes('check'))return 'type-hotel';
-  if(t.includes('車')||t.includes('交通')||t.includes('租'))return 'type-car';
-  return '';
-}
-function tlabel(type){
-  const t=(type||'').toLowerCase();
-  if(t.includes('餐')||t.includes('食')||t.includes('吃'))return '🍴 美食';
-  if(t.includes('景')||t.includes('觀光'))return '⛩ 景點';
-  if(t.includes('住')||t.includes('飯店'))return '🏨 住宿';
-  if(t.includes('機')||t.includes('航')||t.includes('飛'))return '✈ 航班';
-  if(t.includes('車')||t.includes('交通')||t.includes('租'))return '🚗 交通';
-  if(t.includes('購')||t.includes('買')||t.includes('逛'))return '🛍 購物';
-  return type?'📍 '+type:'';
-}
-function fmtTime(t){
-  if(!t)return{ampm:'',clock:'--:--'};
-  const m=t.match(/(\d{1,2}):(\d{2})/);if(!m)return{ampm:'',clock:t};
-  const h=parseInt(m[1]),min=m[2],ampm=h<12?'上午':'下午';
-  const h12=h===0?12:h>12?h-12:h;
-  return{ampm,clock:String(h12).padStart(2,'0')+':'+min};
-}
-function renderTL(rows){
-  const hi=findHdr(rows),hdr=rows[hi]||[];
-  const fc=(...kws)=>{for(const kw of kws){const i=hdr.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
-  const tI=fc('抵達')>=0?fc('抵達'):0,teI=fc('離開')>=0?fc('離開'):1;
-  const tyI=fc('類型')>=0?fc('類型'):3,nI=fc('行程')>=0?fc('行程'):4;
-  const dI=fc('說明')>=0?fc('說明'):5,pI=fc('地點')>=0?fc('地點'):6;
-  const uI=fc('地址連結','連結','網址')>=0?fc('地址連結','連結','網址'):7;
-  const noI=fc('備註')>=0?fc('備註'):9;
-  const dr=rows.slice(hi+1).filter(r=>r[nI]&&r[nI].trim());
-  if(dr.length===0)return '<div class="tl-empty">尚未填入行程，在 Google Sheet 新增後點 ↻ 同步</div>';
+function findHdr(rows){for(let i=0;i<Math.min(rows.length,6);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('行程')||c.includes('類型')||c.includes('抵達'))))return i;}return 1;}
+function getTC(type){const t=(type||'').toLowerCase();if(t.includes('機')||t.includes('航')||t.includes('飛'))return 'type-flight';if(t.includes('餐')||t.includes('食')||t.includes('吃'))return 'type-food';if(t.includes('住')||t.includes('飯店')||t.includes('check'))return 'type-hotel';if(t.includes('車')||t.includes('交通')||t.includes('租'))return 'type-car';return '';}
+function tlabel(type){const t=(type||'').toLowerCase();if(t.includes('餐')||t.includes('食')||t.includes('吃'))return '🍴 美食';if(t.includes('景')||t.includes('觀光'))return '⛩ 景點';if(t.includes('住')||t.includes('飯店'))return '🏨 住宿';if(t.includes('機')||t.includes('航')||t.includes('飛'))return '✈ 航班';if(t.includes('車')||t.includes('交通')||t.includes('租'))return '🚗 交通';if(t.includes('購')||t.includes('買')||t.includes('逛'))return '🛍 購物';return type?'📍 '+type:'';}
+function fmtTime(t){if(!t)return{ampm:'',clock:'--:--'};const m=t.match(/(\d{1,2}):(\d{2})/);if(!m)return{ampm:'',clock:t};const h=parseInt(m[1]),min=m[2],ampm=h<12?'上午':'下午';const h12=h===0?12:h>12?h-12:h;return{ampm,clock:String(h12).padStart(2,'0')+':'+min};}
+function renderTL(rows){const hi=findHdr(rows),hdr=rows[hi]||[];const fc=(...kws)=>{for(const kw of kws){const i=hdr.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};const tI=fc('抵達')>=0?fc('抵達'):0,teI=fc('離開')>=0?fc('離開'):1;const tyI=fc('類型')>=0?fc('類型'):3,nI=fc('行程')>=0?fc('行程'):4;const dI=fc('說明')>=0?fc('說明'):5,pI=fc('地點')>=0?fc('地點'):6;const uI=fc('地址連結','連結','網址')>=0?fc('地址連結','連結','網址'):7;const noI=fc('備註')>=0?fc('備註'):9;const dr=rows.slice(hi+1).filter(r=>r[nI]&&r[nI].trim());if(dr.length===0)return '<div class="tl-empty">尚未填入行程，在 Google Sheet 新增後點 ↻ 同步</div>';let html='<div class="timeline">';for(const r of dr){const {ampm,clock}=fmtTime(r[tI]||'');const {clock:ce}=fmtTime(r[teI]||'');const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'';const place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';const mapUrl=link.startsWith('http')?link:place?'https://maps.google.com/?q='+encodeURIComponent(place):'';const formatDesc=(text)=>{if(!text)return '';const lines=text.split(/(?=\d+[\.、]|[a-zA-Z]\))/g).filter(s=>s.trim());if(lines.length<=1)return esc(text);return lines.map(l=>'<div style="margin-bottom:3px">'+esc(l.trim())+'</div>').join('');};html+='<div class="tl-item '+getTC(type)+'">'+'<div class="tl-time-box">'+(ampm?'<div class="tl-ampm">'+esc(ampm)+'</div>':'')+'<div class="tl-clock">'+esc(clock)+'</div>'+(ce&&ce!=='--:--'?'<div class="tl-clock-end">'+esc(ce)+'</div>':'')+(tlabel(type)?'<div class="tl-type-badge">'+esc(tlabel(type))+'</div>':'')+'</div>'+'<div class="tl-content">'+'<div class="tl-name">'+esc(name)+'</div>'+(place?'<div class="tl-place">'+esc(place)+'</div>':'')+(desc?'<div class="tl-desc-block"><div class="tl-desc-label">說明</div><div class="tl-desc-text">'+formatDesc(desc)+'</div></div>':'')+(note&&note!==desc?'<div class="tl-desc-block"><div class="tl-desc-label">備註</div><div class="tl-desc-text">'+esc(note)+'</div></div>':'')+(mapUrl?'<div class="tl-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mapUrl+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</div>':'')+'</div></div>';}return html+'</div>';}
 
-  let html='<div class="timeline">';
-  for(const r of dr){
-    const {ampm,clock}=fmtTime(r[tI]||'');
-    const {clock:ce}=fmtTime(r[teI]||'');
-    const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'';
-    const place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';
-
-    // 地圖邏輯：H(地址連結)有填就用，否則用G(地點)搜尋，兩者都沒有就不顯示
-    const mapUrl = link.startsWith('http') ? link
-                 : place ? 'https://maps.google.com/?q='+encodeURIComponent(place) : '';
-
-    // 說明文字：以 1. 2. a) b) 為換行點
-    const formatDesc = (text) => {
-      if(!text) return '';
-      const lines = text.split(/(?=\d+[\.、]|[a-zA-Z]\))/g).filter(s=>s.trim());
-      if(lines.length <= 1) return esc(text);
-      return lines.map(l=>'<div style="margin-bottom:3px">'+esc(l.trim())+'</div>').join('');
-    };
-
-    html+='<div class="tl-item '+getTC(type)+'">'
-      +'<div class="tl-time-box">'
-      +(ampm?'<div class="tl-ampm">'+esc(ampm)+'</div>':'')
-      +'<div class="tl-clock">'+esc(clock)+'</div>'
-      +(ce&&ce!=='--:--'?'<div class="tl-clock-end">'+esc(ce)+'</div>':'')
-      +(tlabel(type)?'<div class="tl-type-badge">'+esc(tlabel(type))+'</div>':'')
-      +'</div>'
-      +'<div class="tl-content">'
-      +'<div class="tl-name">'+esc(name)+'</div>'
-      +(place?'<div class="tl-place">'+esc(place)+'</div>':'')
-      +(desc?'<div class="tl-desc-block"><div class="tl-desc-label">說明</div><div class="tl-desc-text">'+formatDesc(desc)+'</div></div>':'')
-      +(note&&note!==desc?'<div class="tl-desc-block"><div class="tl-desc-label">備註</div><div class="tl-desc-text">'+esc(note)+'</div></div>':'')
-      +(mapUrl?'<div class="tl-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mapUrl+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</div>':'')
-      +'</div></div>';
-  }
-  return html+'</div>';
-}
-
-
+// switchDay：同步更新原版和浮動版兩組按鈕
 function switchDay(idx,btn){
   currentDay=idx;
-  document.querySelectorAll('.day-tab-hero').forEach(b=>b.classList.remove('active'));
-  document.getElementById('daytab-'+idx).classList.add('active');
+  // 更新原版
+  document.querySelectorAll('#day-selector-hero .day-tab-hero').forEach(b=>b.classList.remove('active'));
+  const orig=document.getElementById('daytab-'+idx);if(orig)orig.classList.add('active');
+  // 更新浮動版
+  document.querySelectorAll('#day-selector-float .day-tab-hero').forEach(b=>b.classList.remove('active'));
+  const flt=document.getElementById('fdaytab-'+idx);if(flt)flt.classList.add('active');
   const cfg=DAY_CONFIG[idx];
   document.getElementById('dtb-date').textContent=cfg.date;
   document.getElementById('dtb-theme').textContent=cfg.title;
   const c=document.getElementById('timeline-container');
   if(allDayData[idx]){c.innerHTML=renderTL(allDayData[idx]);}
-  else{
-    c.innerHTML='<div class="loading"><div class="spinner"></div>讀取中...</div>';
-    fetchCSV(GID[cfg.key]).then(rows=>{allDayData[idx]=rows;c.innerHTML=renderTL(rows);}).catch(e=>{c.innerHTML='<div class="tl-empty">讀取失敗：'+e.message+'</div>';});
-  }
+  else{c.innerHTML='<div class="loading"><div class="spinner"></div>讀取中...</div>';fetchCSV(GID[cfg.key]).then(rows=>{allDayData[idx]=rows;c.innerHTML=renderTL(rows);}).catch(e=>{c.innerHTML='<div class="tl-empty">讀取失敗：'+e.message+'</div>';});}
 }
-async function loadAllItinerary(){
-  const c=document.getElementById('timeline-container'),u=document.getElementById('last-update-text');
-  c.innerHTML='<div class="loading"><div class="spinner"></div>讀取行程資料中...</div>';
-  allDayData=[];
-  try{
-    const res=await Promise.all(DAY_CONFIG.map(cfg=>fetchCSV(GID[cfg.key])));
-    allDayData=res;c.innerHTML=renderTL(allDayData[currentDay]);
-    u.textContent='最後更新：'+new Date().toLocaleTimeString('zh-TW');
-  }catch(e){c.innerHTML='<div class="tl-empty">讀取失敗 😢<br><small>'+e.message+'</small></div>';u.textContent='讀取失敗';}
-}
-async function loadHotel(){
-  const c=document.getElementById('hotel-container');
-  try{
-    const rows=await fetchCSV(GID.hotel);
-    let hi=0;
-    for(let i=0;i<Math.min(rows.length,4);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('住宿')||c.includes('日期')))){hi=i;break;}}
-    const hRow=rows[hi]||[];
-    const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
-    // 注意：'住宿日期'包含'住宿'，需要先找精確的'住宿'欄（不含'日期'）
-    const iDt=fc('日期')>=0?fc('日期'):1;
-    // 找住宿名稱欄：排除含'日期'的欄
-    const iNm=(()=>{const i=hRow.findIndex(h=>h&&h.includes('住宿')&&!h.includes('日期'));return i>=0?i:2;})();
-    const iAr=fc('區域')>=0?fc('區域'):3;
-    const iPr=fc('價格')>=0?fc('價格'):4,iSz=fc('大小')>=0?fc('大小'):5;
-    const iMt=fc('交通','地鐵')>=0?fc('交通','地鐵'):6,iNb=fc('附近')>=0?fc('附近'):7,iNo=fc('備註')>=0?fc('備註'):8;
-    const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';
-    const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());
-    if(!dr.length){c.innerHTML='<div class="shop-empty">尚未填入住宿資料 🏨</div>';return;}
-    let html='<div class="shop-grid">';
-    dr.forEach((r,i)=>{
-      const dt=g(r,iDt),nm=g(r,iNm),ar=g(r,iAr),pr=g(r,iPr),sz=g(r,iSz),mt=g(r,iMt),nb=g(r,iNb),no=g(r,iNo);
-      const mu='https://maps.google.com/?q='+encodeURIComponent(nm+' '+ar);
-      html+='<div class="shop-item">'
-        +'<div class="shop-title" onclick="toggleShop(\'hotel-'+i+'\')">'
-        +'<div class="shop-title-left"><div class="shop-title-icon">🏨</div><div>'
-        +(dt?'<div style="font-size:12px;color:var(--coral);font-weight:700;margin-bottom:3px">📅 '+esc(dt)+'</div>':'')
-        +'<div class="shop-name">'+esc(nm)+'</div>'
-        +'<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'
-        +(ar?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">📍 '+esc(ar)+'</span>':'')
-        +(pr?'<span style="font-size:11px;background:var(--back);color:var(--coral);padding:2px 8px;border-radius:8px;font-weight:600">'+esc(pr)+'</span>':'')
-        +(sz?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">'+esc(sz)+'</span>':'')
-        +'</div></div></div>'
-        +'<span class="shop-arrow" id="shop-arrow-hotel-'+i+'">▼</span></div>'
-        +'<div class="shop-detail" id="shop-detail-hotel-'+i+'">'
-        +'<div class="shop-meta" style="margin-top:12px">'
-        +(mt?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🚇 交通</span><span class="shop-meta-value">'+esc(mt)+'</span></div>':'')
-        +(nb?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🗺 附近</span><span class="shop-meta-value">'+esc(nb)+'</span></div>':'')
-        +(no?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">📝 備註</span><span class="shop-meta-value">'+esc(no)+'</span></div>':'')
-        +'</div>'
-        +'<button class="shop-map-btn" style="margin-top:12px" onclick="openMap(\''+mu+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Google Maps</button>'
-        +'</div></div>';
-    });
-    c.innerHTML=html+'</div>';
-  }catch(e){c.innerHTML='<div class="shop-empty">讀取住宿失敗：'+e.message+'</div>';}
-}
-async function loadShopping(){
-  const c=document.getElementById('shopping-container');if(!c)return;
-  try{
-    const rows=await fetchCSV(GID.shopping);
-    const items=[];
-
-    // 逐行掃描：找到「必買商品」後的商品名稱
-    // 每個商品區塊結構（以row index為基準）：
-    // +0: 必買商品（標題）
-    // +1: 商品名稱
-    // +2: 介紹
-    // +3: 📍店名
-    // +4: 地址：xxx
-    // +5: 營業時間：xxx
-    // +6: 價格：xxx
-    // +7: 圖片（空或網址）
-    // 3欄並排：A欄(col0), C欄(col2), E欄(col4)
-
-    for(let r=0; r<rows.length; r++){
-      const row = rows[r] || [];
-      // 找到「必買商品」標題行
-      const isTitleRow = [0,2,4].some(c2 => (row[c2]||'').trim() === '必買商品');
-      if(!isTitleRow) continue;
-
-      // 這行是標題，下面8行是一組
-      for(let co=0; co<3; co++){
-        const c2 = co*2;
-        const g = (off) => {
-          const targetRow = rows[r+off];
-          if(!targetRow) return '';
-          return (targetRow[c2] || '').toString().trim();
-        };
-
-        const name = g(1);
-        if(!name || name==='(商品名稱)' || name==='必買商品') continue;
-
-        // 店名：去掉📍前綴和佔位文字
-        const storeRaw = g(3);
-        const store = storeRaw.replace(/^📍\s*/,'').replace(/^\(店名\)$/,'').trim();
-
-        // 地址：去掉「地址：」前綴
-        const addrRaw = g(4);
-        const addr = addrRaw.replace(/^地址[：:]\s*/,'').replace(/^\(地址\)$/,'').trim();
-
-        // 營業時間：去掉前綴
-        const hoursRaw = g(5);
-        const hours = hoursRaw.replace(/^營業時間[：:]\s*/,'').replace(/^\(營業時間\)$/,'').trim();
-
-        // 價格：去掉前綴
-        const priceRaw = g(6);
-        const price = priceRaw.replace(/^價格[：:]\s*/,'').replace(/^\(價格\)$/,'').trim();
-
-        // 介紹：介紹文字（排除只有「介紹」兩字）
-        const descRaw = g(2);
-        const desc = (descRaw === '介紹') ? '' : descRaw;
-
-        // 圖片
-        const imgRaw = g(7);
-        const img = (imgRaw.startsWith('http') && !imgRaw.includes('(圖片')) ? convertDriveUrl(imgRaw) : '';
-
-        items.push({name, store, desc, addr, hours, price, img});
-      }
-      // 跳過這9行
-      r += 7;
-    }
-
-    if(!items.length){
-      c.innerHTML='<div class="shop-empty">尚未填入購物清單 🛍<br><span style="font-size:12px">在 Google Sheet 的「購物清單」新增後重新整理</span></div>';
-      return;
-    }
-
-    const ti=(n)=>{const s=(n||'').toLowerCase();
-      if(s.includes('藥')||s.includes('保健'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>';
-      if(s.includes('零食')||s.includes('糖')||s.includes('餅'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
-      if(s.includes('酒'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 19.8A2 2 0 0 0 6.52 22h10.96a2 2 0 0 0 1.8-2.2l-5.069-9.377A2 2 0 0 1 14 9.527V2"/><line x1="8" y1="2" x2="16" y2="2"/></svg>';
-      if(s.includes('化妝')||s.includes('美妝'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>';
-      if(s.includes('衣')||s.includes('包')||s.includes('鞋'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>';
-      return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
-    };
-
-    let html='<div class="shop-grid">';
-    items.forEach((item,i)=>{
-      const dt=item.store?esc(item.store)+'－'+esc(item.name):esc(item.name);
-      const mq=((item.store||'')+' '+(item.addr||'')).trim();
-      const mu=mq?'https://maps.google.com/?q='+encodeURIComponent(mq):'';
-      html+='<div class="shop-item">'
-        +'<div class="shop-title" onclick="toggleShop('+i+')">'
-        +'<div class="shop-title-left"><div class="shop-title-icon">'+ti(item.name)+'</div><div>'
-        +'<div class="shop-name">'+dt+'</div>'
-        +(item.price?'<div class="shop-price-preview">'+esc(item.price)+'</div>':'')
-        +'</div></div>'
-        +'<span class="shop-arrow" id="shop-arrow-'+i+'">▼</span></div>'
-        +'<div class="shop-detail" id="shop-detail-'+i+'">'
-        +(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px" onerror="this.remove()">':'')
-        +(item.desc?'<p class="shop-desc">'+esc(item.desc)+'</p>':'')
-        +'<div class="shop-meta">'
-        +(item.addr?'<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">'+esc(item.addr)+'</span></div>':'')
-        +(item.hours?'<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">'+esc(item.hours)+'</span></div>':'')
-        +(item.price?'<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral);font-weight:600">'+esc(item.price)+'</span></div>':'')
-        +'</div>'
-        +(mu?'<button class="shop-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mu+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>':'')
-        +'</div></div>';
-    });
-    html+='</div>';
-    c.innerHTML=html;
-  }catch(e){c.innerHTML='<div class="shop-empty">讀取失敗：'+e.message+'</div>';}
-}
-
-
+async function loadAllItinerary(){const c=document.getElementById('timeline-container'),u=document.getElementById('last-update-text');c.innerHTML='<div class="loading"><div class="spinner"></div>讀取行程資料中...</div>';allDayData=[];try{const res=await Promise.all(DAY_CONFIG.map(cfg=>fetchCSV(GID[cfg.key])));allDayData=res;c.innerHTML=renderTL(allDayData[currentDay]);u.textContent='最後更新：'+new Date().toLocaleTimeString('zh-TW');}catch(e){c.innerHTML='<div class="tl-empty">讀取失敗 😢<br><small>'+e.message+'</small></div>';u.textContent='讀取失敗';}}
+async function loadHotel(){const c=document.getElementById('hotel-container');try{const rows=await fetchCSV(GID.hotel);let hi=0;for(let i=0;i<Math.min(rows.length,4);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('住宿')||c.includes('日期')))){hi=i;break;}}const hRow=rows[hi]||[];const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};const iDt=fc('日期')>=0?fc('日期'):1;const iNm=(()=>{const i=hRow.findIndex(h=>h&&h.includes('住宿')&&!h.includes('日期'));return i>=0?i:2;})();const iAr=fc('區域')>=0?fc('區域'):3;const iPr=fc('價格')>=0?fc('價格'):4,iSz=fc('大小')>=0?fc('大小'):5;const iMt=fc('交通','地鐵')>=0?fc('交通','地鐵'):6,iNb=fc('附近')>=0?fc('附近'):7,iNo=fc('備註')>=0?fc('備註'):8;const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());if(!dr.length){c.innerHTML='<div class="shop-empty">尚未填入住宿資料 🏨</div>';return;}let html='<div class="shop-grid">';dr.forEach((r,i)=>{const dt=g(r,iDt),nm=g(r,iNm),ar=g(r,iAr),pr=g(r,iPr),sz=g(r,iSz),mt=g(r,iMt),nb=g(r,iNb),no=g(r,iNo);const mu='https://maps.google.com/?q='+encodeURIComponent(nm+' '+ar);html+='<div class="shop-item"><div class="shop-title" onclick="toggleShop(\'hotel-'+i+'\')"><div class="shop-title-left"><div class="shop-title-icon">🏨</div><div>'+(dt?'<div style="font-size:12px;color:var(--coral);font-weight:700;margin-bottom:3px">📅 '+esc(dt)+'</div>':'')+'<div class="shop-name">'+esc(nm)+'</div><div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+(ar?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">📍 '+esc(ar)+'</span>':'')+(pr?'<span style="font-size:11px;background:var(--back);color:var(--coral);padding:2px 8px;border-radius:8px;font-weight:600">'+esc(pr)+'</span>':'')+(sz?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">'+esc(sz)+'</span>':'')+'</div></div></div><span class="shop-arrow" id="shop-arrow-hotel-'+i+'">▼</span></div><div class="shop-detail" id="shop-detail-hotel-'+i+'"><div class="shop-meta" style="margin-top:12px">'+(mt?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🚇 交通</span><span class="shop-meta-value">'+esc(mt)+'</span></div>':'')+(nb?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🗺 附近</span><span class="shop-meta-value">'+esc(nb)+'</span></div>':'')+(no?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">📝 備註</span><span class="shop-meta-value">'+esc(no)+'</span></div>':'')+'</div><button class="shop-map-btn" style="margin-top:12px" onclick="openMap(\''+mu+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Google Maps</button></div></div>';});c.innerHTML=html+'</div>';}catch(e){c.innerHTML='<div class="shop-empty">讀取住宿失敗：'+e.message+'</div>';}}
+async function loadShopping(){const c=document.getElementById('shopping-container');if(!c)return;try{const rows=await fetchCSV(GID.shopping);const items=[];for(let r=0;r<rows.length;r++){const row=rows[r]||[];const isTitleRow=[0,2,4].some(c2=>(row[c2]||'').trim()==='必買商品');if(!isTitleRow)continue;for(let co=0;co<3;co++){const c2=co*2;const g=(off)=>{const targetRow=rows[r+off];if(!targetRow)return '';return(targetRow[c2]||'').toString().trim();};const name=g(1);if(!name||name==='(商品名稱)'||name==='必買商品')continue;const store=g(3).replace(/^📍\s*/,'').replace(/^\(店名\)$/,'').trim();const addr=g(4).replace(/^地址[：:]\s*/,'').replace(/^\(地址\)$/,'').trim();const hours=g(5).replace(/^營業時間[：:]\s*/,'').replace(/^\(營業時間\)$/,'').trim();const price=g(6).replace(/^價格[：:]\s*/,'').replace(/^\(價格\)$/,'').trim();const descRaw=g(2);const desc=(descRaw==='介紹')?'':descRaw;const imgRaw=g(7);const img=(imgRaw.startsWith('http')&&!imgRaw.includes('(圖片'))?convertDriveUrl(imgRaw):'';items.push({name,store,desc,addr,hours,price,img});}r+=7;}if(!items.length){c.innerHTML='<div class="shop-empty">尚未填入購物清單 🛍<br><span style="font-size:12px">在 Google Sheet 的「購物清單」新增後重新整理</span></div>';return;}const ti=(n)=>{const s=(n||'').toLowerCase();if(s.includes('藥')||s.includes('保健'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>';if(s.includes('零食')||s.includes('糖')||s.includes('餅'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';if(s.includes('酒'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 19.8A2 2 0 0 0 6.52 22h10.96a2 2 0 0 0 1.8-2.2l-5.069-9.377A2 2 0 0 1 14 9.527V2"/><line x1="8" y1="2" x2="16" y2="2"/></svg>';if(s.includes('化妝')||s.includes('美妝'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>';if(s.includes('衣')||s.includes('包')||s.includes('鞋'))return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>';return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';};let html='<div class="shop-grid">';items.forEach((item,i)=>{const dt=item.store?esc(item.store)+'－'+esc(item.name):esc(item.name);const mq=((item.store||'')+' '+(item.addr||'')).trim();const mu=mq?'https://maps.google.com/?q='+encodeURIComponent(mq):'';html+='<div class="shop-item"><div class="shop-title" onclick="toggleShop('+i+')"><div class="shop-title-left"><div class="shop-title-icon">'+ti(item.name)+'</div><div><div class="shop-name">'+dt+'</div>'+(item.price?'<div class="shop-price-preview">'+esc(item.price)+'</div>':'')+'</div></div><span class="shop-arrow" id="shop-arrow-'+i+'">▼</span></div><div class="shop-detail" id="shop-detail-'+i+'">'+(item.img?'<img src="'+item.img+'" style="width:100%;border-radius:8px;margin:12px 0 8px" onerror="this.remove()">':'')+(item.desc?'<p class="shop-desc">'+esc(item.desc)+'</p>':'')+'<div class="shop-meta">'+(item.addr?'<div class="shop-meta-row"><span class="shop-meta-label">🗺 地址</span><span class="shop-meta-value">'+esc(item.addr)+'</span></div>':'')+(item.hours?'<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">'+esc(item.hours)+'</span></div>':'')+(item.price?'<div class="shop-meta-row"><span class="shop-meta-label">💴 價格</span><span class="shop-meta-value" style="color:var(--coral);font-weight:600">'+esc(item.price)+'</span></div>':'')+'</div>'+(mu?'<button class="shop-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mu+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>':'')+'</div></div>';});html+='</div>';c.innerHTML=html;}catch(e){c.innerHTML='<div class="shop-empty">讀取失敗：'+e.message+'</div>';}}
 let selectedPayer='',selectedCurrency='JPY';
 window.addEventListener('DOMContentLoaded',()=>{const d=document.getElementById('exp-date');if(d)d.value=new Date().toISOString().split('T')[0];});
 function selectPayer(btn){document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedPayer=btn.dataset.person;}
-function selectCurrency(cur,btn){
-  selectedCurrency=cur;
-  document.getElementById('btn-jpy').style.background=cur==='JPY'?'var(--sepia)':'var(--sand-beige)';
-  document.getElementById('btn-jpy').style.color=cur==='JPY'?'#fff':'var(--muted)';
-  document.getElementById('btn-twd').style.background=cur==='TWD'?'var(--sepia)':'var(--sand-beige)';
-  document.getElementById('btn-twd').style.color=cur==='TWD'?'#fff':'var(--muted)';
-}
+function selectCurrency(cur,btn){selectedCurrency=cur;document.getElementById('btn-jpy').style.background=cur==='JPY'?'var(--sepia)':'var(--sand-beige)';document.getElementById('btn-jpy').style.color=cur==='JPY'?'#fff':'var(--muted)';document.getElementById('btn-twd').style.background=cur==='TWD'?'var(--sepia)':'var(--sand-beige)';document.getElementById('btn-twd').style.color=cur==='TWD'?'#fff':'var(--muted)';}
 function toggleSplit(btn){btn.classList.toggle('active');}
-async function submitExpense(){
-  const date=document.getElementById('exp-date').value,item=document.getElementById('exp-item').value.trim();
-  const amount=document.getElementById('exp-amount').value,note=document.getElementById('exp-note').value.trim();
-  if(!date){alert('請選擇日期');return;}if(!item){alert('請填入項目名稱');return;}
-  if(!amount||isNaN(amount)){alert('請填入金額');return;}if(!selectedPayer){alert('請選擇付款人');return;}
-  const splits={};document.querySelectorAll('.split-btn').forEach(b=>{splits[b.dataset.person]=b.classList.contains('active');});
-  const payload={date,item,amount:Number(amount),currency:selectedCurrency,payer:selectedPayer,splits,note,token:APP_TOKEN};
-  const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='⏳ 記錄中...';
-  const cbN='expCb_'+Date.now();
-  const url=APPS_SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload))+'&callback='+cbN;
-  new Promise((resolve,reject)=>{
-    const s=document.createElement('script');
-    const t=setTimeout(()=>{delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);reject(new Error('timeout'));},10000);
-    window[cbN]=(res)=>{clearTimeout(t);delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);res&&res.status==='ok'?resolve():reject(new Error(res&&res.error?res.error:'unknown'));};
-    s.onerror=()=>{clearTimeout(t);delete window[cbN];reject(new Error('script error'));};
-    s.src=url;document.head.appendChild(s);
-  }).then(()=>{
-    const el=document.getElementById('expense-success'),sym=selectedCurrency==='JPY'?'¥':'NT$';
-    el.innerHTML='✅ 記錄成功！<br><span style="font-size:13px;opacity:0.85">「'+item+'」'+sym+Number(amount).toLocaleString()+'，由 '+selectedPayer+' 付款</span>';
-    el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'nearest'});
-    setTimeout(()=>el.style.display='none',5000);
-    document.getElementById('exp-item').value='';document.getElementById('exp-amount').value='';
-    document.getElementById('exp-note').value='';
-    document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.split-btn').forEach(b=>b.classList.add('active'));
-    selectedPayer='';document.getElementById('exp-date').value=new Date().toISOString().split('T')[0];
-    selectCurrency('JPY',null);
-  }).catch(e=>alert('送出失敗 😢\n錯誤：'+e.message))
-  .finally(()=>{btn.disabled=false;btn.textContent='記錄這筆花費 →';});
-}
-function toggleShop(id){
-  const d=document.getElementById('shop-detail-'+id),a=document.getElementById('shop-arrow-'+id);
-  if(!d)return;d.classList.toggle('open');if(a)a.classList.toggle('open');
-}
+async function submitExpense(){const date=document.getElementById('exp-date').value,item=document.getElementById('exp-item').value.trim();const amount=document.getElementById('exp-amount').value,note=document.getElementById('exp-note').value.trim();if(!date){alert('請選擇日期');return;}if(!item){alert('請填入項目名稱');return;}if(!amount||isNaN(amount)){alert('請填入金額');return;}if(!selectedPayer){alert('請選擇付款人');return;}const splits={};document.querySelectorAll('.split-btn').forEach(b=>{splits[b.dataset.person]=b.classList.contains('active');});const payload={date,item,amount:Number(amount),currency:selectedCurrency,payer:selectedPayer,splits,note,token:APP_TOKEN};const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='⏳ 記錄中...';const cbN='expCb_'+Date.now();const url=APPS_SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload))+'&callback='+cbN;new Promise((resolve,reject)=>{const s=document.createElement('script');const t=setTimeout(()=>{delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);reject(new Error('timeout'));},10000);window[cbN]=(res)=>{clearTimeout(t);delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);res&&res.status==='ok'?resolve():reject(new Error(res&&res.error?res.error:'unknown'));};s.onerror=()=>{clearTimeout(t);delete window[cbN];reject(new Error('script error'));};s.src=url;document.head.appendChild(s);}).then(()=>{const el=document.getElementById('expense-success'),sym=selectedCurrency==='JPY'?'¥':'NT$';el.innerHTML='✅ 記錄成功！<br><span style="font-size:13px;opacity:0.85">「'+item+'」'+sym+Number(amount).toLocaleString()+'，由 '+selectedPayer+' 付款</span>';el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>el.style.display='none',5000);document.getElementById('exp-item').value='';document.getElementById('exp-amount').value='';document.getElementById('exp-note').value='';document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.split-btn').forEach(b=>b.classList.add('active'));selectedPayer='';document.getElementById('exp-date').value=new Date().toISOString().split('T')[0];selectCurrency('JPY',null);}).catch(e=>alert('送出失敗 😢\n錯誤：'+e.message)).finally(()=>{btn.disabled=false;btn.textContent='記錄這筆花費 →';});}
+function toggleShop(id){const d=document.getElementById('shop-detail-'+id),a=document.getElementById('shop-arrow-'+id);if(!d)return;d.classList.toggle('open');if(a)a.classList.toggle('open');}
 function openMap(url){window.open(url,'_blank');}
 function heroTab(name,btn){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.fab-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.fab-item').forEach(b=>{if(b.dataset.tab===name)b.classList.add('active');});
-  const ds=document.getElementById('day-selector-hero');
-  if(ds)ds.style.display=name==='itinerary'?'flex':'none';
+  // 切換 tab 時，非行程頁隱藏浮動版
+  isItineraryTab = (name === 'itinerary');
+  if (!isItineraryTab) {
+    floatBar.classList.remove('visible');
+    floatBar.classList.add('tab-hidden');
+  } else {
+    floatBar.classList.remove('tab-hidden');
+    // 重新觸發 observer 判斷（切回行程頁時立即更新）
+    heroObserver.unobserve(document.getElementById('day-selector-hero'));
+    heroObserver.observe(document.getElementById('day-selector-hero'));
+  }
   closeMenu();
 }
 function switchTab(name,btn){heroTab(name,btn);}
-function toggleMenu(){
-  const m=document.getElementById('fab-menu'),o=document.getElementById('fab-overlay'),b=document.getElementById('fab-btn');
-  if(m.classList.contains('open')){closeMenu();}
-  else{m.classList.add('open');o.classList.add('open');b.classList.add('open');}
-}
-function closeMenu(){
-  document.getElementById('fab-menu').classList.remove('open');
-  document.getElementById('fab-overlay').classList.remove('open');
-  document.getElementById('fab-btn').classList.remove('open');
-}
-
-// ── Apps Script JSONP 呼叫 ──
-function callScript(params){
-  return new Promise((resolve, reject) => {
-    const cb = 'asCb_' + Date.now();
-    const qs = Object.entries(params).map(([k,v]) => k + '=' + encodeURIComponent(v)).join('&');
-    const url = APPS_SCRIPT_URL + '?' + qs + '&callback=' + cb;
-    const s = document.createElement('script');
-    const t = setTimeout(() => { delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); reject(new Error('timeout')); }, 10000);
-    window[cb] = (res) => { clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); resolve(res); };
-    s.onerror = () => { clearTimeout(t); delete window[cb]; reject(new Error('script error')); };
-    s.src = url;
-    document.head.appendChild(s);
-  });
-}
-
-function toggleCLSection(listId, arrowId){
-  const list = document.getElementById(listId);
-  const arrow = document.getElementById(arrowId);
-  if(!list) return;
-  const isOpen = !list.classList.contains('collapsed');
-  list.classList.toggle('collapsed', isOpen);
-  if(arrow) arrow.classList.toggle('open', !isOpen);
-}
-
-// ── 行前清單（動態從 Sheet 讀取）──
-
-const CHECKLIST_GID = '1810048838';
-const CAT_ICONS = {
-  '行李': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
-  '證件': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
-  '3C':   '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
-  '衣物': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>',
-  '生活': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
-  '藥品': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>',
-  '文具': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
-  '本體': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>',
-};
-
-const PERSONS = ['婷','旭','揚','茹'];
-const checkState = {};
-let checklistStructure = {};
-
-function getCatIcon(name) {
-  for (const [k, v] of Object.entries(CAT_ICONS)) {
-    if (name.includes(k)) return v;
-  }
-  return CAT_ICONS['證件'];
-}
-
-async function loadChecklistFromSheet() {
-  const container = document.getElementById('cl-sections-container');
-  if (!container) return;
-  try {
-    const rows = await fetchCSV(CHECKLIST_GID);
-    checklistStructure = {};
-    let currentCat = null;
-    // 分類行規則：E欄有值、F欄是空的（不是'-'也不是'數量'）
-    // 項目行規則：E欄有值、F欄是'-'
-    // 標題行規則：F欄是'數量'，略過
-    const skipE = ['項目','數量','婷','旭','揚','茹','位置','備註','打勾'];
-
-    // 先做兩遍：第一遍找出哪些 row 是分類行（後面緊跟「項目/數量」標題行）
-    const catRowIndices = new Set();
-    for (let i = 0; i < rows.length - 1; i++) {
-      const nextE = (rows[i+1]?.[4] || '').toString().trim();
-      const nextF = (rows[i+1]?.[5] || '').toString().trim();
-      if (nextE === '項目' && nextF === '數量') {
-        catRowIndices.add(i); // 這行是分類行
-      }
-    }
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      const e = (row[4] || '').toString().trim();
-      const f = (row[5] || '').toString().trim();
-      if (!e) continue;
-      if (skipE.includes(e)) continue;
-
-      // 分類行：在 catRowIndices 裡
-      if (catRowIndices.has(i)) {
-        const catName = e.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/[\u2600-\u27FF]/g,'').trim() || e;
-        currentCat = catName;
-        checklistStructure[currentCat] = [];
-        continue;
-      }
-      // 標題行：F欄是'數量'
-      if (f === '數量') continue;
-      // 項目行
-      if (currentCat && e) checklistStructure[currentCat].push(e);
-    }
-
-    // init checkState
-    for (const items of Object.values(checklistStructure)) {
-      for (const text of items) {
-        if (!checkState[text]) checkState[text] = new Set();
-      }
-    }
-
-    buildChecklistDOM(container);
-    await loadChecklistState();
-  } catch(err) {
-    container.innerHTML = '<div class="tl-empty">載入失敗：' + err.message + '</div>';
-  }
-}
-
-function buildChecklistDOM(container) {
-  let html = '';
-  Object.entries(checklistStructure).forEach(([cat, items], idx) => {
-    const id = 'cl-cat-' + idx;
-    const arrowId = 'cl-arrow-' + idx;
-    const icon = getCatIcon(cat);
-    html += '<div class="cl-section">'
-      + '<div class="cl-section-header" onclick="toggleCLSection(\'' + id + '\',\'' + arrowId + '\')">'
-      + '<span style="display:flex;align-items:center;gap:8px">' + icon + ' ' + esc(cat) + '</span>'
-      + '<span class="cl-section-arrow" id="' + arrowId + '">▼</span>'
-      + '</div>'
-      + '<ul class="cl-list collapsed" id="' + id + '"></ul>'
-      + '</div>';
-  });
-  container.innerHTML = html;
-
-  Object.entries(checklistStructure).forEach(([cat, items], idx) => {
-    const ul = document.getElementById('cl-cat-' + idx);
-    if (!ul) return;
-    items.forEach(text => {
-      if (!checkState[text]) checkState[text] = new Set();
-      const li = document.createElement('li');
-      li.className = 'cl-item';
-      li.onclick = () => openPopup(text);
-      li.id = 'cl-item-' + encodeURIComponent(text);
-      li.innerHTML =
-        '<div class="cl-item-left"><span class="cl-item-text">' + text + '</span></div>'
-        + '<div class="cl-dots" id="cl-dots-' + encodeURIComponent(text) + '">'
-        + PERSONS.map(p => '<div class="cl-dot" id="cldot-' + encodeURIComponent(text) + '-' + p + '" title="' + p + '"></div>').join('')
-        + '</div>';
-      ul.appendChild(li);
-    });
-  });
-}
-
-async function loadChecklistState() {
-  try {
-    const res = await callScript({action:'getChecklist', token:APP_TOKEN});
-    if (res.status !== 'ok') return;
-    for (const [item, persons] of Object.entries(res.data)) {
-      if (!checkState[item]) checkState[item] = new Set();
-      for (const [person, checked] of Object.entries(persons)) {
-        if (checked) checkState[item].add(person);
-        else checkState[item].delete(person);
-      }
-      updateDots(item);
-    }
-  } catch(e) { console.log('載入勾選狀態失敗:', e.message); }
-}
-
-let currentPopupItem = null;
-
-function openPopup(text) {
-  currentPopupItem = text;
-  document.getElementById('cl-popup-title').textContent = text;
-  PERSONS.forEach(p => {
-    const el = document.getElementById('cp-' + p);
-    if (!el) return;
-    el.classList.toggle('done', checkState[text] && checkState[text].has(p));
-  });
-  document.getElementById('cl-popup').style.display = 'block';
-}
-
-function closePopup() {
-  document.getElementById('cl-popup').style.display = 'none';
-  if (currentPopupItem) updateDots(currentPopupItem);
-  currentPopupItem = null;
-}
-
-async function togglePerson(row, person) {
-  if (!currentPopupItem) return;
-  const set = checkState[currentPopupItem];
-  const willCheck = !set.has(person);
-  if (willCheck) set.add(person);
-  else set.delete(person);
-  const el = document.getElementById('cp-' + person);
-  if (el) el.classList.toggle('done', willCheck);
-  try {
-    await callScript({
-      action: 'setChecklist',
-      data: encodeURIComponent(JSON.stringify({
-        token: APP_TOKEN,
-        item: currentPopupItem,
-        person: person,
-        checked: willCheck
-      }))
-    });
-  } catch(e) { console.log('同步失敗:', e.message); }
-}
-
-function updateDots(text) {
-  const set = checkState[text] || new Set();
-  PERSONS.forEach(p => {
-    const dot = document.getElementById('cldot-' + encodeURIComponent(text) + '-' + p);
-    if (!dot) return;
-    dot.className = 'cl-dot' + (set.has(p) ? ' checked-' + p : '');
-    dot.textContent = set.has(p) ? p[0] : '';
-  });
-}
-
-document.addEventListener('DOMContentLoaded', loadChecklistFromSheet);
-
-
+function toggleMenu(){const m=document.getElementById('fab-menu'),o=document.getElementById('fab-overlay'),b=document.getElementById('fab-btn');if(m.classList.contains('open')){closeMenu();}else{m.classList.add('open');o.classList.add('open');b.classList.add('open');}}
+function closeMenu(){document.getElementById('fab-menu').classList.remove('open');document.getElementById('fab-overlay').classList.remove('open');document.getElementById('fab-btn').classList.remove('open');}
+function callScript(params){return new Promise((resolve,reject)=>{const cb='asCb_'+Date.now();const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');const url=APPS_SCRIPT_URL+'?'+qs+'&callback='+cb;const s=document.createElement('script');const t=setTimeout(()=>{delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);reject(new Error('timeout'));},10000);window[cb]=(res)=>{clearTimeout(t);delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);resolve(res);};s.onerror=()=>{clearTimeout(t);delete window[cb];reject(new Error('script error'));};s.src=url;document.head.appendChild(s);});}
+function toggleCLSection(listId,arrowId){const list=document.getElementById(listId);const arrow=document.getElementById(arrowId);if(!list)return;const isOpen=!list.classList.contains('collapsed');list.classList.toggle('collapsed',isOpen);if(arrow)arrow.classList.toggle('open',!isOpen);}
+const CHECKLIST_GID='1810048838';
+const CAT_ICONS={'行李':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>','證件':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>','3C':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>','衣物':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>','生活':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>','藥品':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/></svg>','文具':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>','本體':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>'};
+const PERSONS=['婷','旭','揚','茹'];
+const checkState={};
+let checklistStructure={};
+function getCatIcon(name){for(const[k,v]of Object.entries(CAT_ICONS)){if(name.includes(k))return v;}return CAT_ICONS['證件'];}
+async function loadChecklistFromSheet(){const container=document.getElementById('cl-sections-container');if(!container)return;try{const rows=await fetchCSV(CHECKLIST_GID);checklistStructure={};let currentCat=null;const skipE=['項目','數量','婷','旭','揚','茹','位置','備註','打勾'];const catRowIndices=new Set();for(let i=0;i<rows.length-1;i++){const nextE=(rows[i+1]?.[4]||'').toString().trim();const nextF=(rows[i+1]?.[5]||'').toString().trim();if(nextE==='項目'&&nextF==='數量'){catRowIndices.add(i);}}for(let i=0;i<rows.length;i++){const row=rows[i];const e=(row[4]||'').toString().trim();const f=(row[5]||'').toString().trim();if(!e)continue;if(skipE.includes(e))continue;if(catRowIndices.has(i)){const catName=e.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/[\u2600-\u27FF]/g,'').trim()||e;currentCat=catName;checklistStructure[currentCat]=[];continue;}if(f==='數量')continue;if(currentCat&&e)checklistStructure[currentCat].push(e);}for(const items of Object.values(checklistStructure)){for(const text of items){if(!checkState[text])checkState[text]=new Set();}}buildChecklistDOM(container);await loadChecklistState();}catch(err){container.innerHTML='<div class="tl-empty">載入失敗：'+err.message+'</div>';}}
+function buildChecklistDOM(container){let html='';Object.entries(checklistStructure).forEach(([cat,items],idx)=>{const id='cl-cat-'+idx,arrowId='cl-arrow-'+idx,icon=getCatIcon(cat);html+='<div class="cl-section"><div class="cl-section-header" onclick="toggleCLSection(\''+id+'\',\''+arrowId+'\')"><span style="display:flex;align-items:center;gap:8px">'+icon+' '+esc(cat)+'</span><span class="cl-section-arrow" id="'+arrowId+'">▼</span></div><ul class="cl-list collapsed" id="'+id+'"></ul></div>';});container.innerHTML=html;Object.entries(checklistStructure).forEach(([cat,items],idx)=>{const ul=document.getElementById('cl-cat-'+idx);if(!ul)return;items.forEach(text=>{if(!checkState[text])checkState[text]=new Set();const li=document.createElement('li');li.className='cl-item';li.onclick=()=>openPopup(text);li.id='cl-item-'+encodeURIComponent(text);li.innerHTML='<div class="cl-item-left"><span class="cl-item-text">'+text+'</span></div><div class="cl-dots" id="cl-dots-'+encodeURIComponent(text)+'">'+PERSONS.map(p=>'<div class="cl-dot" id="cldot-'+encodeURIComponent(text)+'-'+p+'" title="'+p+'"></div>').join('')+'</div>';ul.appendChild(li);});});}
+async function loadChecklistState(){try{const res=await callScript({action:'getChecklist',token:APP_TOKEN});if(res.status!=='ok')return;for(const[item,persons]of Object.entries(res.data)){if(!checkState[item])checkState[item]=new Set();for(const[person,checked]of Object.entries(persons)){if(checked)checkState[item].add(person);else checkState[item].delete(person);}updateDots(item);}}catch(e){console.log('載入勾選狀態失敗:',e.message);}}
+let currentPopupItem=null;
+function openPopup(text){currentPopupItem=text;document.getElementById('cl-popup-title').textContent=text;PERSONS.forEach(p=>{const el=document.getElementById('cp-'+p);if(!el)return;el.classList.toggle('done',checkState[text]&&checkState[text].has(p));});document.getElementById('cl-popup').style.display='block';}
+function closePopup(){document.getElementById('cl-popup').style.display='none';if(currentPopupItem)updateDots(currentPopupItem);currentPopupItem=null;}
+async function togglePerson(row,person){if(!currentPopupItem)return;const set=checkState[currentPopupItem];const willCheck=!set.has(person);if(willCheck)set.add(person);else set.delete(person);const el=document.getElementById('cp-'+person);if(el)el.classList.toggle('done',willCheck);try{await callScript({action:'setChecklist',data:encodeURIComponent(JSON.stringify({token:APP_TOKEN,item:currentPopupItem,person:person,checked:willCheck}))});}catch(e){console.log('同步失敗:',e.message);}}
+function updateDots(text){const set=checkState[text]||new Set();PERSONS.forEach(p=>{const dot=document.getElementById('cldot-'+encodeURIComponent(text)+'-'+p);if(!dot)return;dot.className='cl-dot'+(set.has(p)?' checked-'+p:'');dot.textContent=set.has(p)?p[0]:'';});}
+document.addEventListener('DOMContentLoaded',loadChecklistFromSheet);
 loadAllItinerary();loadHotel();loadShopping();
 </script>
 

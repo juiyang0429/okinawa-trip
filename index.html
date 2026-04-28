@@ -631,15 +631,16 @@ async function loadShopping() {
     const iImg = fc('圖片');
     const iLink = fc('地址連結', '連結', '地圖', '地址');
     const iNote = fc('備註');
-    const iBought = fc('是否買到', '買到', '勾選');  // K欄
+    const iBought = fc('已購買');  // K欄
 
+    // 先 map（保留原始列號），再 filter，避免 filter 後 idx 跳號導致列號錯誤
     shopAllItems = rows.slice(hi + 1)
-      .filter(r => r.some(v => v && v.trim()))
       .map((r, idx) => {
+        const sheetRow = hi + 2 + idx;  // 1-based：hi(0-based)+1(header)+1(data從1開始)+idx
         const boughtVal = iBought >= 0 ? (r[iBought] || '').toString().trim().toUpperCase() : '';
         const isBought = boughtVal === 'TRUE' || boughtVal === '1' || boughtVal === '✔';
         return {
-          rowIndex: hi + 1 + idx,  // 1-based sheet row
+          rowIndex: sheetRow,
           day: iDay >= 0 ? (r[iDay] || '').trim() : '',
           store: iStore >= 0 ? (r[iStore] || '').trim() : '',
           hours: iHours >= 0 ? (r[iHours] || '').trim() : '',

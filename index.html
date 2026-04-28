@@ -38,7 +38,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
   border-top:1px solid rgba(232,224,220,0.8);
-  /* 預設隱藏，滑出視窗後才顯示 */
   transform:translateY(110%);
   opacity:0;
   transition:transform 0.28s ease, opacity 0.28s ease;
@@ -49,7 +48,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
   opacity:1;
   pointer-events:all;
 }
-/* 非行程頁強制隱藏 */
 .day-selector-float.tab-hidden{
   transform:translateY(110%) !important;
   opacity:0 !important;
@@ -62,7 +60,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .dth-date{font-size:11px;margin-bottom:3px;font-weight:500;letter-spacing:0.02em;}
 .dth-label{font-size:20px;font-weight:700;font-family:'Noto Serif TC',serif;line-height:1.1;}
 
-/* 行程頁底部留空，防止最後項目被浮動選單遮住 */
 #tab-itinerary{padding-bottom:84px;}
 
 .fab-overlay{display:none;position:fixed;inset:0;background:rgba(10,20,50,0.35);backdrop-filter:blur(3px);z-index:200;}
@@ -162,7 +159,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--back);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:'Noto Sans TC',sans-serif;white-space:nowrap;}
 .chip.active{border-color:var(--sepia);background:var(--sepia);color:#fff;}
 .shop-count{font-size:11px;color:var(--muted);margin-bottom:6px;text-align:right;}
-/* sticky 篩選器 */
 #shop-filter-sticky{
   position:sticky;
   top:0;
@@ -279,7 +275,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
       <div><h1>沖繩旅行</h1><p class="hero-sub">2026.04.29 — 05.03 ｜ 5天4夜</p></div>
     </div>
   </div>
-  <!-- 原始 day selector，位置在 hero 裡 -->
   <div class="day-selector-hero" id="day-selector-hero">
     <button class="day-tab-hero active" onclick="switchDay(0,this)" id="daytab-0"><span class="dth-date">4/29三</span><span class="dth-label">D1</span></button>
     <button class="day-tab-hero" onclick="switchDay(1,this)" id="daytab-1"><span class="dth-date">4/30四</span><span class="dth-label">D2</span></button>
@@ -289,7 +284,6 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
   </div>
 </div>
 
-<!-- 底部浮動版 day selector（滑出視窗後才顯示） -->
 <div class="day-selector-float" id="day-selector-float">
   <button class="day-tab-hero active" onclick="switchDay(0,this)" id="fdaytab-0"><span class="dth-date">4/29三</span><span class="dth-label">D1</span></button>
   <button class="day-tab-hero" onclick="switchDay(1,this)" id="fdaytab-1"><span class="dth-date">4/30四</span><span class="dth-label">D2</span></button>
@@ -307,13 +301,46 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
     <div id="timeline-container"><div class="loading"><div class="spinner"></div>讀取行程中...</div></div>
     <div style="text-align:right;margin-top:8px"><span id="last-update-text" style="font-size:11px;color:var(--muted)"></span></div>
   </div>
+
+  <!-- ===================== 花費頁（更新欄位邏輯） ===================== -->
   <div class="tab-content" id="tab-expense">
     <div id="expense-success" style="display:none;background:#eaf3de;border:1px solid #c0dd97;border-radius:6px;padding:14px;margin-bottom:14px;font-size:14px;color:#3b6d11;text-align:center"></div>
     <div class="expense-form-card">
-      <div class="form-group"><label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> 日期</label><input type="date" id="exp-date" class="form-input"/></div>
-      <div class="form-group"><label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><line x1="17" y1="3" x2="3" y2="17"/><path d="M10.5 10.5 3 21l10.5-7.5"/><path d="M14 6l4 4"/><path d="M3 21h18"/></svg> 項目名稱</label><input type="text" id="exp-item" class="form-input" placeholder="例：午餐、門票"/></div>
+      <!-- A欄：日期 -->
       <div class="form-group">
-        <label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> 金額</label>
+        <label class="form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          日期
+        </label>
+        <input type="date" id="exp-date" class="form-input"/>
+      </div>
+      <!-- B欄：項目 -->
+      <div class="form-group">
+        <label class="form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><line x1="17" y1="3" x2="3" y2="17"/><path d="M10.5 10.5 3 21l10.5-7.5"/><path d="M14 6l4 4"/><path d="M3 21h18"/></svg>
+          項目名稱
+        </label>
+        <input type="text" id="exp-item" class="form-input" placeholder="例：午餐、門票"/>
+      </div>
+      <!-- C欄：付款人 -->
+      <div class="form-group">
+        <label class="form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          誰付的？
+        </label>
+        <div class="person-grid">
+          <button class="person-btn" data-person="揚" onclick="selectPayer(this)">揚</button>
+          <button class="person-btn" data-person="茹" onclick="selectPayer(this)">茹</button>
+          <button class="person-btn" data-person="婷" onclick="selectPayer(this)">婷</button>
+          <button class="person-btn" data-person="旭" onclick="selectPayer(this)">旭</button>
+        </div>
+      </div>
+      <!-- D欄台幣 / E欄日幣：依幣別選擇寫入對應欄 -->
+      <div class="form-group">
+        <label class="form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          金額
+        </label>
         <div style="display:flex;gap:8px;align-items:center">
           <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;flex-shrink:0">
             <button id="btn-jpy" onclick="selectCurrency('JPY',this)" style="padding:12px 14px;border:none;background:var(--sepia);color:#fff;font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;cursor:pointer">¥ 日幣</button>
@@ -322,28 +349,30 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
           <input type="number" id="exp-amount" class="form-input" placeholder="例：2800" inputmode="numeric" style="flex:1"/>
         </div>
       </div>
-      <div class="form-group"><label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 誰付的？</label>
+      <!-- F~I欄：需分擔的人（checkbox，預設全部勾選） -->
+      <div class="form-group">
+        <label class="form-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          誰要分攤？
+        </label>
         <div class="person-grid">
-          <button class="person-btn" data-person="揚" onclick="selectPayer(this)">揚</button>
-          <button class="person-btn" data-person="茹" onclick="selectPayer(this)">茹</button>
-          <button class="person-btn" data-person="婷" onclick="selectPayer(this)">婷</button>
-          <button class="person-btn" data-person="旭" onclick="selectPayer(this)">旭</button>
-        </div>
-      </div>
-      <div class="form-group"><label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 誰要分攤？</label>
-        <div class="person-grid">
-          <button class="split-btn active" data-person="揚" onclick="toggleSplit(this)">揚</button>
-          <button class="split-btn active" data-person="茹" onclick="toggleSplit(this)">茹</button>
+          <!-- 順序對應 F=婷, G=旭, H=茹, I=揚 -->
           <button class="split-btn active" data-person="婷" onclick="toggleSplit(this)">婷</button>
           <button class="split-btn active" data-person="旭" onclick="toggleSplit(this)">旭</button>
+          <button class="split-btn active" data-person="茹" onclick="toggleSplit(this)">茹</button>
+          <button class="split-btn active" data-person="揚" onclick="toggleSplit(this)">揚</button>
         </div>
         <p class="form-hint">預設4人平分，點擊取消不需分攤的人</p>
       </div>
-      <div class="form-group"><label class="form-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 備註（選填）</label><input type="text" id="exp-note" class="form-input" placeholder="補充說明..."/></div>
       <button class="submit-btn" id="submit-btn" onclick="submitExpense()">記錄這筆花費 →</button>
     </div>
-    <a href="https://docs.google.com/spreadsheets/d/1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY/edit#gid=1756595886" target="_blank" class="view-sheet-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg> 查看完整花費表</a>
+    <a href="https://docs.google.com/spreadsheets/d/1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY/edit#gid=1756595886" target="_blank" class="view-sheet-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+      查看完整花費表
+    </a>
   </div>
+  <!-- ===================== 花費頁 END ===================== -->
+
   <div class="tab-content" id="tab-hotel"><div id="hotel-container"><div class="loading"><div class="spinner"></div>讀取住宿資料...</div></div></div>
   <div class="tab-content" id="tab-shopping">
     <div id="shop-filter-sticky"></div>
@@ -391,7 +420,13 @@ const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwFkezcjyRZg5dc6C
 const APP_TOKEN='okinawa2026';
 const PUB_KEY='2PACX-1vRI7kWux6_1X9Xazcyg_2qkg5e7iOQfVNyFN6BJA6BbWbh81N9VZzWj-JD_5lYEVY3bxbh-4ZQiQYwn';
 const GID={itinerary_d1:'202449681',itinerary_d2:'793926690',itinerary_d3:'132787083',itinerary_d4:'1366341329',itinerary_d5:'451018843',hotel:'1233567320',shopping:'1986641767'};
-const DAY_CONFIG=[{key:'itinerary_d1',label:'Day 1',date:'4/29 (三)',title:'台灣 → 沖繩'},{key:'itinerary_d2',label:'Day 2',date:'4/30 (四)',title:'沖繩探索'},{key:'itinerary_d3',label:'Day 3',date:'5/1 (五)',title:'沖繩深度遊'},{key:'itinerary_d4',label:'Day 4',date:'5/2 (六)',title:'最後衝刺購物'},{key:'itinerary_d5',label:'Day 5',date:'5/3 (日)',title:'沖繩 → 台灣'}];
+const DAY_CONFIG=[
+  {key:'itinerary_d1',label:'Day 1',date:'4/29 (三)',title:'台灣 → 沖繩'},
+  {key:'itinerary_d2',label:'Day 2',date:'4/30 (四)',title:'沖繩探索'},
+  {key:'itinerary_d3',label:'Day 3',date:'5/1 (五)',title:'沖繩深度遊'},
+  {key:'itinerary_d4',label:'Day 4',date:'5/2 (六)',title:'最後衝刺購物'},
+  {key:'itinerary_d5',label:'Day 5',date:'5/3 (日)',title:'沖繩 → 台灣'}
+];
 
 // ── IntersectionObserver：原版 selector 離開視窗 → 顯示浮動版 ──
 let isItineraryTab = true;
@@ -401,10 +436,8 @@ const heroObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (!isItineraryTab) return;
     if (entry.isIntersecting) {
-      // 原版可見 → 隱藏浮動版
       floatBar.classList.remove('visible');
     } else {
-      // 原版不可見 → 顯示浮動版
       floatBar.classList.add('visible');
     }
   });
@@ -424,13 +457,10 @@ function tlabel(type){const t=(type||'').toLowerCase();if(t.includes('餐')||t.i
 function fmtTime(t){if(!t)return{ampm:'',clock:'--:--'};const m=t.match(/(\d{1,2}):(\d{2})/);if(!m)return{ampm:'',clock:t};const h=parseInt(m[1]),min=m[2],ampm=h<12?'上午':'下午';const h12=h===0?12:h>12?h-12:h;return{ampm,clock:String(h12).padStart(2,'0')+':'+min};}
 function renderTL(rows){const hi=findHdr(rows),hdr=rows[hi]||[];const fc=(...kws)=>{for(const kw of kws){const i=hdr.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};const tI=fc('抵達')>=0?fc('抵達'):0,teI=fc('離開')>=0?fc('離開'):1;const tyI=fc('類型')>=0?fc('類型'):3,nI=fc('行程')>=0?fc('行程'):4;const dI=fc('說明')>=0?fc('說明'):5,pI=fc('地點')>=0?fc('地點'):6;const uI=fc('地址連結','連結','網址')>=0?fc('地址連結','連結','網址'):7;const noI=fc('備註')>=0?fc('備註'):9;const dr=rows.slice(hi+1).filter(r=>r[nI]&&r[nI].trim());if(dr.length===0)return '<div class="tl-empty">尚未填入行程，在 Google Sheet 新增後點 ↻ 同步</div>';let html='<div class="timeline">';for(const r of dr){const {ampm,clock}=fmtTime(r[tI]||'');const {clock:ce}=fmtTime(r[teI]||'');const type=r[tyI]||'',name=r[nI]||'',desc=r[dI]||'';const place=r[pI]||'',link=r[uI]||'',note=r[noI]||'';const mapUrl=link.startsWith('http')?link:place?'https://maps.google.com/?q='+encodeURIComponent(place):'';const formatDesc=(text)=>{if(!text)return '';const lines=text.split(/(?=\d+[\.、]|[a-zA-Z]\))/g).filter(s=>s.trim());if(lines.length<=1)return esc(text);return lines.map(l=>'<div style="margin-bottom:3px">'+esc(l.trim())+'</div>').join('');};html+='<div class="tl-item '+getTC(type)+'">'+'<div class="tl-time-box">'+(ampm?'<div class="tl-ampm">'+esc(ampm)+'</div>':'')+'<div class="tl-clock">'+esc(clock)+'</div>'+(ce&&ce!=='--:--'?'<div class="tl-clock-end">'+esc(ce)+'</div>':'')+(tlabel(type)?'<div class="tl-type-badge">'+esc(tlabel(type))+'</div>':'')+'</div>'+'<div class="tl-content">'+'<div class="tl-name">'+esc(name)+'</div>'+(place?'<div class="tl-place">'+esc(place)+'</div>':'')+(desc?'<div class="tl-desc-block"><div class="tl-desc-label">說明</div><div class="tl-desc-text">'+formatDesc(desc)+'</div></div>':'')+(note&&note!==desc?'<div class="tl-desc-block"><div class="tl-desc-label">備註</div><div class="tl-desc-text">'+esc(note)+'</div></div>':'')+(mapUrl?'<div class="tl-map-btn" onclick="openMap(this.dataset.url)" data-url="'+mapUrl+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</div>':'')+'</div></div>';}return html+'</div>';}
 
-// switchDay：同步更新原版和浮動版兩組按鈕
 function switchDay(idx,btn){
   currentDay=idx;
-  // 更新原版
   document.querySelectorAll('#day-selector-hero .day-tab-hero').forEach(b=>b.classList.remove('active'));
   const orig=document.getElementById('daytab-'+idx);if(orig)orig.classList.add('active');
-  // 更新浮動版
   document.querySelectorAll('#day-selector-float .day-tab-hero').forEach(b=>b.classList.remove('active'));
   const flt=document.getElementById('fdaytab-'+idx);if(flt)flt.classList.add('active');
   const cfg=DAY_CONFIG[idx];
@@ -441,8 +471,96 @@ function switchDay(idx,btn){
   else{c.innerHTML='<div class="loading"><div class="spinner"></div>讀取中...</div>';fetchCSV(GID[cfg.key]).then(rows=>{allDayData[idx]=rows;c.innerHTML=renderTL(rows);}).catch(e=>{c.innerHTML='<div class="tl-empty">讀取失敗：'+e.message+'</div>';});}
 }
 async function loadAllItinerary(){const c=document.getElementById('timeline-container'),u=document.getElementById('last-update-text');c.innerHTML='<div class="loading"><div class="spinner"></div>讀取行程資料中...</div>';allDayData=[];try{const res=await Promise.all(DAY_CONFIG.map(cfg=>fetchCSV(GID[cfg.key])));allDayData=res;c.innerHTML=renderTL(allDayData[currentDay]);u.textContent='最後更新：'+new Date().toLocaleTimeString('zh-TW');}catch(e){c.innerHTML='<div class="tl-empty">讀取失敗 😢<br><small>'+e.message+'</small></div>';u.textContent='讀取失敗';}}
-async function loadHotel(){const c=document.getElementById('hotel-container');try{const rows=await fetchCSV(GID.hotel);let hi=0;for(let i=0;i<Math.min(rows.length,4);i++){if(rows[i]&&rows[i].some(c=>c&&(c.includes('住宿')||c.includes('日期')))){hi=i;break;}}const hRow=rows[hi]||[];const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};const iDt=fc('日期')>=0?fc('日期'):1;const iNm=(()=>{const i=hRow.findIndex(h=>h&&h.includes('住宿')&&!h.includes('日期'));return i>=0?i:2;})();const iAr=fc('區域')>=0?fc('區域'):3;const iPr=fc('價格')>=0?fc('價格'):4,iSz=fc('大小')>=0?fc('大小'):5;const iMt=fc('交通','地鐵')>=0?fc('交通','地鐵'):6,iNb=fc('附近')>=0?fc('附近'):7,iNo=fc('備註')>=0?fc('備註'):8;const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());if(!dr.length){c.innerHTML='<div class="shop-empty">尚未填入住宿資料 🏨</div>';return;}let html='<div class="shop-grid">';dr.forEach((r,i)=>{const dt=g(r,iDt),nm=g(r,iNm),ar=g(r,iAr),pr=g(r,iPr),sz=g(r,iSz),mt=g(r,iMt),nb=g(r,iNb),no=g(r,iNo);const mu='https://maps.google.com/?q='+encodeURIComponent(nm+' '+ar);html+='<div class="shop-item"><div class="shop-title" onclick="toggleShop(\'hotel-'+i+'\')"><div class="shop-title-left"><div class="shop-title-icon">🏨</div><div>'+(dt?'<div style="font-size:12px;color:var(--coral);font-weight:700;margin-bottom:3px">📅 '+esc(dt)+'</div>':'')+'<div class="shop-name">'+esc(nm)+'</div><div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+(ar?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">📍 '+esc(ar)+'</span>':'')+(pr?'<span style="font-size:11px;background:var(--back);color:var(--coral);padding:2px 8px;border-radius:8px;font-weight:600">'+esc(pr)+'</span>':'')+(sz?'<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 8px;border-radius:8px">'+esc(sz)+'</span>':'')+'</div></div></div><span class="shop-arrow" id="shop-arrow-hotel-'+i+'">▼</span></div><div class="shop-detail" id="shop-detail-hotel-'+i+'"><div class="shop-meta" style="margin-top:12px">'+(mt?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🚇 交通</span><span class="shop-meta-value">'+esc(mt)+'</span></div>':'')+(nb?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">🗺 附近</span><span class="shop-meta-value">'+esc(nb)+'</span></div>':'')+(no?'<div class="shop-meta-row"><span class="shop-meta-label hotel-label">📝 備註</span><span class="shop-meta-value">'+esc(no)+'</span></div>':'')+'</div><button class="shop-map-btn" style="margin-top:12px" onclick="openMap(\''+mu+'\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Google Maps</button></div></div>';});c.innerHTML=html+'</div>';}catch(e){c.innerHTML='<div class="shop-empty">讀取住宿失敗：'+e.message+'</div>';}}
-// ── 購物清單（新表格格式）──
+async function loadHotel(){
+  const c=document.getElementById('hotel-container');
+  try{
+    const rows=await fetchCSV(GID.hotel);
+    // 找 header 行
+    let hi=0;
+    for(let i=0;i<Math.min(rows.length,4);i++){
+      if(rows[i]&&rows[i].some(v=>v&&(v.includes('住宿')||v.includes('日期')))){hi=i;break;}
+    }
+    const hRow=rows[hi]||[];
+    const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
+    // 欄位對應：B=住宿日期, C=住宿, D=區域, E=價格, F=大小, G=距離交通, H=附近, I=入住資訊, J=備註, K=介紹
+    const iDt = fc('日期');
+    const iNm = fc('住宿');
+    const iAr = fc('區域');
+    const iPr = fc('價格');
+    const iSz = fc('大小');
+    const iMt = fc('距離','交通');
+    const iNb = fc('附近');
+    const iCi = fc('入住');       // I欄：入住資訊
+    const iNo = fc('備註');       // J欄：備註
+    const iLk = fc('介紹');       // K欄：介紹連結
+    const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';
+
+    // 將儲存格內容的換行符（\n）轉成 <br>，並做 XSS 防護
+    const nl2br = (s) => esc(s).replace(/\n/g,'<br>');
+
+    const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());
+    if(!dr.length){c.innerHTML='<div class="shop-empty">尚未填入住宿資料 🏨</div>';return;}
+
+    // 區域標籤顏色
+    const areaColor=(ar)=>{
+      if(ar.includes('北'))return{bg:'#e8f4fd',color:'#2b6cb0'};
+      if(ar.includes('中'))return{bg:'#f0fff4',color:'#276749'};
+      if(ar.includes('南'))return{bg:'#fff5f5',color:'#c53030'};
+      return{bg:'var(--back)',color:'var(--muted)'};
+    };
+
+    let html='<div class="shop-grid">';
+    dr.forEach((r,i)=>{
+      const dt=g(r,iDt), nm=g(r,iNm), ar=g(r,iAr), pr=g(r,iPr);
+      const sz=g(r,iSz), mt=g(r,iMt), nb=g(r,iNb);
+      const ci=g(r,iCi), no=g(r,iNo), lk=g(r,iLk);
+      const mu='https://maps.google.com/?q='+encodeURIComponent(nm);
+      const ac=areaColor(ar);
+
+      // 區塊輔助：有內容才渲染
+      const block=(icon, label, val)=> val
+        ? `<div style="margin-bottom:10px">
+             <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.05em;margin-bottom:5px">${icon} ${label}</div>
+             <div style="font-size:13px;color:var(--text);line-height:1.75;background:var(--back);padding:8px 12px;border-radius:8px;border-left:3px solid var(--coral)">${nl2br(val)}</div>
+           </div>`
+        : '';
+
+      html+=`
+        <div class="shop-item">
+          <div class="shop-title" onclick="toggleShop('hotel-${i}')">
+            <div class="shop-title-left">
+              <div class="shop-title-icon">🏨</div>
+              <div style="min-width:0;flex:1">
+                ${dt?`<div style="font-size:12px;color:var(--coral);font-weight:700;margin-bottom:4px">📅 ${esc(dt)}</div>`:''}
+                <div class="shop-name">${esc(nm)}</div>
+                <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;align-items:center">
+                  ${ar?`<span style="font-size:11px;background:${ac.bg};color:${ac.color};padding:2px 9px;border-radius:8px;font-weight:700">${esc(ar)}</span>`:''}
+                  ${pr?`<span style="font-size:11px;background:var(--back);color:var(--coral);padding:2px 9px;border-radius:8px;font-weight:600">${esc(pr)}</span>`:''}
+                  ${sz?`<span style="font-size:11px;background:var(--back);color:var(--muted);padding:2px 9px;border-radius:8px">${esc(sz)}</span>`:''}
+                </div>
+              </div>
+            </div>
+            <span class="shop-arrow" id="shop-arrow-hotel-${i}">▼</span>
+          </div>
+          <div class="shop-detail" id="shop-detail-hotel-${i}">
+            <div style="margin-top:14px;display:flex;flex-direction:column;gap:2px">
+              ${mt?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px">🚗 ${esc(mt)}</div>`:''}
+              ${block('🗺️','附近有什麼', nb)}
+              ${block('🔑','入住資訊', ci)}
+              ${block('📝','備註', no)}
+              ${lk?`<a href="${esc(lk)}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--coral);margin-bottom:10px;text-decoration:none;font-weight:500">🔗 查看介紹</a>`:''}
+            </div>
+            <button class="shop-map-btn" onclick="openMap('${mu}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Google Maps
+            </button>
+          </div>
+        </div>`;
+    });
+    c.innerHTML=html+'</div>';
+  }catch(e){c.innerHTML='<div class="shop-empty">讀取住宿失敗：'+e.message+'</div>';}
+}
+
 let shopAllItems = [];
 let shopFilter = { day: '全部', store: '全部', person: '全部' };
 
@@ -451,7 +569,6 @@ async function loadShopping() {
   if (!c) return;
   try {
     const rows = await fetchCSV(GID.shopping);
-    // 找 header 行（包含「第幾天」或「商品」）
     let hi = 0;
     for (let i = 0; i < Math.min(rows.length, 5); i++) {
       if (rows[i] && rows[i].some(v => v && (v.includes('第幾天') || v.includes('商品') || v.includes('店家')))) { hi = i; break; }
@@ -464,8 +581,8 @@ async function loadShopping() {
     const iName = fc('商品', '品名');
     const iPrice = fc('價格');
     const iPerson = fc('誰要', '誰');
-    const iImg = fc('圖片');          // G欄：圖片網址
-    const iLink = fc('地址連結', '連結', '地圖', '地址'); // H欄：地址連結
+    const iImg = fc('圖片');
+    const iLink = fc('地址連結', '連結', '地圖', '地址');
     const iNote = fc('備註');
 
     shopAllItems = rows.slice(hi + 1)
@@ -477,8 +594,8 @@ async function loadShopping() {
         name: iName >= 0 ? (r[iName] || '').trim() : '',
         price: iPrice >= 0 ? (r[iPrice] || '').trim() : '',
         person: iPerson >= 0 ? (r[iPerson] || '').trim() : '',
-        img: iImg >= 0 ? (r[iImg] || '').trim() : '',     // G欄圖片
-        link: iLink >= 0 ? (r[iLink] || '').trim() : '',  // H欄地址
+        img: iImg >= 0 ? (r[iImg] || '').trim() : '',
+        link: iLink >= 0 ? (r[iLink] || '').trim() : '',
         note: iNote >= 0 ? (r[iNote] || '').trim() : '',
       }))
       .filter(item => item.name || item.store);
@@ -487,7 +604,6 @@ async function loadShopping() {
       c.innerHTML = '<div class="shop-empty">尚未填入購物清單 🛍</div>';
       return;
     }
-    // 重置篩選器
     shopFilter = { day: '全部', store: '全部', person: '全部' };
     renderShopFilter(c);
     renderShopItems(c);
@@ -498,11 +614,7 @@ async function loadShopping() {
 
 function getShopOptions(key) {
   const vals = [...new Set(shopAllItems.map(i => i[key]).filter(v => v))].sort((a, b) => {
-    // 天數排序
-    if (key === 'day') {
-      const na = parseInt(a) || 99, nb = parseInt(b) || 99;
-      return na - nb;
-    }
+    if (key === 'day') { const na = parseInt(a) || 99, nb = parseInt(b) || 99; return na - nb; }
     return a.localeCompare(b, 'zh-TW');
   });
   return vals;
@@ -512,25 +624,15 @@ function renderShopFilter(c) {
   const days = getShopOptions('day');
   const stores = getShopOptions('store');
   const persons = getShopOptions('person');
-
-  const mkSelect = (key, vals, placeholder) => {
-    const opts = ['全部', ...vals].map(v =>
-      `<option value="${esc(v)}" ${shopFilter[key]===v?'selected':''}>${esc(v)}</option>`
-    ).join('');
+  const mkSelect = (key, vals) => {
+    const opts = ['全部', ...vals].map(v => `<option value="${esc(v)}" ${shopFilter[key]===v?'selected':''}>${esc(v)}</option>`).join('');
     const hasFilt = shopFilter[key] !== '全部' ? ' has-filter' : '';
     return `<select class="${hasFilt}" onchange="setShopFilterSel('${key}',this)">${opts}</select>`;
   };
-
   const sticky = document.getElementById('shop-filter-sticky');
   if (sticky) {
-    sticky.innerHTML =
-      `<div class="shop-filter-selects">
-        ${mkSelect('day', days, '天數')}
-        ${mkSelect('store', stores, '店家')}
-        ${mkSelect('person', persons, '誰要')}
-      </div>`;
+    sticky.innerHTML = `<div class="shop-filter-selects">${mkSelect('day', days)}${mkSelect('store', stores)}${mkSelect('person', persons)}</div>`;
   }
-
   c.innerHTML = '<div class="shop-count" id="shop-count" style="margin-top:12px"></div><div class="shop-grid" id="shop-list"></div>';
 }
 
@@ -545,86 +647,133 @@ function renderShopItems(c) {
     if (shopFilter.day !== '全部' && item.day !== shopFilter.day) return false;
     if (shopFilter.store !== '全部' && item.store !== shopFilter.store) return false;
     if (shopFilter.person !== '全部') {
-      // 誰要的欄位可能是逗號分隔，檢查是否包含
       const persons = item.person.split(/[,，、\s]+/).map(p => p.trim()).filter(Boolean);
       if (!persons.includes(shopFilter.person) && item.person !== shopFilter.person) return false;
     }
     return true;
   });
-
   const cnt = document.getElementById('shop-count');
   if (cnt) cnt.textContent = `共 ${filtered.length} 件`;
-
   const list = document.getElementById('shop-list');
   if (!list) return;
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="shop-empty">沒有符合的品項</div>';
-    return;
-  }
-
-  // 按天數分組
+  if (!filtered.length) { list.innerHTML = '<div class="shop-empty">沒有符合的品項</div>'; return; }
   const groups = {};
-  filtered.forEach(item => {
-    const key = item.day || '未指定';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-
+  filtered.forEach(item => { const key = item.day || '未指定'; if (!groups[key]) groups[key] = []; groups[key].push(item); });
   const dayLabel = d => d && /^\d+$/.test(d) ? `Day ${d}` : d;
-
   let html = '';
-  // 依原始天數順序排
   const sortedKeys = Object.keys(groups).sort((a, b) => (parseInt(a) || 99) - (parseInt(b) || 99));
-
   sortedKeys.forEach(day => {
     const dayItems = groups[day];
     html += `<div style="margin-bottom:6px">`;
-    if (shopFilter.day === '全部') {
-      html += `<div style="font-size:12px;font-weight:700;color:var(--coral);padding:8px 4px 4px;letter-spacing:0.05em">${esc(dayLabel(day))}</div>`;
-    }
+    if (shopFilter.day === '全部') { html += `<div style="font-size:12px;font-weight:700;color:var(--coral);padding:8px 4px 4px;letter-spacing:0.05em">${esc(dayLabel(day))}</div>`; }
     dayItems.forEach((item, i) => {
       const uid = `shop_${day}_${i}`;
-      // G欄：圖片網址直接顯示（Drive 連結轉換）
       const imgSrc = item.img ? convertDriveUrl(item.img) : '';
-      // H欄：地址連結用於地圖
-      const mu = item.link.startsWith('http') ? item.link
-               : item.store ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store) : '';
-      html += `<div class="shop-item" style="margin-bottom:8px">
-        <div class="shop-title" onclick="toggleShop('${uid}')">
-          <div class="shop-title-left">
-            <div style="min-width:0;flex:1">
-              <div class="shop-name">${esc(item.name)}</div>
-              <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;align-items:center">
-                ${item.store ? `<span style="font-size:11px;color:var(--muted);background:var(--back);padding:2px 8px;border-radius:8px">🏪 ${esc(item.store)}</span>` : ''}
-                ${item.price ? `<span style="font-size:11px;color:var(--coral);font-weight:600;background:var(--back);padding:2px 8px;border-radius:8px">${esc(item.price)}</span>` : ''}
-                ${item.person ? `<span style="font-size:11px;color:var(--sepia);background:var(--accent-soft);padding:2px 8px;border-radius:8px">${esc(item.person)}</span>` : ''}
-              </div>
-            </div>
-          </div>
-          <span class="shop-arrow" id="shop-arrow-${uid}">▼</span>
-        </div>
-        <div class="shop-detail" id="shop-detail-${uid}">
-          ${imgSrc ? `<img src="${imgSrc}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">` : ''}
-          <div class="shop-meta" style="margin-top:10px">
-            ${item.hours ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>` : ''}
-            ${item.note ? `<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>` : ''}
-          </div>
-          ${mu ? `<button class="shop-map-btn" style="margin-top:10px" onclick="openMap('${mu}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>` : ''}
-        </div>
-      </div>`;
+      const mu = item.link.startsWith('http') ? item.link : item.store ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store) : '';
+      html += `<div class="shop-item" style="margin-bottom:8px"><div class="shop-title" onclick="toggleShop('${uid}')"><div class="shop-title-left"><div style="min-width:0;flex:1"><div class="shop-name">${esc(item.name)}</div><div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;align-items:center">${item.store?`<span style="font-size:11px;color:var(--muted);background:var(--back);padding:2px 8px;border-radius:8px">🏪 ${esc(item.store)}</span>`:''}${item.price?`<span style="font-size:11px;color:var(--coral);font-weight:600;background:var(--back);padding:2px 8px;border-radius:8px">${esc(item.price)}</span>`:''}${item.person?`<span style="font-size:11px;color:var(--sepia);background:var(--accent-soft);padding:2px 8px;border-radius:8px">${esc(item.person)}</span>`:''}</div></div></div><span class="shop-arrow" id="shop-arrow-${uid}">▼</span></div><div class="shop-detail" id="shop-detail-${uid}">${imgSrc?`<img src="${imgSrc}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">`:''}<div class="shop-meta" style="margin-top:10px">${item.hours?`<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>`:''}${item.note?`<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>`:''}</div>${mu?`<button class="shop-map-btn" style="margin-top:10px" onclick="openMap('${mu}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>`:''}</div></div>`;
     });
     html += '</div>';
   });
-
   list.innerHTML = html;
 }
-let selectedPayer='',selectedCurrency='JPY';
-window.addEventListener('DOMContentLoaded',()=>{const d=document.getElementById('exp-date');if(d)d.value=new Date().toISOString().split('T')[0];});
-function selectPayer(btn){document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedPayer=btn.dataset.person;}
-function selectCurrency(cur,btn){selectedCurrency=cur;document.getElementById('btn-jpy').style.background=cur==='JPY'?'var(--sepia)':'var(--sand-beige)';document.getElementById('btn-jpy').style.color=cur==='JPY'?'#fff':'var(--muted)';document.getElementById('btn-twd').style.background=cur==='TWD'?'var(--sepia)':'var(--sand-beige)';document.getElementById('btn-twd').style.color=cur==='TWD'?'#fff':'var(--muted)';}
-function toggleSplit(btn){btn.classList.toggle('active');}
-async function submitExpense(){const date=document.getElementById('exp-date').value,item=document.getElementById('exp-item').value.trim();const amount=document.getElementById('exp-amount').value,note=document.getElementById('exp-note').value.trim();if(!date){alert('請選擇日期');return;}if(!item){alert('請填入項目名稱');return;}if(!amount||isNaN(amount)){alert('請填入金額');return;}if(!selectedPayer){alert('請選擇付款人');return;}const splits={};document.querySelectorAll('.split-btn').forEach(b=>{splits[b.dataset.person]=b.classList.contains('active');});const payload={date,item,amount:Number(amount),currency:selectedCurrency,payer:selectedPayer,splits,note,token:APP_TOKEN};const btn=document.getElementById('submit-btn');btn.disabled=true;btn.textContent='⏳ 記錄中...';const cbN='expCb_'+Date.now();const url=APPS_SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload))+'&callback='+cbN;new Promise((resolve,reject)=>{const s=document.createElement('script');const t=setTimeout(()=>{delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);reject(new Error('timeout'));},10000);window[cbN]=(res)=>{clearTimeout(t);delete window[cbN];if(s.parentNode)s.parentNode.removeChild(s);res&&res.status==='ok'?resolve():reject(new Error(res&&res.error?res.error:'unknown'));};s.onerror=()=>{clearTimeout(t);delete window[cbN];reject(new Error('script error'));};s.src=url;document.head.appendChild(s);}).then(()=>{const el=document.getElementById('expense-success'),sym=selectedCurrency==='JPY'?'¥':'NT$';el.innerHTML='✅ 記錄成功！<br><span style="font-size:13px;opacity:0.85">「'+item+'」'+sym+Number(amount).toLocaleString()+'，由 '+selectedPayer+' 付款</span>';el.style.display='block';el.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>el.style.display='none',5000);document.getElementById('exp-item').value='';document.getElementById('exp-amount').value='';document.getElementById('exp-note').value='';document.querySelectorAll('.person-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.split-btn').forEach(b=>b.classList.add('active'));selectedPayer='';document.getElementById('exp-date').value=new Date().toISOString().split('T')[0];selectCurrency('JPY',null);}).catch(e=>alert('送出失敗 😢\n錯誤：'+e.message)).finally(()=>{btn.disabled=false;btn.textContent='記錄這筆花費 →';});}
+
+// ===================== 花費表單邏輯（更新版） =====================
+let selectedPayer = '';
+let selectedCurrency = 'JPY';
+
+window.addEventListener('DOMContentLoaded', () => {
+  const d = document.getElementById('exp-date');
+  if (d) d.value = new Date().toISOString().split('T')[0];
+});
+
+function selectPayer(btn) {
+  document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedPayer = btn.dataset.person;
+}
+
+function selectCurrency(cur, btn) {
+  selectedCurrency = cur;
+  const jpyBtn = document.getElementById('btn-jpy');
+  const twdBtn = document.getElementById('btn-twd');
+  jpyBtn.style.background = cur === 'JPY' ? 'var(--sepia)' : 'var(--back)';
+  jpyBtn.style.color = cur === 'JPY' ? '#fff' : 'var(--muted)';
+  twdBtn.style.background = cur === 'TWD' ? 'var(--sepia)' : 'var(--back)';
+  twdBtn.style.color = cur === 'TWD' ? '#fff' : 'var(--muted)';
+}
+
+function toggleSplit(btn) {
+  btn.classList.toggle('active');
+}
+
+async function submitExpense() {
+  const date = document.getElementById('exp-date').value;
+  const item = document.getElementById('exp-item').value.trim();
+  const amount = document.getElementById('exp-amount').value;
+
+  if (!date) { alert('請選擇日期'); return; }
+  if (!item) { alert('請填入項目名稱'); return; }
+  if (!amount || isNaN(amount)) { alert('請填入金額'); return; }
+  if (!selectedPayer) { alert('請選擇付款人'); return; }
+
+  // F=婷, G=旭, H=茹, I=揚 → 對應 splits 物件，傳 boolean
+  const splits = {
+    婷: document.querySelector('.split-btn[data-person="婷"]').classList.contains('active'),
+    旭: document.querySelector('.split-btn[data-person="旭"]').classList.contains('active'),
+    茹: document.querySelector('.split-btn[data-person="茹"]').classList.contains('active'),
+    揚: document.querySelector('.split-btn[data-person="揚"]').classList.contains('active'),
+  };
+
+  // 台幣寫 D欄、日幣寫 E欄，由 Apps Script 對應處理
+  const payload = {
+    date,
+    item,
+    amount: Number(amount),
+    currency: selectedCurrency, // 'JPY' → E欄, 'TWD' → D欄
+    payer: selectedPayer,
+    splits,                     // { 婷: bool, 旭: bool, 茹: bool, 揚: bool }
+    token: APP_TOKEN
+  };
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 記錄中...';
+
+  const cbN = 'expCb_' + Date.now();
+  const url = APPS_SCRIPT_URL + '?data=' + encodeURIComponent(JSON.stringify(payload)) + '&callback=' + cbN;
+
+  new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    const t = setTimeout(() => { delete window[cbN]; if (s.parentNode) s.parentNode.removeChild(s); reject(new Error('timeout')); }, 10000);
+    window[cbN] = (res) => {
+      clearTimeout(t);
+      delete window[cbN];
+      if (s.parentNode) s.parentNode.removeChild(s);
+      res && res.status === 'ok' ? resolve() : reject(new Error(res && res.error ? res.error : 'unknown'));
+    };
+    s.onerror = () => { clearTimeout(t); delete window[cbN]; reject(new Error('script error')); };
+    s.src = url;
+    document.head.appendChild(s);
+  }).then(() => {
+    const el = document.getElementById('expense-success');
+    const sym = selectedCurrency === 'JPY' ? '¥' : 'NT$';
+    el.innerHTML = '✅ 記錄成功！<br><span style="font-size:13px;opacity:0.85">「' + item + '」' + sym + Number(amount).toLocaleString() + '，由 ' + selectedPayer + ' 付款</span>';
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => el.style.display = 'none', 5000);
+    // 重置表單
+    document.getElementById('exp-item').value = '';
+    document.getElementById('exp-amount').value = '';
+    document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.split-btn').forEach(b => b.classList.add('active')); // 重置回全選
+    selectedPayer = '';
+    document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+    selectCurrency('JPY', null);
+  }).catch(e => alert('送出失敗 😢\n錯誤：' + e.message))
+    .finally(() => { btn.disabled = false; btn.textContent = '記錄這筆花費 →'; });
+}
+// ===================== 花費表單邏輯 END =====================
+
 function toggleShop(id){const d=document.getElementById('shop-detail-'+id),a=document.getElementById('shop-arrow-'+id);if(!d)return;d.classList.toggle('open');if(a)a.classList.toggle('open');}
 function openMap(url){window.open(url,'_blank');}
 function heroTab(name,btn){
@@ -632,11 +781,9 @@ function heroTab(name,btn){
   document.querySelectorAll('.fab-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
   document.querySelectorAll('.fab-item').forEach(b=>{if(b.dataset.tab===name)b.classList.add('active');});
-  // hero day selector：只在行程頁顯示
   const heroDs = document.getElementById('day-selector-hero');
   if (name === 'itinerary') { heroDs.classList.remove('hidden'); }
   else { heroDs.classList.add('hidden'); }
-  // 切換 tab 時，非行程頁隱藏浮動版
   isItineraryTab = (name === 'itinerary');
   if (!isItineraryTab) {
     floatBar.classList.remove('visible');
@@ -679,7 +826,7 @@ loadAllItinerary();loadHotel();loadShopping();
   <button class="fab-item" data-tab="shopping" onclick="heroTab('shopping',this)"><span class="fab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span><span class="fab-label">購物</span></button>
   <button class="fab-item" data-tab="hotel" onclick="heroTab('hotel',this)"><span class="fab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span class="fab-label">住宿</span></button>
   <button class="fab-item" data-tab="expense" onclick="heroTab('expense',this)"><span class="fab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="fab-label">花費</span></button>
-  <button class="fab-item" data-tab="itinerary" onclick="heroTab('itinerary',this)"><span class="fab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="fab-label">行程</span></button>
+  <button class="fab-item active" data-tab="itinerary" onclick="heroTab('itinerary',this)"><span class="fab-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span class="fab-label">行程</span></button>
 </div>
 <button class="fab-btn" id="fab-btn" onclick="toggleMenu()">
   <span class="fab-btn-icon" id="fab-btn-icon">☰</span>

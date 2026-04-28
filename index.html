@@ -218,10 +218,21 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .cl-item-text{font-size:14px;color:var(--text);}
 .cl-dots{display:flex;gap:5px;flex-shrink:0;}
 .cl-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;transition:all 0.2s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+/* ✓ 已帶 */
 .cl-dot.checked-婷{background:#805AD5;border-color:#805AD5;}
 .cl-dot.checked-旭{background:#D69E2E;border-color:#D69E2E;}
 .cl-dot.checked-揚{background:var(--sepia);border-color:var(--sepia);}
 .cl-dot.checked-茹{background:var(--coral);border-color:var(--coral);}
+/* ✗ 不帶 */
+.cl-dot.no-婷{background:#A0AEC0;border-color:#A0AEC0;}
+.cl-dot.no-旭{background:#A0AEC0;border-color:#A0AEC0;}
+.cl-dot.no-揚{background:#A0AEC0;border-color:#A0AEC0;}
+.cl-dot.no-茹{background:#A0AEC0;border-color:#A0AEC0;}
+/* 待買 */
+.cl-dot.pending-婷{background:#ED8936;border-color:#ED8936;}
+.cl-dot.pending-旭{background:#ED8936;border-color:#ED8936;}
+.cl-dot.pending-揚{background:#ED8936;border-color:#ED8936;}
+.cl-dot.pending-茹{background:#ED8936;border-color:#ED8936;}
 .cl-popup-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:300;}
 .cl-popup-box{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:1.5rem;z-index:301;box-shadow:0 -4px 24px rgba(0,0,0,0.12);animation:slideUp 0.25s ease-out;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -241,6 +252,17 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .cl-section-arrow:not(.open){transform:rotate(-90deg);}
 .cl-list{padding:0 8px;max-height:2000px;transition:max-height 0.3s ease,padding 0.3s;}
 .cl-list.collapsed{max-height:0;overflow:hidden;padding:0;}
+/* ── 行前清單：三狀態循環 badge ── */
+.cl-cycle-badge{
+  width:44px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;flex-shrink:0;
+  border:2px solid var(--border);background:var(--back);color:var(--muted);
+  transition:all 0.15s;cursor:pointer;
+}
+.cl-cycle-badge.state-check{background:#48BB78;border-color:#48BB78;color:#fff;}
+.cl-cycle-badge.state-no{background:#A0AEC0;border-color:#A0AEC0;color:#fff;}
+.cl-cycle-badge.state-pending{background:#ED8936;border-color:#ED8936;color:#fff;}
 /* ── 購物清單：勾選功能 ── */
 .shop-check-wrap{display:flex;align-items:center;gap:10px;padding:10px 0 4px;}
 .shop-checkbox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
@@ -406,10 +428,22 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
       <div class="cl-popup-box">
         <div class="cl-popup-title" id="cl-popup-title"></div>
         <div class="cl-popup-persons">
-          <div class="cl-person-row" onclick="togglePerson(this,'婷')"><div class="cl-circle" id="cp-婷"></div><span>婷</span></div>
-          <div class="cl-person-row" onclick="togglePerson(this,'旭')"><div class="cl-circle" id="cp-旭"></div><span>旭</span></div>
-          <div class="cl-person-row" onclick="togglePerson(this,'揚')"><div class="cl-circle" id="cp-揚"></div><span>揚</span></div>
-          <div class="cl-person-row" onclick="togglePerson(this,'茹')"><div class="cl-circle" id="cp-茹"></div><span>茹</span></div>
+          <div class="cl-person-row" onclick="cyclePerson('婷')">
+            <div class="cl-cycle-badge" id="cp-婷">—</div><span>婷</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">點擊切換</span>
+          </div>
+          <div class="cl-person-row" onclick="cyclePerson('旭')">
+            <div class="cl-cycle-badge" id="cp-旭">—</div><span>旭</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">點擊切換</span>
+          </div>
+          <div class="cl-person-row" onclick="cyclePerson('揚')">
+            <div class="cl-cycle-badge" id="cp-揚">—</div><span>揚</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">點擊切換</span>
+          </div>
+          <div class="cl-person-row" onclick="cyclePerson('茹')">
+            <div class="cl-cycle-badge" id="cp-茹">—</div><span>茹</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">點擊切換</span>
+          </div>
         </div>
         <button class="cl-popup-close" onclick="closePopup()">完成</button>
       </div>
@@ -966,12 +1000,69 @@ let checklistStructure={};
 function getCatIcon(name){for(const[k,v]of Object.entries(CAT_ICONS)){if(name.includes(k))return v;}return CAT_ICONS['證件'];}
 async function loadChecklistFromSheet(){const container=document.getElementById('cl-sections-container');if(!container)return;try{const rows=await fetchCSV(CHECKLIST_GID);checklistStructure={};let currentCat=null;const skipE=['項目','數量','婷','旭','揚','茹','位置','備註','打勾'];const catRowIndices=new Set();for(let i=0;i<rows.length-1;i++){const nextE=(rows[i+1]?.[4]||'').toString().trim();const nextF=(rows[i+1]?.[5]||'').toString().trim();if(nextE==='項目'&&nextF==='數量'){catRowIndices.add(i);}}for(let i=0;i<rows.length;i++){const row=rows[i];const e=(row[4]||'').toString().trim();const f=(row[5]||'').toString().trim();if(!e)continue;if(skipE.includes(e))continue;if(catRowIndices.has(i)){const catName=e.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g,'').replace(/[\u2600-\u27FF]/g,'').trim()||e;currentCat=catName;checklistStructure[currentCat]=[];continue;}if(f==='數量')continue;if(currentCat&&e)checklistStructure[currentCat].push(e);}for(const items of Object.values(checklistStructure)){for(const text of items){if(!checkState[text])checkState[text]=new Set();}}buildChecklistDOM(container);await loadChecklistState();}catch(err){container.innerHTML='<div class="tl-empty">載入失敗：'+err.message+'</div>';}}
 function buildChecklistDOM(container){let html='';Object.entries(checklistStructure).forEach(([cat,items],idx)=>{const id='cl-cat-'+idx,arrowId='cl-arrow-'+idx,icon=getCatIcon(cat);html+='<div class="cl-section"><div class="cl-section-header" onclick="toggleCLSection(\''+id+'\',\''+arrowId+'\')"><span style="display:flex;align-items:center;gap:8px">'+icon+' '+esc(cat)+'</span><span class="cl-section-arrow" id="'+arrowId+'">▼</span></div><ul class="cl-list collapsed" id="'+id+'"></ul></div>';});container.innerHTML=html;Object.entries(checklistStructure).forEach(([cat,items],idx)=>{const ul=document.getElementById('cl-cat-'+idx);if(!ul)return;items.forEach(text=>{if(!checkState[text])checkState[text]=new Set();const li=document.createElement('li');li.className='cl-item';li.onclick=()=>openPopup(text);li.id='cl-item-'+encodeURIComponent(text);li.innerHTML='<div class="cl-item-left"><span class="cl-item-text">'+text+'</span></div><div class="cl-dots" id="cl-dots-'+encodeURIComponent(text)+'">'+PERSONS.map(p=>'<div class="cl-dot" id="cldot-'+encodeURIComponent(text)+'-'+p+'" title="'+p+'"></div>').join('')+'</div>';ul.appendChild(li);});});}
-async function loadChecklistState(){try{const res=await callScript({action:'getChecklist',token:APP_TOKEN});if(res.status!=='ok')return;for(const[item,persons]of Object.entries(res.data)){if(!checkState[item])checkState[item]=new Set();for(const[person,checked]of Object.entries(persons)){if(checked)checkState[item].add(person);else checkState[item].delete(person);}updateDots(item);}}catch(e){console.log('載入勾選狀態失敗:',e.message);}}
+async function loadChecklistState(){
+  try{
+    const res=await callScript({action:'getChecklist',token:APP_TOKEN});
+    if(res.status!=='ok')return;
+    for(const[item,persons]of Object.entries(res.data)){
+      if(!checkState[item])checkState[item]={};
+      for(const[person,val]of Object.entries(persons)){
+        // val 是 '✓'、'✗'、'待買' 或 ''
+        checkState[item][person]=val||'';
+      }
+      updateDots(item);
+    }
+  }catch(e){console.log('載入勾選狀態失敗:',e.message);}
+}
 let currentPopupItem=null;
-function openPopup(text){currentPopupItem=text;document.getElementById('cl-popup-title').textContent=text;PERSONS.forEach(p=>{const el=document.getElementById('cp-'+p);if(!el)return;el.classList.toggle('done',checkState[text]&&checkState[text].has(p));});document.getElementById('cl-popup').style.display='block';}
+function openPopup(text){
+  currentPopupItem=text;
+  document.getElementById('cl-popup-title').textContent=text;
+  PERSONS.forEach(p=>{
+    const el=document.getElementById('cp-'+p);
+    if(!el)return;
+    const val=(checkState[text]||{})[p]||'';
+    updateBadge(el,val);
+  });
+  document.getElementById('cl-popup').style.display='block';
+}
+function updateBadge(el,val){
+  el.className='cl-cycle-badge';
+  if(val==='✓'){el.classList.add('state-check');el.textContent='✓';}
+  else if(val==='✗'){el.classList.add('state-no');el.textContent='✗';}
+  else if(val==='待買'){el.classList.add('state-pending');el.textContent='待';}
+  else{el.textContent='—';}
+}
+// 循環切換：空 → ✓ → ✗ → 待買 → 空
+const CYCLE_VALS=['','✓','✗','待買'];
+async function cyclePerson(person){
+  if(!currentPopupItem)return;
+  if(!checkState[currentPopupItem])checkState[currentPopupItem]={};
+  const cur=checkState[currentPopupItem][person]||'';
+  const idx=CYCLE_VALS.indexOf(cur);
+  const next=CYCLE_VALS[(idx+1)%CYCLE_VALS.length];
+  checkState[currentPopupItem][person]=next;
+  const el=document.getElementById('cp-'+person);
+  if(el)updateBadge(el,next);
+  updateDots(currentPopupItem);
+  try{
+    await callScript({action:'setChecklist',data:encodeURIComponent(JSON.stringify({token:APP_TOKEN,item:currentPopupItem,person:person,value:next}))});
+  }catch(e){console.log('同步失敗:',e.message);}
+}
 function closePopup(){document.getElementById('cl-popup').style.display='none';if(currentPopupItem)updateDots(currentPopupItem);currentPopupItem=null;}
-async function togglePerson(row,person){if(!currentPopupItem)return;const set=checkState[currentPopupItem];const willCheck=!set.has(person);if(willCheck)set.add(person);else set.delete(person);const el=document.getElementById('cp-'+person);if(el)el.classList.toggle('done',willCheck);try{await callScript({action:'setChecklist',data:encodeURIComponent(JSON.stringify({token:APP_TOKEN,item:currentPopupItem,person:person,checked:willCheck}))});}catch(e){console.log('同步失敗:',e.message);}}
-function updateDots(text){const set=checkState[text]||new Set();PERSONS.forEach(p=>{const dot=document.getElementById('cldot-'+encodeURIComponent(text)+'-'+p);if(!dot)return;dot.className='cl-dot'+(set.has(p)?' checked-'+p:'');dot.textContent=set.has(p)?p[0]:'';});}
+// togglePerson 已由 cyclePerson 取代
+function updateDots(text){
+  const state=checkState[text]||{};
+  PERSONS.forEach(p=>{
+    const dot=document.getElementById('cldot-'+encodeURIComponent(text)+'-'+p);
+    if(!dot)return;
+    const val=state[p]||'';
+    if(val==='✓'){dot.className='cl-dot checked-'+p;dot.textContent=p[0];}
+    else if(val==='✗'){dot.className='cl-dot no-'+p;dot.textContent='✗';}
+    else if(val==='待買'){dot.className='cl-dot pending-'+p;dot.textContent='待';}
+    else{dot.className='cl-dot';dot.textContent='';}
+  });
+}
 document.addEventListener('DOMContentLoaded',loadChecklistFromSheet);
 loadAllItinerary();loadHotel();loadShopping();
 </script>

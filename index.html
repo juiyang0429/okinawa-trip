@@ -718,8 +718,12 @@ function renderShopFilter(c) {
   const days = getShopOptions('day');
   const stores = getShopOptions('store');
   const persons = getShopOptions('person');
-  const mkSelect = (key, vals) => {
-    const opts = ['全部', ...vals].map(v => `<option value="${esc(v)}" ${shopFilter[key]===v?'selected':''}>${esc(v)}</option>`).join('');
+  const mkSelect = (key, vals, label) => {
+    const allLabel = label ? label + ' 全部' : '全部';
+    const opts = [
+      `<option value="全部" ${shopFilter[key]==='全部'?'selected':''}>${allLabel}</option>`,
+      ...vals.map(v => `<option value="${esc(v)}" ${shopFilter[key]===v?'selected':''}>${esc(v)}</option>`)
+    ].join('');
     const hasFilt = shopFilter[key] !== '全部' ? ' has-filter' : '';
     return `<select class="${hasFilt}" onchange="setShopFilterSel('${key}',this)">${opts}</select>`;
   };
@@ -736,19 +740,10 @@ function renderShopFilter(c) {
           同步圖片
         </button>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">🗓 天數</div>
-          ${mkSelect('day', days)}
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">🏪 店家</div>
-          ${mkSelect('store', stores)}
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">👤 誰要</div>
-          ${mkSelect('person', persons)}
-        </div>
+      <div class="shop-filter-selects">
+        ${mkSelect('day', days, '🗓 天數')}
+        ${mkSelect('store', stores, '🏪 店家')}
+        ${mkSelect('person', persons, '👤 誰要')}
       </div>`;
   }
   c.innerHTML = '<div class="shop-count" id="shop-count" style="margin-top:12px"></div><div class="shop-grid" id="shop-list"></div>';
@@ -861,12 +856,13 @@ function renderShopItems(c) {
                  onclick="event.stopPropagation();toggleBought(${item.rowIndex})"
                  title="標記已買"
                  style="flex-shrink:0"></div>
-            <!-- 商品名 -->
-            <div class="shop-name" style="flex:1;min-width:0;${isBought?'text-decoration:line-through;color:var(--muted)':''}">${esc(item.name)}</div>
-            <!-- 標籤群（右側橫排） -->
-            <div style="display:flex;gap:4px;flex-wrap:nowrap;align-items:center;flex-shrink:0;max-width:55%;overflow:hidden">${tags}</div>
+            <!-- 右側：商品名 + 標籤（兩列）-->
+            <div style="flex:1;min-width:0">
+              <div class="shop-name" style="${isBought?'text-decoration:line-through;color:var(--muted)':''}">${esc(item.name)}</div>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin-top:5px">${tags}</div>
+            </div>
             <!-- 展開箭頭 -->
-            <span class="shop-arrow" id="shop-arrow-${uid}" style="flex-shrink:0">▼</span>
+            <span class="shop-arrow" id="shop-arrow-${uid}" style="flex-shrink:0;align-self:flex-start;margin-top:2px">▼</span>
           </div>
           <!-- 展開內容 -->
           <div class="shop-detail" id="shop-detail-${uid}" style="padding:0 14px 14px">

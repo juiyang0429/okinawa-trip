@@ -484,7 +484,11 @@ async function loadHotel(){
     const fc=(...kws)=>{for(const kw of kws){const i=hRow.findIndex(h=>h&&h.includes(kw));if(i>=0)return i;}return -1;};
     // 欄位對應：B=住宿日期, C=住宿, D=區域, E=價格, F=大小, G=距離交通, H=附近, I=入住資訊, J=備註, K=介紹
     const iDt = fc('日期');
-    const iNm = fc('住宿');
+    // 住宿名稱：找「住宿」但排除同時含「日期」的欄（避免抓到「住宿日期」那欄）
+    const iNm = (()=>{
+      const idx = hRow.findIndex(h => h && h.includes('住宿') && !h.includes('日期'));
+      return idx >= 0 ? idx : fc('住宿');
+    })();
     const iAr = fc('區域');
     const iPr = fc('價格');
     const iSz = fc('大小');
@@ -495,8 +499,12 @@ async function loadHotel(){
     const iLk = fc('介紹');       // K欄：介紹連結
     const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';
 
-    // 將儲存格內容的換行符（\n）轉成 <br>，並做 XSS 防護
-    const nl2br = (s) => esc(s).replace(/\n/g,'<br>');
+    // 換行轉 <br>，並將 https:// 網址自動轉成可點擊超連結
+    const nl2br = (s) => {
+      const escaped = esc(s).replace(/\n/g,'<br>');
+      return escaped.replace(/(https?:\/\/[^\s<&]+)/g,
+        '<a href="$1" target="_blank" style="color:var(--coral);word-break:break-all;text-decoration:underline">$1</a>');
+    };
 
     const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());
     if(!dr.length){c.innerHTML='<div class="shop-empty">尚未填入住宿資料 🏨</div>';return;}

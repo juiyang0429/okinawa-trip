@@ -663,8 +663,9 @@ async function loadShopping() {
     const iPrice = fc('價格');
     const iPerson = fc('誰要', '誰');
     const iImg = fc('圖片');
-    const iLink = fc('地址連結', '連結', '地圖', '地址');
+    const iLink = fc('地址連結', '地圖', '地址');
     const iNote = fc('備註');
+    const iCoupon = fc('折價券');  // J欄
     const iBought = fc('已購買');  // K欄
 
     // 先 map（保留原始列號），再 filter，避免 filter 後 idx 跳號導致列號錯誤
@@ -684,6 +685,7 @@ async function loadShopping() {
           img: iImg >= 0 ? (r[iImg] || '').trim() : '',
           link: iLink >= 0 ? (r[iLink] || '').trim() : '',
           note: iNote >= 0 ? (r[iNote] || '').trim() : '',
+          coupon: iCoupon >= 0 ? (r[iCoupon] || '').trim() : '',
           bought: isBought,
         };
       })
@@ -734,7 +736,20 @@ function renderShopFilter(c) {
           同步圖片
         </button>
       </div>
-      <div class="shop-filter-selects">${mkSelect('day', days)}${mkSelect('store', stores)}${mkSelect('person', persons)}</div>`;
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">🗓 天數</div>
+          ${mkSelect('day', days)}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">🏪 店家</div>
+          ${mkSelect('store', stores)}
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;letter-spacing:0.04em">👤 誰要</div>
+          ${mkSelect('person', persons)}
+        </div>
+      </div>`;
   }
   c.innerHTML = '<div class="shop-count" id="shop-count" style="margin-top:12px"></div><div class="shop-grid" id="shop-list"></div>';
 }
@@ -860,6 +875,7 @@ function renderShopItems(c) {
               ${item.hours ? `<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>` : ''}
               ${item.note  ? `<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>` : ''}
             </div>
+            ${item.coupon ? `<a href="${item.coupon}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 16px;background:#fff8e1;border:1.5px solid #F6AD55;border-radius:8px;font-size:13px;font-weight:600;color:#C05621;text-decoration:none">🎫 使用折價券</a>` : ''}
             ${mu ? `<button class="shop-map-btn" style="margin-top:10px" onclick="openMap('${mu}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>` : ''}
           </div>
         </div>`;

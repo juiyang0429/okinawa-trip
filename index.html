@@ -779,6 +779,52 @@ function setShopFilterSel(key, sel) {
 }
 
 // ── 購物清單：編輯功能 ──
+const PERSON_PRESETS = ['婷','旭','茹','揚','婷揚家','旭家','茹家','永和家','台南家'];
+const PERSON_CHIP_STYLES = {
+  '婷':     {color:'#805AD5', bg:'#EDE9FE'},
+  '旭':     {color:'#B7791F', bg:'#FEFCBF'},
+  '茹':     {color:'#C05621', bg:'#FEEBC8'},
+  '揚':     {color:'#276749', bg:'#C6F6D5'},
+  '婷揚家': {color:'#fff',    bg:'#2D3748'},
+  '旭家':   {color:'#fff',    bg:'#744210'},
+  '茹家':   {color:'#fff',    bg:'#C53030'},
+  '永和家': {color:'#fff',    bg:'#2B6CB0'},
+  '台南家': {color:'#fff',    bg:'#553C9A'},
+};
+
+function togglePersonChip(rowIndex, val) {
+  const chipId = 'chip-' + rowIndex + '-' + val.replace(/\s/g,'');
+  const btn = document.getElementById(chipId);
+  if (!btn) return;
+  const isActive = btn.dataset.active === '1';
+  const newActive = !isActive;
+  btn.dataset.active = newActive ? '1' : '0';
+  const style = PERSON_CHIP_STYLES[val] || {color:'var(--sepia)', bg:'var(--border)'};
+  btn.style.background = newActive ? style.bg : 'transparent';
+  btn.style.color = newActive ? style.color : 'var(--muted)';
+  btn.style.borderColor = style.bg;
+  updatePersonPreview(rowIndex);
+}
+
+function getPersonValue(rowIndex) {
+  // 收集勾選的 chip
+  const selected = PERSON_PRESETS.filter(val => {
+    const chipId = 'chip-' + rowIndex + '-' + val.replace(/\s/g,'');
+    const btn = document.getElementById(chipId);
+    return btn && btn.dataset.active === '1';
+  });
+  // 加上其他欄位
+  const otherEl = document.getElementById('edit-person-other-' + rowIndex);
+  const others = otherEl ? otherEl.value.split(/[,，、]+/).map(s=>s.trim()).filter(Boolean) : [];
+  // 合併，去重
+  const all = [...new Set([...selected, ...others])];
+  return all.join('、');
+}
+
+function updatePersonPreview(rowIndex) {
+  const preview = document.getElementById('edit-person-preview-' + rowIndex);
+  if (preview) preview.textContent = getPersonValue(rowIndex) || '—';
+}
 function openShopEdit(rowIndex) {
   document.getElementById('shop-edit-form-' + rowIndex).style.display = 'flex';
 }
@@ -789,7 +835,7 @@ async function saveShopEdit(rowIndex) {
   const btn = document.getElementById('edit-save-' + rowIndex);
   const name   = document.getElementById('edit-name-'   + rowIndex).value.trim();
   const store  = document.getElementById('edit-store-'  + rowIndex).value.trim();
-  const person = document.getElementById('edit-person-' + rowIndex).value.trim();
+  const person = getPersonValue(rowIndex);
   const day    = document.getElementById('edit-day-'    + rowIndex).value;
 
   btn.disabled = true;
@@ -952,8 +998,47 @@ function renderShopItems(c) {
                 <input class="shop-edit-input" id="edit-store-${item.rowIndex}" value="${esc(item.store)}" placeholder="店家名稱">
               </div>
               <div class="shop-edit-row">
-                <div class="shop-edit-label">誰要（自由輸入，多人用逗號分隔）</div>
-                <input class="shop-edit-input" id="edit-person-${item.rowIndex}" value="${esc(item.person)}" placeholder="例：婷、婷旭">
+                <div class="shop-edit-label">誰要</div>
+                <div id="edit-person-chips-${item.rowIndex}" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">
+                  ${[
+                    {val:'婷',     color:'#805AD5',bg:'#EDE9FE'},
+                    {val:'旭',     color:'#B7791F',bg:'#FEFCBF'},
+                    {val:'茹',     color:'#C05621',bg:'#FEEBC8'},
+                    {val:'揚',     color:'#276749',bg:'#C6F6D5'},
+                    {val:'婷揚家', color:'#fff',   bg:'#2D3748'},
+                    {val:'旭家',   color:'#fff',   bg:'#744210'},
+                    {val:'茹家',   color:'#fff',   bg:'#C53030'},
+                    {val:'永和家', color:'#fff',   bg:'#2B6CB0'},
+                    {val:'台南家', color:'#fff',   bg:'#553C9A'},
+                  ].map(opt => {
+                    const isActive = item.person && item.person.split(/[,，、]+/).map(s=>s.trim()).includes(opt.val);
+                    return `<button type="button"
+                      onclick="togglePersonChip(${item.rowIndex},'${opt.val}')"
+                      id="chip-${item.rowIndex}-${opt.val.replace(/\s/g,'')}"
+                      style="padding:5px 12px;border-radius:20px;border:2px solid ${opt.bg};
+                             background:${isActive?opt.bg:'transparent'};
+                             color:${isActive?opt.color:'var(--muted)'};
+                             font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:600;
+                             cursor:pointer;transition:all 0.15s;"
+                      data-color="${opt.color}" data-bg="${opt.bg}" data-active="${isActive?'1':'0'}"
+                    >${opt.val}</button>`;
+                  }).join('')}
+                </div>
+                <div style="display:flex;gap:6px;align-items:center">
+                  <span style="font-size:11px;color:var(--muted);white-space:nowrap">其他：</span>
+                  <input class="shop-edit-input" id="edit-person-other-${item.rowIndex}"
+                    style="flex:1"
+                    placeholder="自由輸入，多人用逗號分隔"
+                    value="${(()=>{
+                      const presets=['婷','旭','茹','揚','婷揚家','旭家','茹家','永和家','台南家'];
+                      const parts=(item.person||'').split(/[,，、]+/).map(s=>s.trim()).filter(Boolean);
+                      return parts.filter(p=>!presets.includes(p)).join('、');
+                    })()}"
+                    oninput="updatePersonPreview(${item.rowIndex})">
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px">
+                  預覽：<span id="edit-person-preview-${item.rowIndex}" style="color:var(--sepia);font-weight:600">${esc(item.person)||'—'}</span>
+                </div>
               </div>
               <div class="shop-edit-row">
                 <div class="shop-edit-label">天數</div>

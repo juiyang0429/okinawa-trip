@@ -433,6 +433,16 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 const SPREADSHEET_KEY='1N67GDlMlMRCegQK0iHGYcNv4s6NvNUwz4akIeaJOgqY';
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbwFkezcjyRZg5dc6C7R6XfHDcfGobD-Rl7-Jif74Ox_NYXsn_OgV6Ws--CYX3r6BEyroA/exec';
 const APP_TOKEN='okinawa2026';
+
+// ── 診斷用：確認 Apps Script 是否為新版 ──
+async function diagScript() {
+  try {
+    const res = await callScript({ action: 'diag', token: APP_TOKEN });
+    alert('Apps Script 回應：\n' + JSON.stringify(res, null, 2) + '\n\n如果看到 version: "new"，代表新版已生效。\n如果看到 error 或沒有 version，代表還是舊版。');
+  } catch(e) {
+    alert('呼叫失敗：' + e.message);
+  }
+}
 const PUB_KEY='2PACX-1vRI7kWux6_1X9Xazcyg_2qkg5e7iOQfVNyFN6BJA6BbWbh81N9VZzWj-JD_5lYEVY3bxbh-4ZQiQYwn';
 const GID={itinerary_d1:'202449681',itinerary_d2:'793926690',itinerary_d3:'132787083',itinerary_d4:'1366341329',itinerary_d5:'451018843',hotel:'1233567320',shopping:'1986641767'};
 const DAY_CONFIG=[

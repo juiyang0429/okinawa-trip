@@ -241,6 +241,21 @@ body{font-family:'Noto Sans TC','Noto Sans JP',sans-serif;background-color:var(-
 .cl-section-arrow:not(.open){transform:rotate(-90deg);}
 .cl-list{padding:0 8px;max-height:2000px;transition:max-height 0.3s ease,padding 0.3s;}
 .cl-list.collapsed{max-height:0;overflow:hidden;padding:0;}
+/* ── 購物清單：勾選功能 ── */
+.shop-check-wrap{display:flex;align-items:center;gap:10px;padding:10px 0 4px;}
+.shop-checkbox{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.shop-checkbox.checked{background:var(--sepia);border-color:var(--sepia);}
+.shop-checkbox.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700;}
+.shop-item.bought{opacity:0.45;}
+.shop-bought-badge{font-size:11px;background:#e8f5e9;color:#276749;padding:2px 8px;border-radius:8px;font-weight:600;}
+/* 更新按鈕 */
+.shop-sync-btn{display:flex;align-items:center;gap:7px;padding:9px 16px;background:var(--sepia);color:#fff;border:none;border-radius:8px;font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+.shop-sync-btn:hover{opacity:0.85;}
+.shop-sync-btn:disabled{opacity:0.5;cursor:not-allowed;}
+/* 顯示篩選 tabs */
+.shop-view-tabs{display:flex;gap:6px;margin-bottom:0;}
+.shop-view-tab{flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--border);background:var(--back);color:var(--muted);font-family:'Noto Sans TC',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center;}
+.shop-view-tab.active{background:var(--sepia);border-color:var(--sepia);color:#fff;}
 </style>
 </head>
 <body>
@@ -499,11 +514,23 @@ async function loadHotel(){
     const iLk = fc('介紹');       // K欄：介紹連結
     const g=(r,i)=>(i>=0&&i<r.length)?r[i]||'':'';
 
-    // 換行轉 <br>，並將 https:// 網址自動轉成可點擊超連結
+    // 換行轉 <br>，並將 https:// 網址轉成超連結
+    // 注意：先做連結替換（用原始字串），再做其餘 esc，避免 & → &amp; 截斷網址
     const nl2br = (s) => {
-      const escaped = esc(s).replace(/\n/g,'<br>');
-      return escaped.replace(/(https?:\/\/[^\s<&]+)/g,
-        '<a href="$1" target="_blank" style="color:var(--coral);word-break:break-all;text-decoration:underline">$1</a>');
+      if (!s) return '';
+      // 1. 先找出所有網址，用佔位符替換
+      const links = [];
+      const withPlaceholders = s.replace(/(https?:\/\/\S+)/g, (url) => {
+        const idx = links.length;
+        // 網址本身只 escape 雙引號，其餘保留
+        const safeUrl = url.replace(/"/g, '&quot;');
+        links.push('<a href="' + safeUrl + '" target="_blank" style="color:var(--coral);word-break:break-all;text-decoration:underline">' + safeUrl + '</a>');
+        return '\x00LINK' + idx + '\x00';
+      });
+      // 2. 對剩餘文字做 esc
+      const escaped = esc(withPlaceholders).replace(/\n/g, '<br>');
+      // 3. 還原連結佔位符
+      return escaped.replace(/\x00LINK(\d+)\x00/g, (_, i) => links[Number(i)]);
     };
 
     const dr=rows.slice(hi+1).filter(r=>g(r,iNm).trim());
@@ -569,8 +596,10 @@ async function loadHotel(){
   }catch(e){c.innerHTML='<div class="shop-empty">讀取住宿失敗：'+e.message+'</div>';}
 }
 
+// ===================== 購物清單（含勾選 + 圖片同步） =====================
 let shopAllItems = [];
-let shopFilter = { day: '全部', store: '全部', person: '全部' };
+let shopBought = {};   // { 'shopRowKey': true/false } 本地快取
+let shopFilter = { day: '全部', store: '全部', person: '全部', view: '未買' };
 
 async function loadShopping() {
   const c = document.getElementById('shopping-container');
@@ -592,27 +621,37 @@ async function loadShopping() {
     const iImg = fc('圖片');
     const iLink = fc('地址連結', '連結', '地圖', '地址');
     const iNote = fc('備註');
+    const iBought = fc('是否買到', '買到', '勾選');  // K欄
 
     shopAllItems = rows.slice(hi + 1)
       .filter(r => r.some(v => v && v.trim()))
-      .map(r => ({
-        day: iDay >= 0 ? (r[iDay] || '').trim() : '',
-        store: iStore >= 0 ? (r[iStore] || '').trim() : '',
-        hours: iHours >= 0 ? (r[iHours] || '').trim() : '',
-        name: iName >= 0 ? (r[iName] || '').trim() : '',
-        price: iPrice >= 0 ? (r[iPrice] || '').trim() : '',
-        person: iPerson >= 0 ? (r[iPerson] || '').trim() : '',
-        img: iImg >= 0 ? (r[iImg] || '').trim() : '',
-        link: iLink >= 0 ? (r[iLink] || '').trim() : '',
-        note: iNote >= 0 ? (r[iNote] || '').trim() : '',
-      }))
+      .map((r, idx) => {
+        const boughtVal = iBought >= 0 ? (r[iBought] || '').toString().trim().toUpperCase() : '';
+        const isBought = boughtVal === 'TRUE' || boughtVal === '1' || boughtVal === '✔';
+        return {
+          rowIndex: hi + 1 + idx,  // 1-based sheet row
+          day: iDay >= 0 ? (r[iDay] || '').trim() : '',
+          store: iStore >= 0 ? (r[iStore] || '').trim() : '',
+          hours: iHours >= 0 ? (r[iHours] || '').trim() : '',
+          name: iName >= 0 ? (r[iName] || '').trim() : '',
+          price: iPrice >= 0 ? (r[iPrice] || '').trim() : '',
+          person: iPerson >= 0 ? (r[iPerson] || '').trim() : '',
+          img: iImg >= 0 ? (r[iImg] || '').trim() : '',
+          link: iLink >= 0 ? (r[iLink] || '').trim() : '',
+          note: iNote >= 0 ? (r[iNote] || '').trim() : '',
+          bought: isBought,
+        };
+      })
       .filter(item => item.name || item.store);
+
+    // 從 sheet 讀到的勾選狀態初始化本地快取
+    shopAllItems.forEach(item => { shopBought[item.rowIndex] = item.bought; });
 
     if (!shopAllItems.length) {
       c.innerHTML = '<div class="shop-empty">尚未填入購物清單 🛍</div>';
       return;
     }
-    shopFilter = { day: '全部', store: '全部', person: '全部' };
+    shopFilter = { day: '全部', store: '全部', person: '全部', view: shopFilter.view || '未買' };
     renderShopFilter(c);
     renderShopItems(c);
   } catch(e) {
@@ -639,9 +678,27 @@ function renderShopFilter(c) {
   };
   const sticky = document.getElementById('shop-filter-sticky');
   if (sticky) {
-    sticky.innerHTML = `<div class="shop-filter-selects">${mkSelect('day', days)}${mkSelect('store', stores)}${mkSelect('person', persons)}</div>`;
+    const viewBtns = ['全部','未買','已買'].map(v =>
+      `<button class="shop-view-tab${shopFilter.view===v?' active':''}" onclick="setShopView('${v}',this)">${v}</button>`
+    ).join('');
+    sticky.innerHTML = `
+      <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;justify-content:space-between">
+        <div class="shop-view-tabs">${viewBtns}</div>
+        <button class="shop-sync-btn" id="shop-sync-btn" onclick="syncShopImages()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          同步圖片
+        </button>
+      </div>
+      <div class="shop-filter-selects">${mkSelect('day', days)}${mkSelect('store', stores)}${mkSelect('person', persons)}</div>`;
   }
   c.innerHTML = '<div class="shop-count" id="shop-count" style="margin-top:12px"></div><div class="shop-grid" id="shop-list"></div>';
+}
+
+function setShopView(v, btn) {
+  shopFilter.view = v;
+  document.querySelectorAll('.shop-view-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderShopItems(document.getElementById('shopping-container'));
 }
 
 function setShopFilterSel(key, sel) {
@@ -650,8 +707,51 @@ function setShopFilterSel(key, sel) {
   renderShopItems(document.getElementById('shopping-container'));
 }
 
+// 勾選／取消勾選，同步 Sheets K欄
+async function toggleBought(rowIndex, el) {
+  const newVal = !shopBought[rowIndex];
+  shopBought[rowIndex] = newVal;
+  // 更新本地 shopAllItems
+  const item = shopAllItems.find(i => i.rowIndex === rowIndex);
+  if (item) item.bought = newVal;
+  // 立即重繪
+  renderShopItems(document.getElementById('shopping-container'));
+  // 非同步同步 Sheets
+  try {
+    await callScript({ action: 'setShopBought', data: encodeURIComponent(JSON.stringify({ token: APP_TOKEN, row: rowIndex, bought: newVal })) });
+  } catch(e) { console.log('同步失敗:', e.message); }
+}
+
+// 同步圖片：呼叫 Apps Script 掃 Drive 資料夾
+async function syncShopImages() {
+  const btn = document.getElementById('shop-sync-btn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 0.8s linear infinite"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 同步中...';
+  try {
+    const res = await callScript({ action: 'syncShopImages', token: APP_TOKEN });
+    if (res.status === 'ok') {
+      btn.innerHTML = '✅ 完成 ' + (res.count || '') + ' 筆';
+      setTimeout(() => loadShopping(), 800);
+    } else {
+      btn.innerHTML = '❌ 失敗';
+      alert('同步失敗：' + (res.error || '未知錯誤'));
+    }
+  } catch(e) {
+    btn.innerHTML = '❌ 失敗';
+    alert('同步失敗：' + e.message);
+  } finally {
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> 同步圖片'; }
+    }, 3000);
+  }
+}
+
 function renderShopItems(c) {
   const filtered = shopAllItems.filter(item => {
+    const bought = shopBought[item.rowIndex] || false;
+    if (shopFilter.view === '未買' && bought) return false;
+    if (shopFilter.view === '已買' && !bought) return false;
     if (shopFilter.day !== '全部' && item.day !== shopFilter.day) return false;
     if (shopFilter.store !== '全部' && item.store !== shopFilter.store) return false;
     if (shopFilter.person !== '全部') {
@@ -661,10 +761,14 @@ function renderShopItems(c) {
     return true;
   });
   const cnt = document.getElementById('shop-count');
-  if (cnt) cnt.textContent = `共 ${filtered.length} 件`;
+  const totalBought = shopAllItems.filter(i => shopBought[i.rowIndex]).length;
+  const totalAll = shopAllItems.length;
+  if (cnt) cnt.textContent = shopFilter.view === '全部'
+    ? `共 ${filtered.length} 件（已買 ${totalBought}/${totalAll}）`
+    : `顯示 ${filtered.length} 件（已買 ${totalBought}/${totalAll}）`;
   const list = document.getElementById('shop-list');
   if (!list) return;
-  if (!filtered.length) { list.innerHTML = '<div class="shop-empty">沒有符合的品項</div>'; return; }
+  if (!filtered.length) { list.innerHTML = `<div class="shop-empty">${shopFilter.view === '已買' ? '還沒有已購買的商品 🛒' : '沒有符合的品項'}</div>`; return; }
   const groups = {};
   filtered.forEach(item => { const key = item.day || '未指定'; if (!groups[key]) groups[key] = []; groups[key].push(item); });
   const dayLabel = d => d && /^\d+$/.test(d) ? `Day ${d}` : d;
@@ -674,11 +778,35 @@ function renderShopItems(c) {
     const dayItems = groups[day];
     html += `<div style="margin-bottom:6px">`;
     if (shopFilter.day === '全部') { html += `<div style="font-size:12px;font-weight:700;color:var(--coral);padding:8px 4px 4px;letter-spacing:0.05em">${esc(dayLabel(day))}</div>`; }
-    dayItems.forEach((item, i) => {
-      const uid = `shop_${day}_${i}`;
+    dayItems.forEach((item) => {
+      const uid = `shop_${item.rowIndex}`;
       const imgSrc = item.img ? convertDriveUrl(item.img) : '';
-      const mu = item.link.startsWith('http') ? item.link : item.store ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store) : '';
-      html += `<div class="shop-item" style="margin-bottom:8px"><div class="shop-title" onclick="toggleShop('${uid}')"><div class="shop-title-left"><div style="min-width:0;flex:1"><div class="shop-name">${esc(item.name)}</div><div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;align-items:center">${item.store?`<span style="font-size:11px;color:var(--muted);background:var(--back);padding:2px 8px;border-radius:8px">🏪 ${esc(item.store)}</span>`:''}${item.price?`<span style="font-size:11px;color:var(--coral);font-weight:600;background:var(--back);padding:2px 8px;border-radius:8px">${esc(item.price)}</span>`:''}${item.person?`<span style="font-size:11px;color:var(--sepia);background:var(--accent-soft);padding:2px 8px;border-radius:8px">${esc(item.person)}</span>`:''}</div></div></div><span class="shop-arrow" id="shop-arrow-${uid}">▼</span></div><div class="shop-detail" id="shop-detail-${uid}">${imgSrc?`<img src="${imgSrc}" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">`:''}<div class="shop-meta" style="margin-top:10px">${item.hours?`<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>`:''}${item.note?`<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>`:''}</div>${mu?`<button class="shop-map-btn" style="margin-top:10px" onclick="openMap('${mu}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>`:''}</div></div>`;
+      const mu = item.link && item.link.startsWith('http') ? item.link : item.store ? 'https://maps.google.com/?q=' + encodeURIComponent(item.store) : '';
+      const isBought = shopBought[item.rowIndex] || false;
+      html += `
+        <div class="shop-item${isBought?' bought':''}" style="margin-bottom:8px" id="shopcard-${item.rowIndex}">
+          <div style="display:flex;align-items:center;gap:0;padding:14px 16px 0">
+            <div class="shop-checkbox${isBought?' checked':''}" onclick="toggleBought(${item.rowIndex},this)" title="標記已買"></div>
+            <div style="flex:1;min-width:0;padding-left:10px">
+              <div class="shop-name" style="${isBought?'text-decoration:line-through;color:var(--muted)':''}">${esc(item.name)}</div>
+              <div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;align-items:center">
+                ${item.store?`<span style="font-size:11px;color:var(--muted);background:var(--back);padding:2px 8px;border-radius:8px">🏪 ${esc(item.store)}</span>`:''}
+                ${item.price?`<span style="font-size:11px;color:var(--coral);font-weight:600;background:var(--back);padding:2px 8px;border-radius:8px">${esc(item.price)}</span>`:''}
+                ${item.person?`<span style="font-size:11px;color:var(--sepia);background:var(--accent-soft);padding:2px 8px;border-radius:8px">${esc(item.person)}</span>`:''}
+                ${isBought?'<span class="shop-bought-badge">✓ 已買</span>':''}
+              </div>
+            </div>
+            <span class="shop-arrow" id="shop-arrow-${uid}" style="margin-left:8px" onclick="toggleShop('${uid}');event.stopPropagation()">▼</span>
+          </div>
+          <div class="shop-detail" id="shop-detail-${uid}" style="padding:0 16px 14px">
+            ${imgSrc?`<img src="${imgSrc}" style="width:100%;max-height:260px;object-fit:cover;border-radius:8px;margin:12px 0 8px;display:block" onerror="this.remove()">`:'' }
+            <div class="shop-meta" style="margin-top:10px">
+              ${item.hours?`<div class="shop-meta-row"><span class="shop-meta-label">🕐 營業</span><span class="shop-meta-value">${esc(item.hours)}</span></div>`:''}
+              ${item.note?`<div class="shop-meta-row"><span class="shop-meta-label">📝 備註</span><span class="shop-meta-value">${esc(item.note)}</span></div>`:''}
+            </div>
+            ${mu?`<button class="shop-map-btn" style="margin-top:10px" onclick="openMap('${mu}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px;flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> 在地圖查看</button>`:''}
+          </div>
+        </div>`;
     });
     html += '</div>';
   });

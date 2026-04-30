@@ -55,9 +55,9 @@ opacity:0 !important;
 pointer-events:none !important;
 }
 
-.day-tab-hero{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;padding:9px 8px;border-radius:10px;border:none;cursor:pointer;background:rgba(52,17,3,0.07);color:var(–muted);font-family:‘Noto Sans TC’,sans-serif;transition:all 0.2s;}
-.day-tab-hero.active{background:var(–sepia);color:#fff;}
-.day-tab-hero:not(.active):hover{background:rgba(52,17,3,0.13);color:var(–sepia);}
+.day-tab-hero{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;padding:9px 8px;border-radius:10px;border:none;cursor:pointer;background:rgba(52,17,3,0.07);color:var(–muted);-webkit-text-fill-color:var(–muted);font-family:‘Noto Sans TC’,sans-serif;transition:all 0.2s;-webkit-appearance:none;appearance:none;}
+.day-tab-hero.active{background:var(–sepia);color:#fff;-webkit-text-fill-color:#fff;}
+.day-tab-hero:not(.active):hover{background:rgba(52,17,3,0.13);color:var(–sepia);-webkit-text-fill-color:var(–sepia);}
 .dth-date{font-size:11px;margin-bottom:3px;font-weight:500;letter-spacing:0.02em;}
 .dth-label{font-size:20px;font-weight:700;font-family:‘Noto Serif TC’,serif;line-height:1.1;}
 
@@ -79,7 +79,7 @@ pointer-events:none !important;
 .fab-menu.open .fab-item:nth-child(5){transition-delay:160ms;}
 .fab-menu.open .fab-item:nth-child(6){transition-delay:200ms;}
 .fab-label{background:var(–sepia);color:#fff;font-size:12px;font-weight:500;padding:5px 13px;border-radius:20px;white-space:nowrap;box-shadow:0 2px 8px rgba(52,17,3,0.2);letter-spacing:0.03em;}
-.fab-icon{width:44px;height:44px;border-radius:50%;background:var(–surface);border:1.5px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(52,17,3,0.1);transition:all 0.15s;flex-shrink:0;color:var(–sepia);}
+.fab-icon{width:44px;height:44px;border-radius:50%;background:var(–surface);border:1.5px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(52,17,3,0.1);transition:all 0.15s;flex-shrink:0;color:var(–sepia);-webkit-text-fill-color:var(–sepia);}
 .fab-icon svg{display:block;}
 .fab-item:hover .fab-icon{background:var(–accent-soft);border-color:var(–coral);color:var(–coral);}
 .fab-item.active .fab-icon{background:var(–sepia);border-color:var(–sepia);color:#fff;}

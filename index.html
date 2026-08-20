@@ -203,6 +203,21 @@ form.f{display:grid;gap:10px;padding:14px}
 .cl-item .txt{font-size:14px;font-weight:600;line-height:1.5}
 .cl-item .who{font-size:11.5px;color:var(--ink3);margin-top:2px}
 
+/* 通行碼鎖定畫面 */
+#lock{position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;
+  padding:24px;background:linear-gradient(160deg,var(--brand) 0%,var(--brand-d) 100%)}
+#lock.on{display:flex}
+#lock .box{background:#fff;border-radius:20px;padding:30px 24px 24px;width:100%;max-width:340px;
+  text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+#lock .ico{font-size:38px;line-height:1}
+#lock h2{margin:10px 0 2px;font-size:19px;font-weight:900}
+#lock p{margin:0 0 18px;font-size:13px;color:var(--ink3)}
+#lock input{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:13px 14px;
+  font-size:17px;font-family:inherit;text-align:center;letter-spacing:2px;margin-bottom:10px}
+#lock input:focus{outline:0;border-color:var(--brand)}
+#lock .btn{width:100%}
+#lock .msg{margin-top:12px;font-size:13px;font-weight:700;color:var(--brand-d);min-height:19px}
+
 /* 圖片放大 */
 #lb{position:fixed;inset:0;background:rgba(20,18,17,.92);z-index:200;display:none;
   align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
@@ -340,6 +355,15 @@ form.f{display:grid;gap:10px;padding:14px}
 </main>
 
 <div style="height:40px"></div>
+<div id="lock"><div class="box">
+  <div class="ico">🔒</div>
+  <h2 id="lock-title">名古屋 5天4夜</h2>
+  <p>請輸入通行碼</p>
+  <input id="lock-in" type="password" autocomplete="current-password" placeholder="通行碼">
+  <button class="btn" id="lock-go">進入</button>
+  <div class="msg" id="lock-msg"></div>
+</div></div>
+
 <div id="lb"><button class="x" aria-label="關閉">&times;</button><img alt=""><div class="cap"></div></div>
 <div id="toast"></div>
 
@@ -422,6 +446,51 @@ const WD=['日','一','二','三','四','五','六'];
 const fmtMD = d => d ? `${d.getMonth()+1}/${d.getDate()}` : '';
 const fmtWD = d => d ? '週'+WD[d.getDay()] : '';
 
+/* ─────────────── 通行碼 ───────────────
+   通行碼本身「不在這個檔案裡」，只存在 Code.gs。
+   使用者輸入後算成 SHA-256 存在瀏覽器，之後不用再輸。
+   網址加 ?logout=1 可以清掉重輸。                        */
+const AUTH_KEY='nagoya-trip-auth';
+let AUTH = '';
+try{
+  if(location.search.indexOf('logout')>=0) localStorage.removeItem(AUTH_KEY);
+  AUTH = localStorage.getItem(AUTH_KEY) || '';
+}catch(e){}
+
+async function sha256hex(txt){
+  try{
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  }catch(e){ return txt; }        // 極舊瀏覽器／非安全環境 → 退回原文，後端也接受
+}
+function showLock(msg){
+  $('#lock').classList.add('on');
+  $('#lock-msg').textContent = msg||'';
+  setTimeout(()=>$('#lock-in').focus(),100);
+}
+async function tryUnlock(){
+  const v = $('#lock-in').value.trim();
+  if(!v) return;
+  const btn=$('#lock-go'); btn.disabled=true; btn.textContent='驗證中…';
+  $('#lock-msg').textContent='';
+  try{
+    AUTH = await sha256hex(v);
+    await callGAS('ping',{});                       // 後端驗，通過才存
+    try{ localStorage.setItem(AUTH_KEY, AUTH); }catch(e){}
+    location.href = location.pathname;              // 重新載入，狀態最乾淨
+  }catch(err){
+    AUTH='';
+    $('#lock-msg').textContent =
+      err.message==='AUTH_LOCKED' ? '錯太多次了，請 10 分鐘後再試'
+      : /AUTH/.test(err.message)  ? '通行碼不對'
+      : err.message;
+    btn.disabled=false; btn.textContent='進入';
+    $('#lock-in').select();
+  }
+}
+$('#lock-go').onclick = tryUnlock;
+$('#lock-in').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
+
 /* ─────────────── 寫回 Sheet (JSONP) ─────────────── */
 /* 把使用者可能貼錯的幾種寫法自動修正成完整網址 */
 function normGas(u){
@@ -444,6 +513,7 @@ function callGAS(action,payload){
     window[cb]=r=>{cleanup(); r&&r.ok?resolve(r.data):reject(new Error((r&&r.error)||'未知錯誤'));};
     s.onerror=()=>{cleanup();reject(new Error('無法連線到 Apps Script'));};
     s.src=GAS+'?callback='+cb+'&token='+encodeURIComponent(TOKEN)
+        +'&auth='+encodeURIComponent(AUTH||'')
         +'&action='+encodeURIComponent(action)
         +'&payload='+encodeURIComponent(JSON.stringify(payload));
     document.body.appendChild(s);
@@ -564,10 +634,15 @@ function applyTheme(){
     cfg.forEach(r=>CFG[r['項目']]=r['值']);
     if(!Object.keys(CFG).length) throw new Error('「設定」分頁是空的');
   }catch(e){
+    if(/^AUTH/.test(GAS_ERR||'') || /^AUTH/.test(e.message||'')){
+      showLock(GAS_ERR==='AUTH_LOCKED' ? '錯太多次了，請 10 分鐘後再試' : '');
+      return;
+    }
     $('#boot').innerHTML = errBox(e);
     return;
   }
   // 讀得到資料但 Apps Script 連不上（走 CSV 備援）→ 還是要提醒，不然按打勾會一直失敗
+  if(/^AUTH/.test(GAS_ERR||'')){ showLock(); return; }
   if(GAS_ERR) $('#boot').innerHTML = gasHelp();
 
   MEMBERS = (CFG['成員']||'').split(',').map(s=>s.trim()).filter(Boolean);
